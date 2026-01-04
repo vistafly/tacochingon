@@ -1,0 +1,97 @@
+{
+  "common": {
+    "orderNow": "Ordenar Ahora",
+    "viewMenu": "Ver Menu",
+    "addToCart": "Agregar al Carrito",
+    "soldOut": "Agotado",
+    "openNow": "Abierto",
+    "closed": "Cerrado",
+    "language": "Idioma"
+  },
+  "nav": {
+    "home": "Inicio",
+    "menu": "Menu",
+    "location": "Ubicacion",
+    "cart": "Carrito"
+  },
+  "home": {
+    "heroTitle": "Tacos Callejeros Autenticos",
+    "heroSubtitle": "Tortillas hechas a mano, ingredientes frescos, sabores intensos",
+    "featuredTitle": "Destacados",
+    "aboutTitle": "Nuestra Historia",
+    "aboutText": "El Taco Chingon trae autentica comida callejera mexicana a Fresno. Cada taco esta hecho con amor, con tortillas hechas a mano y los ingredientes mas frescos. De nuestra familia a la tuya, servimos los sabores autenticos de Mexico.",
+    "locationTitle": "Encuentranos"
+  },
+  "menu": {
+    "pageTitle": "Nuestro Menu",
+    "allCategories": "Todos",
+    "filterBy": "Filtrar por categoria"
+  },
+  "cart": {
+    "title": "Tu Carrito",
+    "empty": "Tu carrito esta vacio",
+    "emptyMessage": "Agrega unos deliciosos tacos para comenzar!",
+    "subtotal": "Subtotal",
+    "tax": "Impuesto",
+    "total": "Total",
+    "checkout": "Proceder al Pago",
+    "remove": "Eliminar",
+    "quantity": "Cantidad",
+    "continueShopping": "Seguir Comprando"
+  },
+  "checkout": {
+    "title": "Pago",
+    "customerInfo": "Informacion del Cliente",
+    "name": "Nombre",
+    "phone": "Telefono",
+    "email": "Correo Electronico",
+    "specialInstructions": "Instrucciones Especiales",
+    "pickupTime": "Tiempo Estimado de Recogida",
+    "minutes": "minutos",
+    "pay": "Pagar Ahora",
+    "processing": "Procesando..."
+  },
+  "order": {
+    "confirmation": "Orden Confirmada!",
+    "orderNumber": "Numero de Orden",
+    "status": "Estado",
+    "pending": "Pendiente",
+    "preparing": "Preparando",
+    "ready": "Listo para Recoger",
+    "completed": "Completado"
+  },
+  "location": {
+    "title": "Ubicacion y Horarios",
+    "address": "Direccion",
+    "phone": "Telefono",
+    "hours": "Horario",
+    "getDirections": "Obtener Direcciones",
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miercoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sabado",
+    "sunday": "Domingo",
+    "closedDay": "Cerrado"
+  },
+  "footer": {
+    "copyright": "El Taco Chingon. Todos los derechos reservados.",
+    "tagline": "Autentica Comida Callejera Mexicana"
+  },
+  "categories": {
+    "tacos": "Tacos",
+    "taco-chingon": "Taco Chingon",
+    "tacos-handmade": "Tacos a Mano",
+    "quesadillas": "Quesadillas",
+    "burritos": "Burritos",
+    "tortas": "Tortas",
+    "huaraches": "Huaraches",
+    "sopes": "Sopes",
+    "fries": "Papas Cargadas",
+    "tostitacos": "Tostitacos",
+    "mulitas": "Mulitas",
+    "drinks": "Bebidas",
+    "extras": "Extras"
+  }
+}

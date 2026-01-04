@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect fill="#F5F5F5" width="400" height="300"/>
+  <rect fill="#1B5E20" opacity="0.05" width="400" height="300"/>
+  <rect x="175" y="90" width="50" height="80" rx="5" fill="#1B5E20" opacity="0.2"/>
+  <text x="200" y="140" text-anchor="middle" font-family="Georgia, serif" font-size="24" fill="#1B5E20" opacity="0.6">Drink</text>
+  <text x="200" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6B7280">Placeholder Image</text>
+  <text x="200" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#9CA3AF">Replace with real photo</text>
+</svg>

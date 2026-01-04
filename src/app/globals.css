@@ -1,0 +1,496 @@
+/* Google Fonts - loaded via link tag in layout for better performance */
+@import "tailwindcss";
+
+/* ============================================
+   EL TACO CHINGON - FRESNO STREET TACO TRUCK
+   Real street food. No fancy BS.
+   ============================================ */
+
+@theme inline {
+  /* ===== STREET TACO TRUCK COLORS =====
+     Bold, high-contrast colors like a real taco truck */
+
+  /* Fire Red - Like the flames on a trompo */
+  --color-rojo: #E31C25;
+  --color-rojo-dark: #B91520;
+
+  /* Salsa Verde */
+  --color-verde: #2D8C3C;
+  --color-verde-dark: #1E6B2A;
+
+  /* Queso Yellow */
+  --color-amarillo: #FFD700;
+  --color-amarillo-dark: #E5C100;
+
+  /* Night/Truck Black */
+  --color-negro: #1A1A1A;
+  --color-negro-light: #2D2D2D;
+
+  /* Street White */
+  --color-blanco: #FFFFFF;
+  --color-crema: #FFF8E7;
+
+  /* Warm Orange - like salsa roja */
+  --color-naranja: #FF6B35;
+
+  /* Font Families - Bold and readable */
+  --font-display: 'Bebas Neue', 'Impact', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-accent: 'Permanent Marker', cursive;
+}
+
+:root {
+  --background: #1A1A1A;
+  --foreground: #FFFFFF;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.font-display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-accent {
+  font-family: var(--font-accent);
+}
+
+/* ===== STREET STYLE BACKGROUNDS ===== */
+
+/* Chalkboard texture */
+.bg-chalkboard {
+  background: #1A1A1A;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%);
+}
+
+/* Metal truck panel */
+.bg-truck {
+  background: linear-gradient(180deg, #2D2D2D 0%, #1A1A1A 100%);
+}
+
+/* Warm light glow - like truck lights at night */
+.bg-glow {
+  background: radial-gradient(ellipse at center, rgba(255,107,53,0.15) 0%, transparent 70%);
+}
+
+/* Mexican flag stripe */
+.stripe-mexican {
+  background: linear-gradient(90deg,
+    #2D8C3C 0%, #2D8C3C 33%,
+    #FFFFFF 33%, #FFFFFF 66%,
+    #E31C25 66%, #E31C25 100%
+  );
+}
+
+/* ===== BUTTONS - BOLD AND PUNCHY ===== */
+
+.btn-order {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.125rem;
+  padding: 16px 40px;
+  background: #E31C25;
+  color: #FFFFFF;
+  border: 3px solid #FFD700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s ease;
+  box-shadow: 4px 4px 0 #FFD700;
+}
+
+.btn-order:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #FFD700;
+}
+
+.btn-order:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #FFD700;
+}
+
+.btn-secondary {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 14px 32px;
+  background: transparent;
+  color: #FFFFFF;
+  border: 3px solid #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: #FFFFFF;
+  color: #1A1A1A;
+}
+
+.btn-verde {
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 14px 32px;
+  background: #2D8C3C;
+  color: #FFFFFF;
+  border: 3px solid #FFD700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s ease;
+  box-shadow: 4px 4px 0 #1A1A1A;
+}
+
+.btn-verde:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #1A1A1A;
+}
+
+/* Legacy button support */
+.btn-cta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 16px 40px;
+  background: #E31C25;
+  color: #FFFFFF;
+  border: 3px solid #FFD700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s ease;
+  box-shadow: 4px 4px 0 #FFD700;
+}
+
+.btn-cta:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #FFD700;
+}
+
+.btn-oro, .btn-gold {
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 14px 32px;
+  background: #FFD700;
+  color: #1A1A1A;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s ease;
+}
+
+.btn-oro:hover, .btn-gold:hover {
+  background: #E5C100;
+  transform: translateY(-2px);
+}
+
+.btn-tierra, .btn-jade, .btn-terracota, .btn-primary {
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 14px 32px;
+  background: #2D8C3C;
+  color: #FFFFFF;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s ease;
+}
+
+.btn-tierra:hover, .btn-jade:hover, .btn-terracota:hover, .btn-primary:hover {
+  background: #1E6B2A;
+  transform: translateY(-2px);
+}
+
+/* ===== MENU CARDS - STREET STYLE ===== */
+
+.menu-card {
+  background: #2D2D2D;
+  border: 2px solid #3D3D3D;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.menu-card:hover {
+  border-color: #FFD700;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+}
+
+/* Featured card style */
+.card-featured {
+  position: relative;
+}
+
+.card-featured::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2D8C3C, #FFD700, #E31C25);
+}
+
+.card-artesanal {
+  background: #2D2D2D;
+  border: 2px solid #3D3D3D;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-artesanal:hover {
+  border-color: #FFD700;
+}
+
+.card-obsidiana {
+  background: #1A1A1A;
+  border: 1px solid #3D3D3D;
+  border-radius: 8px;
+}
+
+/* ===== TEXT STYLES ===== */
+
+.text-rojo { color: #E31C25; }
+.text-verde { color: #2D8C3C; }
+.text-amarillo { color: #FFD700; }
+.text-naranja { color: #FF6B35; }
+
+/* Gradient text */
+.text-gradient-fire {
+  background: linear-gradient(90deg, #FFD700, #FF6B35, #E31C25);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-mexico {
+  background: linear-gradient(90deg, #2D8C3C, #FFFFFF, #E31C25);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Text shadow for readability */
+.text-shadow-hard {
+  text-shadow: 3px 3px 0 #1A1A1A;
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Legacy text classes */
+.text-gradient-oro {
+  background: linear-gradient(90deg, #FFD700, #FF6B35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-oro { color: #FFD700; }
+.text-tierra { color: #FFF8E7; }
+.text-shadow-tierra { text-shadow: 2px 2px 0 #1A1A1A; }
+
+/* ===== BACKGROUNDS ===== */
+
+.bg-pergamino, .bg-light { background-color: #FFF8E7; }
+.bg-crema { background-color: #FFF8E7; }
+.bg-arena { background-color: #E8D4B8; }
+.bg-obsidiana, .bg-dark { background-color: #1A1A1A; }
+.bg-cream { background-color: #FFF8E7; }
+.bg-hueso { background-color: #FFFFFF; }
+
+/* ===== GRADIENTS ===== */
+
+.gradient-tierra {
+  background: linear-gradient(180deg, #1A1A1A 0%, #2D2D2D 100%);
+}
+
+.gradient-herencia {
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 50%, #3D3D3D 100%);
+}
+
+.gradient-serape {
+  background: linear-gradient(90deg, #2D8C3C, #FFD700, #E31C25);
+}
+
+.gradient-mexican {
+  background: linear-gradient(180deg, #2D2D2D 0%, #1A1A1A 100%);
+}
+
+/* ===== DECORATIVE ELEMENTS ===== */
+
+/* Simple stripe patterns */
+.stripe-top {
+  position: relative;
+}
+
+.stripe-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2D8C3C, #FFD700, #E31C25);
+}
+
+/* Neon-style glow effect */
+.glow-yellow {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.glow-red {
+  box-shadow: 0 0 20px rgba(227, 28, 37, 0.4);
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-pulse-warm {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Reveal animation for scroll */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== SHADOWS ===== */
+
+.shadow-warm {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-warm-lg {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.shadow-oro {
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+}
+
+/* ===== UTILITY ===== */
+
+/* Hide patterns - we don't need fancy patterns */
+.aztec-diamond,
+.aztec-pattern,
+.aztec-steps,
+.huichol-pattern,
+.bordado-pattern,
+.pluma-pattern,
+.tejido-pattern,
+.serape-pattern {
+  display: none;
+}
+
+/* ===== SCROLLBAR ===== */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1A1A1A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3D3D3D;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD700;
+}
+
+/* ===== SELECTION ===== */
+
+::selection {
+  background: rgba(255, 215, 0, 0.3);
+  color: #FFFFFF;
+}
+
+/* ===== FOCUS STYLES ===== */
+
+*:focus-visible {
+  outline: 2px solid #FFD700;
+  outline-offset: 2px;
+}
+
+/* ===== PRICE TAG STYLE ===== */
+
+.price-tag {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: #FFD700;
+  text-shadow: 2px 2px 0 #1A1A1A;
+}
+
+/* ===== BADGE STYLES ===== */
+
+.badge-featured {
+  background: #FFD700;
+  color: #1A1A1A;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.badge-spicy {
+  background: #E31C25;
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* ===== DIVIDERS ===== */
+
+.divider-mexican {
+  height: 4px;
+  background: linear-gradient(90deg, #2D8C3C, #FFD700, #E31C25);
+}
+
+.divider-aztec, .divider-simple {
+  height: 2px;
+  background: #3D3D3D;
+}

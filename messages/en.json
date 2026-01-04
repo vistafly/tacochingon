@@ -1,0 +1,97 @@
+{
+  "common": {
+    "orderNow": "Order Now",
+    "viewMenu": "View Menu",
+    "addToCart": "Add to Cart",
+    "soldOut": "Sold Out",
+    "openNow": "Open Now",
+    "closed": "Closed",
+    "language": "Language"
+  },
+  "nav": {
+    "home": "Home",
+    "menu": "Menu",
+    "location": "Location",
+    "cart": "Cart"
+  },
+  "home": {
+    "heroTitle": "Authentic Street Tacos",
+    "heroSubtitle": "Hand-made tortillas, fresh ingredients, bold flavors",
+    "featuredTitle": "Featured Items",
+    "aboutTitle": "Our Story",
+    "aboutText": "El Taco Chingon brings authentic Mexican street food to Fresno. Every taco is made with love, featuring hand-made tortillas and the freshest ingredients. From our family to yours, we serve up the bold, genuine flavors of Mexico.",
+    "locationTitle": "Find Us"
+  },
+  "menu": {
+    "pageTitle": "Our Menu",
+    "allCategories": "All",
+    "filterBy": "Filter by category"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "emptyMessage": "Add some delicious tacos to get started!",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove",
+    "quantity": "Quantity",
+    "continueShopping": "Continue Shopping"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "customerInfo": "Customer Information",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "specialInstructions": "Special Instructions",
+    "pickupTime": "Estimated Pickup",
+    "minutes": "minutes",
+    "pay": "Pay Now",
+    "processing": "Processing..."
+  },
+  "order": {
+    "confirmation": "Order Confirmed!",
+    "orderNumber": "Order Number",
+    "status": "Status",
+    "pending": "Pending",
+    "preparing": "Preparing",
+    "ready": "Ready for Pickup",
+    "completed": "Completed"
+  },
+  "location": {
+    "title": "Location & Hours",
+    "address": "Address",
+    "phone": "Phone",
+    "hours": "Hours",
+    "getDirections": "Get Directions",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "closedDay": "Closed"
+  },
+  "footer": {
+    "copyright": "El Taco Chingon. All rights reserved.",
+    "tagline": "Authentic Mexican Street Food"
+  },
+  "categories": {
+    "tacos": "Tacos",
+    "taco-chingon": "Taco Chingon",
+    "tacos-handmade": "Handmade Tacos",
+    "quesadillas": "Quesadillas",
+    "burritos": "Burritos",
+    "tortas": "Tortas",
+    "huaraches": "Huaraches",
+    "sopes": "Sopes",
+    "fries": "Loaded Fries",
+    "tostitacos": "Tostitacos",
+    "mulitas": "Mulitas",
+    "drinks": "Drinks",
+    "extras": "Extras"
+  }
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect fill="#F5F5F5" width="400" height="300"/>
+  <rect fill="#C9A227" opacity="0.1" width="400" height="300"/>
+  <path d="M120 130 L280 130 L200 180 Z" fill="#C9A227" opacity="0.3"/>
+  <text x="200" y="145" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#1B5E20" opacity="0.6">Quesadilla</text>
+  <text x="200" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6B7280">Placeholder Image</text>
+  <text x="200" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#9CA3AF">Replace with real photo</text>
+</svg>
