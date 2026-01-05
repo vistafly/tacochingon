@@ -34,31 +34,28 @@ export default function CheckoutPage() {
   const total = getTotal();
 
   // Check if store is currently open
-  // TODO: Remove `true ||` after testing - this bypasses hours check
   const isStoreOpen = useMemo(() => {
-    return true || (() => {
-      const now = new Date();
-      const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof mockSettings.hours;
-      const todayHours = mockSettings.hours[dayOfWeek];
+    const now = new Date();
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof mockSettings.hours;
+    const todayHours = mockSettings.hours[dayOfWeek];
 
-      if (!todayHours) {
-        return false;
-      }
+    if (!todayHours) {
+      return false;
+    }
 
-      const [openHour, openMin] = todayHours.open.split(':').map(Number);
-      const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
+    const [openHour, openMin] = todayHours.open.split(':').map(Number);
+    const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
 
-      const openTime = new Date(now);
-      openTime.setHours(openHour, openMin, 0, 0);
+    const openTime = new Date(now);
+    openTime.setHours(openHour, openMin, 0, 0);
 
-      const closeTime = new Date(now);
-      closeTime.setHours(closeHour, closeMin, 0, 0);
+    const closeTime = new Date(now);
+    closeTime.setHours(closeHour, closeMin, 0, 0);
 
-      // Check if within prep time of closing
-      const minPickupTime = new Date(now.getTime() + mockSettings.prepTime * 60 * 1000);
+    // Check if within prep time of closing
+    const minPickupTime = new Date(now.getTime() + mockSettings.prepTime * 60 * 1000);
 
-      return now >= openTime && minPickupTime < closeTime;
-    })();
+    return now >= openTime && minPickupTime < closeTime;
   }, []);
 
   const handleOrderNotesChange = (value: string) => {
