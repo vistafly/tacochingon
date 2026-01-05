@@ -3,10 +3,21 @@
     "orderNow": "Order Now",
     "viewMenu": "View Menu",
     "addToCart": "Add to Cart",
+    "addMore": "Add More",
     "soldOut": "Sold Out",
     "openNow": "Open Now",
     "closed": "Closed",
-    "language": "Language"
+    "language": "Language",
+    "featured": "Featured",
+    "order": "Order",
+    "desde": "From"
+  },
+  "customization": {
+    "removeIngredients": "Remove Ingredients",
+    "addExtras": "Add Extras",
+    "noCustomizations": "No customization options available for this item.",
+    "total": "Total",
+    "extras": "extras"
   },
   "nav": {
     "home": "Home",
@@ -17,15 +28,32 @@
   "home": {
     "heroTitle": "Authentic Street Tacos",
     "heroSubtitle": "Hand-made tortillas, fresh ingredients, bold flavors",
+    "heroTagline": "Real street tacos. No BS.",
     "featuredTitle": "Featured Items",
+    "customerFavorites": "Customer Favorites",
     "aboutTitle": "Our Story",
     "aboutText": "El Taco Chingon brings authentic Mexican street food to Fresno. Every taco is made with love, featuring hand-made tortillas and the freshest ingredients. From our family to yours, we serve up the bold, genuine flavors of Mexico.",
-    "locationTitle": "Find Us"
+    "ourStory": "Our Story",
+    "madeFreshDaily": "Made Fresh Daily",
+    "familyRecipes": "Family Recipes",
+    "established": "EST. 2024",
+    "locationTitle": "Find Us",
+    "reviews": "Reviews",
+    "whatPeopleSay": "What People Say",
+    "basedOnReviews": "Based on {count}+ reviews",
+    "readReviewsYelp": "Read Reviews on Yelp",
+    "reviewOnGoogle": "Review on Google Maps",
+    "readyToEat": "Ready to Eat?",
+    "ctaTagline": "Real street tacos. Real flavor. No BS."
   },
   "menu": {
     "pageTitle": "Our Menu",
     "allCategories": "All",
-    "filterBy": "Filter by category"
+    "filterBy": "Filter by category",
+    "fresnosBestTacos": "Fresno's Best Tacos",
+    "menuDescription": "From classic street tacos to our signature Taco Chingon, every dish is made fresh with authentic flavors.",
+    "orderForDelivery": "Order For Delivery or Pickup",
+    "orderDescription": "Add items to your cart below, or order through your favorite delivery app"
   },
   "cart": {
     "title": "Your Cart",
@@ -36,20 +64,36 @@
     "total": "Total",
     "checkout": "Proceed to Checkout",
     "remove": "Remove",
+    "addBack": "Add back to cart",
     "quantity": "Quantity",
-    "continueShopping": "Continue Shopping"
+    "continueShopping": "Continue Shopping",
+    "orderSummary": "Order Summary",
+    "checkoutComingSoon": "Checkout coming soon! Payment integration in progress.",
+    "orderThroughApps": "Or order through delivery apps:",
+    "inCart": "In Cart",
+    "addNotes": "Add special instructions",
+    "editNotes": "Edit instructions",
+    "hideNotes": "Hide instructions",
+    "notesPlaceholder": "e.g., no onions, extra spicy...",
+    "notesHint": "Special instructions for this item",
+    "editCustomizations": "Edit customizations"
   },
   "checkout": {
     "title": "Checkout",
+    "backToCart": "Back to Cart",
+    "orderItems": "Order Items",
     "customerInfo": "Customer Information",
     "name": "Name",
     "phone": "Phone",
     "email": "Email",
-    "specialInstructions": "Special Instructions",
+    "specialInstructions": "Special Instructions for Order",
+    "orderNotesPlaceholder": "Any special requests for your entire order...",
+    "orderNotesHint": "These instructions apply to your whole order (e.g., allergies, pickup time preferences)",
     "pickupTime": "Estimated Pickup",
     "minutes": "minutes",
     "pay": "Pay Now",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "paymentComingSoon": "Online payment coming soon! For now, please order through DoorDash or Uber Eats."
   },
   "order": {
     "confirmation": "Order Confirmed!",
@@ -64,8 +108,12 @@
     "title": "Location & Hours",
     "address": "Address",
     "phone": "Phone",
+    "email": "Email",
     "hours": "Hours",
     "getDirections": "Get Directions",
+    "findUs": "Find Us",
+    "locationDescription": "Visit us for authentic Mexican street food in Fresno. We're open Tuesday through Sunday evenings.",
+    "callUs": "Call Us",
     "monday": "Monday",
     "tuesday": "Tuesday",
     "wednesday": "Wednesday",
@@ -77,7 +125,8 @@
   },
   "footer": {
     "copyright": "El Taco Chingon. All rights reserved.",
-    "tagline": "Authentic Mexican Street Food"
+    "tagline": "Authentic Mexican Street Food",
+    "orderOnline": "Order Online"
   },
   "categories": {
     "tacos": "Tacos",

@@ -393,6 +393,17 @@ html {
   transform: translateY(0);
 }
 
+/* ===== LOADING SCREEN ===== */
+
+@keyframes logo-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+  50% { box-shadow: 0 0 60px rgba(255, 215, 0, 0.8); }
+}
+
+.animate-logo-glow {
+  animation: logo-glow 2s ease-in-out infinite;
+}
+
 /* ===== SHADOWS ===== */
 
 .shadow-warm {
@@ -454,6 +465,20 @@ html {
   outline-offset: 2px;
 }
 
+/* ===== CURSOR STYLES ===== */
+
+/* Apply pointer cursor to all interactive elements */
+button:not(:disabled),
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+select,
+summary {
+  cursor: pointer;
+}
+
 /* ===== PRICE TAG STYLE ===== */
 
 .price-tag {
@@ -493,4 +518,27 @@ html {
 .divider-aztec, .divider-simple {
   height: 2px;
   background: #3D3D3D;
+}
+
+/* ===== MENU CAROUSEL ===== */
+
+.carousel-scroll {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.carousel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+.carousel-item-center {
+  scroll-snap-align: center;
+  flex-shrink: 0;
 }

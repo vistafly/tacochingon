@@ -27,33 +27,41 @@ export function HeroSection() {
     if (isAnimating || !slideRef.current) return;
     setIsAnimating(true);
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        setIsAnimating(false);
-        if (direction === 'jump' && targetIndex !== undefined) {
-          setCurrentIndex(targetIndex);
-        } else if (direction === 'next') {
-          setCurrentIndex((prev) => (prev + 1) % featuredItems.length);
-        } else {
-          setCurrentIndex((prev) => (prev - 1 + featuredItems.length) % featuredItems.length);
-        }
-      },
-    });
+    // Calculate the new index immediately
+    const newIndex = direction === 'jump' && targetIndex !== undefined
+      ? targetIndex
+      : direction === 'next'
+        ? (currentIndex + 1) % featuredItems.length
+        : (currentIndex - 1 + featuredItems.length) % featuredItems.length;
 
-    tl.to(slideRef.current, {
+    // Fade out current content
+    gsap.to(slideRef.current, {
       opacity: 0,
       scale: 0.95,
-      duration: 0.4,
+      duration: 0.25,
       ease: 'power2.in',
-    });
+      onComplete: () => {
+        // Update state while hidden
+        setCurrentIndex(newIndex);
 
-    tl.to(slideRef.current, {
-      opacity: 1,
-      scale: 1,
-      duration: 0.5,
-      ease: 'power2.out',
+        // Small delay to let React render the new content
+        requestAnimationFrame(() => {
+          if (slideRef.current) {
+            // Fade in new content
+            gsap.to(slideRef.current, {
+              opacity: 1,
+              scale: 1,
+              duration: 0.3,
+              ease: 'power2.out',
+              onComplete: () => setIsAnimating(false),
+            });
+          } else {
+            setIsAnimating(false);
+          }
+        });
+      },
     });
-  }, [isAnimating, featuredItems.length]);
+  }, [isAnimating, featuredItems.length, currentIndex]);
 
   const goToNext = useCallback(() => {
     animateSlide('next');
@@ -133,8 +141,6 @@ export function HeroSection() {
       ref={heroRef}
       className="relative min-h-[90vh] bg-negro overflow-hidden"
     >
-      {/* Mexican flag stripe at top */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-verde via-white to-rojo z-20" />
 
       {/* Background image with overlay */}
       <div className="absolute inset-0">
@@ -179,20 +185,15 @@ export function HeroSection() {
 
             {/* Tagline */}
             <p className="hero-subtitle font-accent text-2xl text-amarillo mb-10 rotate-[-2deg] opacity-0" style={{ transform: 'translateY(30px)' }}>
-              Real street tacos. No BS.
+              {t('heroTagline')}
             </p>
 
             {/* Buttons */}
             <div className="hero-buttons flex flex-col sm:flex-row gap-4 opacity-0" style={{ transform: 'translateY(20px)' }}>
               <Link href="/menu">
                 <button className="btn-order flex items-center justify-center gap-3 w-full sm:w-auto">
-                  {tCommon('orderNow')}
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </Link>
-              <Link href="/menu">
-                <button className="btn-secondary flex items-center justify-center gap-3 w-full sm:w-auto">
                   {tCommon('viewMenu')}
+                  <ArrowRight className="w-5 h-5" />
                 </button>
               </Link>
             </div>
@@ -231,9 +232,9 @@ export function HeroSection() {
 
                       {/* Featured badge */}
                       <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
-                        <span className="font-display text-xs flex items-center gap-1">
+                        <span className="font-display text-xs flex items-center gap-1 uppercase">
                           <Star className="w-3 h-3 fill-current" />
-                          FEATURED
+                          {tCommon('featured')}
                         </span>
                       </div>
 
@@ -242,20 +243,17 @@ export function HeroSection() {
                     </div>
 
                     {/* Item info */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 pt-16">
                       <span className="text-xs text-amarillo font-display uppercase">
                         {currentItem.categoryId}
                       </span>
                       <h3 className="font-display text-xl text-white mt-1">
                         {currentItem.name[locale]}
                       </h3>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-display text-2xl text-amarillo">
-                          ${currentItem.price.toFixed(2)}
-                        </span>
-                        <Link href="/menu">
-                          <button className="btn-order text-sm py-2 px-4">
-                            ORDER
+                      <div className="flex items-center justify-end mt-3">
+                        <Link href={`/menu?item=${currentItem.id}`}>
+                          <button className="btn-order text-sm py-2 px-6 uppercase">
+                            {tCommon('order')}
                           </button>
                         </Link>
                       </div>
@@ -266,7 +264,7 @@ export function HeroSection() {
                   <button
                     onClick={goToPrev}
                     disabled={isAnimating}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-5 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-all duration-200 disabled:opacity-50 shadow-lg z-10"
+                    className="absolute -left-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10"
                     aria-label="Previous slide"
                   >
                     <ArrowLeft className="w-5 h-5" />
@@ -275,7 +273,7 @@ export function HeroSection() {
                   <button
                     onClick={goToNext}
                     disabled={isAnimating}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-5 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-all duration-200 disabled:opacity-50 shadow-lg z-10"
+                    className="absolute -right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10"
                     aria-label="Next slide"
                   >
                     <ArrowRight className="w-5 h-5" />
@@ -299,9 +297,9 @@ export function HeroSection() {
                   ))}
                 </div>
 
-                {/* Price badge */}
-                <div className="absolute -bottom-2 -right-4 bg-rojo text-white px-5 py-2 rounded transform rotate-6 border-2 border-amarillo">
-                  <span className="font-display text-xl">DESDE $3.10</span>
+                {/* Dynamic Price badge */}
+                <div className="absolute -top-6 right-9 bg-rojo text-white px-5 py-2 rounded transform rotate-6 border-2 border-amarillo">
+                  <span className="font-display text-xl uppercase">${currentItem.price.toFixed(2)}</span>
                 </div>
               </div>
             )}

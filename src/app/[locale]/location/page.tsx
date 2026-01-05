@@ -37,7 +37,7 @@ function LocationHeader() {
     <div className="text-center mb-12">
       <div className="inline-flex items-center gap-2 px-4 py-2 bg-verde text-white rounded mb-4">
         <MapPin className="w-4 h-4" />
-        <span className="font-display text-sm">FIND US</span>
+        <span className="font-display text-sm uppercase">{t('findUs')}</span>
       </div>
       <h1 className="font-display text-4xl md:text-5xl text-white mb-4">
         {t('title')}
@@ -49,7 +49,7 @@ function LocationHeader() {
         <div className="flex-1 h-full bg-rojo" />
       </div>
       <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-        Visit us for authentic Mexican street food in Fresno. We&apos;re open Tuesday through Sunday evenings.
+        {t('locationDescription')}
       </p>
     </div>
   );
@@ -147,7 +147,7 @@ function InfoSection() {
             <Mail className="w-6 h-6 text-amarillo" />
           </div>
           <div>
-            <h3 className="font-display text-lg text-white mb-1">Email</h3>
+            <h3 className="font-display text-lg text-white mb-1">{t('email')}</h3>
             <a
               href={`mailto:${BUSINESS_INFO.email}`}
               className="text-amarillo hover:text-amarillo-dark transition-colors"

@@ -53,9 +53,9 @@ export default function CartPage() {
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Cart Items */}
             <div className="lg:col-span-2">
-              <div className="bg-negro-light rounded-lg border border-gray-700 p-6">
+              <div className="space-y-3">
                 {items.map((cartItem) => (
-                  <CartItem key={cartItem.item.id} cartItem={cartItem} />
+                  <CartItem key={cartItem.cartItemId} cartItem={cartItem} showNotesEditor />
                 ))}
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function CartPage() {
             <div className="lg:col-span-1">
               <div className="bg-negro-light rounded-lg border border-gray-700 p-6 sticky top-24">
                 <h2 className="font-display text-lg text-white mb-4">
-                  Order Summary
+                  {t('orderSummary')}
                 </h2>
 
                 <div className="space-y-3 mb-6">
@@ -84,18 +84,16 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <button className="w-full btn-order py-4 opacity-50 cursor-not-allowed" disabled>
-                  {t('checkout')}
-                </button>
-
-                <p className="text-sm text-gray-500 text-center mt-4">
-                  Checkout coming soon! Payment integration in progress.
-                </p>
+                <Link href="/checkout">
+                  <button className="w-full btn-order py-4">
+                    {t('checkout')}
+                  </button>
+                </Link>
 
                 {/* Order Online Options */}
                 <div className="mt-6 pt-6 border-t border-gray-700">
                   <p className="text-sm text-gray-400 text-center mb-3">
-                    Or order through delivery apps:
+                    {t('orderThroughApps')}
                   </p>
                   <div className="flex gap-2">
                     <a

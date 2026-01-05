@@ -3,6 +3,15 @@ export interface LocalizedString {
   es: string;
 }
 
+// Customization option for a menu item
+export interface ItemCustomization {
+  id: string;
+  name: LocalizedString;
+  type: 'remove' | 'add'; // Remove an ingredient or add extra
+  price?: number; // Additional price for 'add' type options
+  default?: boolean; // Whether this is included by default (for 'remove' type)
+}
+
 export interface MenuItem {
   id: string;
   name: LocalizedString;
@@ -16,6 +25,7 @@ export interface MenuItem {
   isVegetarian?: boolean;
   spiceLevel?: number;
   sortOrder: number;
+  customizations?: ItemCustomization[]; // Available customization options
   createdAt: Date;
   updatedAt: Date;
 }

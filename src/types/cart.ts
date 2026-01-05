@@ -1,8 +1,18 @@
 import { MenuItem } from './menu';
 
+// Selected customization for an item in cart
+export interface SelectedCustomization {
+  id: string;
+  type: 'remove' | 'add';
+  price?: number; // For add-ons with extra cost
+}
+
 export interface CartItem {
+  cartItemId: string; // Unique identifier for this cart entry
   item: MenuItem;
   quantity: number;
+  notes?: string; // Special instructions for this item (max 100 chars)
+  customizations?: SelectedCustomization[]; // Selected customizations (removals/additions)
 }
 
 export interface Cart {
@@ -10,4 +20,5 @@ export interface Cart {
   subtotal: number;
   tax: number;
   total: number;
+  orderNotes?: string; // General notes for the entire order
 }

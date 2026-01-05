@@ -6,7 +6,6 @@ import { Menu, X, ShoppingCart } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/cart-store';
-import { ORDER_LINKS } from '@/lib/constants';
 import { LanguageToggle } from './LanguageToggle';
 import Image from 'next/image';
 
@@ -36,15 +35,8 @@ export function Header() {
     return pathname.startsWith(href);
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleHomeClick = (e: React.MouseEvent, href: string) => {
-    if (href === '/' && pathname === '/') {
-      e.preventDefault();
-      scrollToTop();
-    }
+  const handleNavClick = () => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   useEffect(() => {
@@ -64,15 +56,18 @@ export function Header() {
           : 'bg-negro'
       )}
     >
-      {/* Mexican flag stripe */}
-      <div className="h-1 w-full bg-gradient-to-r from-verde via-white to-rojo" />
+      {/* Mexican flag stripe - top */}
+      <div
+        className="h-1.5 w-full bg-gradient-to-r from-verde via-white to-rojo"
+        style={{ boxShadow: '0 2px 10px rgba(0, 104, 71, 0.4), 0 2px 10px rgba(206, 17, 38, 0.4)' }}
+      />
 
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+      <nav className="w-full px-6 lg:px-12">
+        <div className="relative flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
-          <Link href="/" onClick={(e) => handleHomeClick(e, '/')} className="flex items-center gap-3 group">
+          <Link href="/" onClick={handleNavClick} className="flex items-center gap-3 group z-10">
             <div
-              className="relative w-14 h-14 rounded-full overflow-hidden border-3 border-amarillo flex-shrink-0"
+              className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-3 border-amarillo flex-shrink-0"
               style={{ boxShadow: '0 0 20px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2)' }}
             >
               <Image
@@ -83,21 +78,21 @@ export function Header() {
               />
             </div>
             <div className="hidden sm:block">
-              <span className="font-display text-xl text-white group-hover:text-amarillo transition-colors">
+              <span className="font-display text-2xl text-white group-hover:text-amarillo transition-colors">
                 EL TACO CHINGON
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation - Absolutely centered */}
+          <div className="hidden md:flex items-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={(e) => handleHomeClick(e, link.href)}
+                onClick={handleNavClick}
                 className={cn(
-                  'px-4 py-2 font-display text-sm transition-all duration-200',
+                  'px-4 py-2 font-display text-base tracking-wider uppercase transition-all duration-200',
                   isActive(link.href)
                     ? 'text-amarillo'
                     : 'text-white hover:text-amarillo'
@@ -109,42 +104,45 @@ export function Header() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center z-10">
             {/* Order CTA - Desktop only */}
-            <Link href="/menu" className="hidden lg:block">
-              <button className="btn-order text-sm py-2 px-5">
+            <Link href="/menu" onClick={handleNavClick} className="hidden lg:block mr-8">
+              <button className="btn-order text-sm py-2.5 px-6">
                 {tCommon('orderNow')}
               </button>
             </Link>
 
-            <LanguageToggle />
+            {/* Language and Cart group - pushed to the right */}
+            <div className="flex items-center gap-4">
+              <LanguageToggle />
 
-            {/* Cart Button */}
-            <button
-              onClick={openCart}
-              className="relative p-2.5 bg-negro-light hover:bg-gray-700 rounded text-white transition-colors"
-              aria-label={t('cart')}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {mounted && itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-rojo text-white text-xs font-bold rounded-full flex items-center justify-center border border-amarillo">
-                  {itemCount > 9 ? '9+' : itemCount}
-                </span>
-              )}
-            </button>
+              {/* Cart Button */}
+              <button
+                onClick={openCart}
+                className="relative p-2.5 bg-negro-light hover:bg-gray-700 rounded text-white transition-colors"
+                aria-label={t('cart')}
+              >
+                <ShoppingCart className="w-6 h-6" />
+                {mounted && itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-rojo text-white text-xs font-bold rounded-full flex items-center justify-center border border-amarillo">
+                    {itemCount > 9 ? '9+' : itemCount}
+                  </span>
+                )}
+              </button>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2.5 bg-negro-light hover:bg-gray-700 rounded text-white transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2.5 bg-negro-light hover:bg-gray-700 rounded text-white transition-colors"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -156,8 +154,8 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={(e) => {
-                    handleHomeClick(e, link.href);
+                  onClick={() => {
+                    handleNavClick();
                     setMobileMenuOpen(false);
                   }}
                   className={cn(
@@ -174,7 +172,10 @@ export function Header() {
               {/* Mobile Order CTA */}
               <Link
                 href="/menu"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  handleNavClick();
+                  setMobileMenuOpen(false);
+                }}
                 className="mt-4"
               >
                 <button className="w-full btn-order py-3">
@@ -185,6 +186,12 @@ export function Header() {
           </div>
         )}
       </nav>
+
+      {/* Mexican flag stripe - bottom */}
+      <div
+        className="h-1.5 w-full bg-gradient-to-r from-verde via-white to-rojo"
+        style={{ boxShadow: '0 2px 10px rgba(0, 104, 71, 0.4), 0 2px 10px rgba(206, 17, 38, 0.4)' }}
+      />
     </header>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LoadingScreen } from "@/components/loading/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "El Taco Chingon | Authentic Mexican Street Food",
@@ -29,6 +30,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col bg-negro antialiased">
+        <LoadingScreen />
         {children}
       </body>
     </html>

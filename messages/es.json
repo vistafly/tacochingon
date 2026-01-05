@@ -3,10 +3,21 @@
     "orderNow": "Ordenar Ahora",
     "viewMenu": "Ver Menu",
     "addToCart": "Agregar al Carrito",
+    "addMore": "Agregar Mas",
     "soldOut": "Agotado",
     "openNow": "Abierto",
     "closed": "Cerrado",
-    "language": "Idioma"
+    "language": "Idioma",
+    "featured": "Destacado",
+    "order": "Ordenar",
+    "desde": "Desde"
+  },
+  "customization": {
+    "removeIngredients": "Quitar Ingredientes",
+    "addExtras": "Agregar Extras",
+    "noCustomizations": "No hay opciones de personalizacion para este articulo.",
+    "total": "Total",
+    "extras": "extras"
   },
   "nav": {
     "home": "Inicio",
@@ -17,15 +28,32 @@
   "home": {
     "heroTitle": "Tacos Callejeros Autenticos",
     "heroSubtitle": "Tortillas hechas a mano, ingredientes frescos, sabores intensos",
+    "heroTagline": "Tacos callejeros de verdad. Sin rodeos.",
     "featuredTitle": "Destacados",
+    "customerFavorites": "Favoritos de los Clientes",
     "aboutTitle": "Nuestra Historia",
     "aboutText": "El Taco Chingon trae autentica comida callejera mexicana a Fresno. Cada taco esta hecho con amor, con tortillas hechas a mano y los ingredientes mas frescos. De nuestra familia a la tuya, servimos los sabores autenticos de Mexico.",
-    "locationTitle": "Encuentranos"
+    "ourStory": "Nuestra Historia",
+    "madeFreshDaily": "Hecho Fresco Diario",
+    "familyRecipes": "Recetas Familiares",
+    "established": "EST. 2024",
+    "locationTitle": "Encuentranos",
+    "reviews": "Resenas",
+    "whatPeopleSay": "Lo Que Dice la Gente",
+    "basedOnReviews": "Basado en {count}+ resenas",
+    "readReviewsYelp": "Ver Resenas en Yelp",
+    "reviewOnGoogle": "Resenar en Google Maps",
+    "readyToEat": "Listo para Comer?",
+    "ctaTagline": "Tacos callejeros de verdad. Sabor real. Sin rodeos."
   },
   "menu": {
     "pageTitle": "Nuestro Menu",
     "allCategories": "Todos",
-    "filterBy": "Filtrar por categoria"
+    "filterBy": "Filtrar por categoria",
+    "fresnosBestTacos": "Los Mejores Tacos de Fresno",
+    "menuDescription": "Desde tacos callejeros clasicos hasta nuestro Taco Chingon, cada platillo es hecho fresco con sabores autenticos.",
+    "orderForDelivery": "Ordena para Entrega o Recogida",
+    "orderDescription": "Agrega articulos a tu carrito abajo, o ordena a traves de tu app de entrega favorita"
   },
   "cart": {
     "title": "Tu Carrito",
@@ -36,20 +64,36 @@
     "total": "Total",
     "checkout": "Proceder al Pago",
     "remove": "Eliminar",
+    "addBack": "Agregar de nuevo",
     "quantity": "Cantidad",
-    "continueShopping": "Seguir Comprando"
+    "continueShopping": "Seguir Comprando",
+    "orderSummary": "Resumen del Pedido",
+    "checkoutComingSoon": "Pago en linea proximamente! Integracion de pago en progreso.",
+    "orderThroughApps": "O ordena a traves de apps de entrega:",
+    "inCart": "En Carrito",
+    "addNotes": "Agregar instrucciones",
+    "editNotes": "Editar instrucciones",
+    "hideNotes": "Ocultar instrucciones",
+    "notesPlaceholder": "ej., sin cebolla, extra picante...",
+    "notesHint": "Instrucciones especiales para este articulo",
+    "editCustomizations": "Editar personalizaciones"
   },
   "checkout": {
     "title": "Pago",
+    "backToCart": "Volver al Carrito",
+    "orderItems": "Articulos del Pedido",
     "customerInfo": "Informacion del Cliente",
     "name": "Nombre",
     "phone": "Telefono",
     "email": "Correo Electronico",
-    "specialInstructions": "Instrucciones Especiales",
+    "specialInstructions": "Instrucciones Especiales para el Pedido",
+    "orderNotesPlaceholder": "Cualquier solicitud especial para todo tu pedido...",
+    "orderNotesHint": "Estas instrucciones aplican a todo tu pedido (ej., alergias, preferencias de hora de recogida)",
     "pickupTime": "Tiempo Estimado de Recogida",
     "minutes": "minutos",
     "pay": "Pagar Ahora",
-    "processing": "Procesando..."
+    "processing": "Procesando...",
+    "paymentComingSoon": "Pago en linea proximamente! Por ahora, ordena a traves de DoorDash o Uber Eats."
   },
   "order": {
     "confirmation": "Orden Confirmada!",
@@ -64,8 +108,12 @@
     "title": "Ubicacion y Horarios",
     "address": "Direccion",
     "phone": "Telefono",
+    "email": "Correo",
     "hours": "Horario",
     "getDirections": "Obtener Direcciones",
+    "findUs": "Encuentranos",
+    "locationDescription": "Visitanos para autentica comida callejera mexicana en Fresno. Estamos abiertos de martes a domingo por las noches.",
+    "callUs": "Llamanos",
     "monday": "Lunes",
     "tuesday": "Martes",
     "wednesday": "Miercoles",
@@ -77,7 +125,8 @@
   },
   "footer": {
     "copyright": "El Taco Chingon. Todos los derechos reservados.",
-    "tagline": "Autentica Comida Callejera Mexicana"
+    "tagline": "Autentica Comida Callejera Mexicana",
+    "orderOnline": "Ordenar en Linea"
   },
   "categories": {
     "tacos": "Tacos",
