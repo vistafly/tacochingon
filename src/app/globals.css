@@ -404,6 +404,36 @@ html {
   animation: logo-glow 2s ease-in-out infinite;
 }
 
+/* ===== INNER LOADER ANIMATIONS ===== */
+
+@keyframes inner-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.9));
+  }
+}
+
+.animate-inner-glow {
+  animation: inner-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
 /* ===== SHADOWS ===== */
 
 .shadow-warm {

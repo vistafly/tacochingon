@@ -28,6 +28,7 @@ export function Footer() {
                   src="/images/brand/logo.jpg"
                   alt="El Taco Chingon"
                   fill
+                  sizes="56px"
                   className="object-cover"
                 />
               </div>

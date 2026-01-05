@@ -148,8 +148,8 @@ export function HeroSection() {
           src="/images/menu/taco.jpg"
           alt="Street Tacos"
           fill
+          sizes="100vw"
           className="object-cover opacity-30"
-          priority
         />
         <div className="absolute inset-0 bg-gradient-to-r from-negro via-negro/90 to-negro/70" />
       </div>
@@ -221,8 +221,8 @@ export function HeroSection() {
                           src={currentItem.image}
                           alt={currentItem.name[locale]}
                           fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
                           className="object-cover"
-                          priority
                         />
                       ) : (
                         <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">

@@ -74,6 +74,7 @@ export function Header() {
                 src="/images/brand/logo.jpg"
                 alt="El Taco Chingon"
                 fill
+                sizes="80px"
                 className="object-cover"
               />
             </div>

@@ -78,7 +78,7 @@ export function CartDrawer() {
           ) : (
             <div className="p-4 space-y-4">
               {items.map((cartItem) => (
-                <CartItem key={cartItem.item.id} cartItem={cartItem} />
+                <CartItem key={cartItem.cartItemId} cartItem={cartItem} />
               ))}
             </div>
           )}

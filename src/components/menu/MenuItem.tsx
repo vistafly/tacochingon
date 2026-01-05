@@ -22,6 +22,12 @@ export function MenuItem({ item, forceModalOpen = false, onModalClose }: MenuIte
   const { addItemWithCustomizations, getItemQuantity, getFirstCartEntryForItem } = useCartStore();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(forceModalOpen);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Wait for hydration to complete before showing client-side state
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Sync with forceModalOpen prop
   useEffect(() => {
@@ -35,7 +41,8 @@ export function MenuItem({ item, forceModalOpen = false, onModalClose }: MenuIte
     onModalClose?.();
   };
 
-  const quantityInCart = getItemQuantity(item.id);
+  // Only show cart quantity after hydration to avoid mismatch
+  const quantityInCart = isHydrated ? getItemQuantity(item.id) : 0;
   const existingCartEntry = getFirstCartEntryForItem(item.id);
 
   const handleAddToCart = () => {

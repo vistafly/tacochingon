@@ -68,6 +68,7 @@ export function LoadingScreen() {
             src="/images/brand/logo.jpg"
             alt="El Taco Chingon"
             fill
+            sizes="160px"
             className="object-cover"
             priority
           />

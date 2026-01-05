@@ -6,6 +6,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { GSAPProvider } from '@/components/animations/GSAPProvider';
+import { LoadingProvider } from '@/components/providers/LoadingProvider';
+import { InnerLoader } from '@/components/loading/InnerLoader';
 
 type Props = {
   children: React.ReactNode;
@@ -32,12 +34,15 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <GSAPProvider>
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <CartDrawer />
-      </GSAPProvider>
+      <LoadingProvider>
+        <GSAPProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <CartDrawer />
+          <InnerLoader />
+        </GSAPProvider>
+      </LoadingProvider>
     </NextIntlClientProvider>
   );
 }

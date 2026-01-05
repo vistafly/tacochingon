@@ -4,5 +4,6 @@ import { routing } from '@/i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: ['/', '/(en|es)/:path*', '/((?!_next|_vercel|.*\\..*).*)',],
+  // Exclude API routes from i18n middleware
+  matcher: ['/', '/(en|es)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)',],
 };
