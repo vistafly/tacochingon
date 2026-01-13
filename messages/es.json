@@ -98,6 +98,7 @@
     "payAmount": "Pagar {amount}",
     "processing": "Procesando...",
     "loadingPayment": "Cargando pago...",
+    "continueToPayment": "Continuar al Pago",
     "tryAgain": "Intentar de nuevo",
     "paymentInfo": "Informacion de Pago",
     "fillAllFields": "Por favor completa todos los campos requeridos",
@@ -121,12 +122,29 @@
   },
   "order": {
     "confirmation": "Orden Confirmada!",
-    "orderNumber": "Numero de Orden",
+    "orderNumber": "Orden #{number}",
     "status": "Estado",
-    "pending": "Pendiente",
+    "pending": "Orden Recibida",
     "preparing": "Preparando",
     "ready": "Listo para Recoger",
-    "completed": "Completado"
+    "completed": "Completado",
+    "cancelled": "Cancelado",
+    "trackOrder": "Seguir Tu Orden",
+    "orderDetails": "Detalles de la Orden",
+    "pickupTime": "Hora de Recogida",
+    "items": "Articulos",
+    "total": "Total",
+    "questions": "Preguntas sobre tu orden?",
+    "callUs": "Llamanos al",
+    "statusPendingDesc": "Hemos recibido tu orden y comenzaremos a prepararla pronto.",
+    "statusPreparingDesc": "Nuestra cocina esta preparando tu deliciosa comida!",
+    "statusReadyDesc": "Tu orden esta lista! Ven a recogerla.",
+    "statusCompletedDesc": "Gracias por comer con nosotros!",
+    "orderNotFound": "Orden No Encontrada",
+    "orderNotFoundDesc": "No pudimos encontrar una orden con este ID. Por favor verifica tu confirmacion de orden.",
+    "backToMenu": "Volver al Menu",
+    "refreshStatus": "Actualizar Estado",
+    "thankYou": "¡Gracias!"
   },
   "location": {
     "title": "Ubicacion y Horarios",
@@ -150,7 +168,8 @@
   "footer": {
     "copyright": "El Taco Chingon. Todos los derechos reservados.",
     "tagline": "Autentica Comida Callejera Mexicana",
-    "orderOnline": "Ordenar en Linea"
+    "orderOnline": "Ordenar en Linea",
+    "securePayments": "Pagos seguros aceptados"
   },
   "categories": {
     "tacos": "Tacos",

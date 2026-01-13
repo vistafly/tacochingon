@@ -1,3 +1,5 @@
+import { LocalizedString } from './menu';
+
 export type OrderStatus =
   | 'pending'
   | 'preparing'
@@ -5,12 +7,21 @@ export type OrderStatus =
   | 'completed'
   | 'cancelled';
 
+export interface OrderItemCustomization {
+  id: string;
+  name: LocalizedString;
+  type: 'remove' | 'add';
+  price: number;
+}
+
 export interface OrderItem {
   itemId: string;
-  name: string;
+  name: LocalizedString;
   quantity: number;
-  price: number;
-  subtotal: number;
+  basePrice: number;
+  customizations: OrderItemCustomization[];
+  itemNotes?: string;
+  itemTotal: number;
 }
 
 export interface Customer {
@@ -28,10 +39,10 @@ export interface Order {
   tax: number;
   total: number;
   customer: Customer;
-  stripePaymentId: string;
-  pickupTime: Date;
+  stripePaymentIntentId: string;
+  pickupTime: string;
   specialInstructions: string | null;
   staffNotes: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }

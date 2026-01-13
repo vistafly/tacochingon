@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { MapPin, Phone, Clock, ExternalLink } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { BUSINESS_INFO, SOCIAL_LINKS, ORDER_LINKS, REVIEW_LINKS } from '@/lib/constants';
+import { PaymentMethods } from '@/components/ui/PaymentMethods';
 import Image from 'next/image';
 
 export function Footer() {
@@ -13,15 +14,15 @@ export function Footer() {
   return (
     <footer className="bg-negro-light text-white border-t border-gray-700">
       {/* Mexican flag stripe */}
-      <div className="h-1 w-full bg-gradient-to-r from-verde via-white to-rojo" />
+      <div className="h-1 w-full bg-linear-to-r from-verde via-white to-rojo" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           {/* Brand */}
           <div>
             <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
               <div
-                className="relative w-14 h-14 rounded-full overflow-hidden border-3 border-amarillo flex-shrink-0"
+                className="relative w-14 h-14 rounded-full overflow-hidden border-3 border-amarillo shrink-0"
                 style={{ boxShadow: '0 0 15px rgba(255, 215, 0, 0.3)' }}
               >
                 <Image
@@ -85,20 +86,20 @@ export function Footer() {
             <h3 className="font-display text-lg text-amarillo mb-4">{t('location.title')}</h3>
             <div className="space-y-3">
               <div className="flex items-start justify-center md:justify-start gap-3">
-                <MapPin className="w-5 h-5 text-rojo mt-0.5 flex-shrink-0" />
+                <MapPin className="w-5 h-5 text-rojo mt-0.5 shrink-0" />
                 <span className="text-gray-400">
                   {BUSINESS_INFO.address.street}<br />
                   {BUSINESS_INFO.address.city}, {BUSINESS_INFO.address.state} {BUSINESS_INFO.address.zip}
                 </span>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-3">
-                <Phone className="w-5 h-5 text-verde flex-shrink-0" />
+                <Phone className="w-5 h-5 text-verde shrink-0" />
                 <a href={`tel:${BUSINESS_INFO.phone}`} className="text-gray-400 hover:text-amarillo transition-colors">
                   {BUSINESS_INFO.phone}
                 </a>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-3">
-                <Clock className="w-5 h-5 text-amarillo flex-shrink-0" />
+                <Clock className="w-5 h-5 text-amarillo shrink-0" />
                 <span className="text-gray-400">
                   Tue-Sun: 5:30 PM - 11:30 PM
                 </span>
@@ -150,8 +151,14 @@ export function Footer() {
             </a>
           </div>
 
+          {/* Payment Methods */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xs text-gray-500">{t('footer.securePayments')}</p>
+            <PaymentMethods />
+          </div>
+
           {/* Copyright */}
-          <p className="text-gray-500 text-sm text-center">
+          <p className="text-gray-500 text-sm text-center mt-8 pt-6 border-t border-gray-700">
             &copy; {currentYear} {t('footer.copyright')}
           </p>
         </div>

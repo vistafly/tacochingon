@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, ShoppingBag, MessageSquare, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, MessageSquare, AlertCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useCartStore } from '@/store/cart-store';
 import { formatPrice } from '@/lib/utils';
 import { ORDER_LINKS } from '@/lib/constants';
 import { CartItem } from '@/components/cart/CartItem';
-import { StripeProvider } from '@/components/providers/StripeProvider';
 import { CheckoutForm } from '@/components/checkout/CheckoutForm';
 import { mockSettings } from '@/data/mock-settings';
+import { OrderItem } from '@/types/order';
 
 export default function CheckoutPage() {
   const t = useTranslations('checkout');
@@ -25,9 +25,6 @@ export default function CheckoutPage() {
   } = useCartStore();
 
   const [localOrderNotes, setLocalOrderNotes] = useState(orderNotes);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const subtotal = getSubtotal();
   const tax = getTax();
@@ -63,47 +60,36 @@ export default function CheckoutPage() {
     setOrderNotes(value);
   };
 
-  // Create PaymentIntent when the page loads with items
-  useEffect(() => {
-    if (items.length === 0 || clientSecret) return;
-
-    const createPaymentIntent = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: Math.round(total * 100), // Convert to cents
-            items: items.map((item) => ({
-              id: item.item.id,
-              name: item.item.name,
-              quantity: item.quantity,
-            })),
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to create payment intent');
+  // Build order items with customizations resolved to full names
+  const orderItems: OrderItem[] = useMemo(() => {
+    return items.map((cartItem) => {
+      // Calculate item total including add-on costs
+      let itemUnitPrice = cartItem.item.price;
+      const resolvedCustomizations = (cartItem.customizations || []).map((c) => {
+        // Find the customization definition from the menu item
+        const customizationDef = cartItem.item.customizations?.find((def) => def.id === c.id);
+        if (c.type === 'add' && c.price) {
+          itemUnitPrice += c.price;
         }
+        return {
+          id: c.id,
+          name: customizationDef?.name || { en: c.id, es: c.id },
+          type: c.type,
+          price: c.price || 0,
+        };
+      });
 
-        setClientSecret(data.clientSecret);
-      } catch (err) {
-        console.error('Error creating payment intent:', err);
-        setError(err instanceof Error ? err.message : 'Something went wrong');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    createPaymentIntent();
-  }, [items, total, clientSecret]);
+      return {
+        itemId: cartItem.item.id,
+        name: cartItem.item.name,
+        quantity: cartItem.quantity,
+        basePrice: cartItem.item.price,
+        customizations: resolvedCustomizations,
+        itemNotes: cartItem.notes,
+        itemTotal: itemUnitPrice * cartItem.quantity,
+      };
+    });
+  }, [items]);
 
   if (items.length === 0) {
     return (
@@ -176,33 +162,13 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment Form */}
-            {isLoading && (
-              <div className="bg-negro-light rounded-lg border border-gray-700 p-8 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-amarillo animate-spin" />
-                <span className="ml-3 text-gray-400">{t('loadingPayment')}</span>
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-rojo/10 border border-rojo/20 rounded-lg p-6">
-                <p className="text-rojo">{error}</p>
-                <button
-                  onClick={() => {
-                    setClientSecret(null);
-                    setError(null);
-                  }}
-                  className="mt-4 text-sm text-amarillo hover:underline"
-                >
-                  {t('tryAgain')}
-                </button>
-              </div>
-            )}
-
-            {clientSecret && !isLoading && !error && (
-              <StripeProvider clientSecret={clientSecret}>
-                <CheckoutForm total={total} />
-              </StripeProvider>
-            )}
+            <CheckoutForm
+              total={total}
+              subtotal={subtotal}
+              tax={tax}
+              orderItems={orderItems}
+              specialInstructions={localOrderNotes}
+            />
           </div>
 
           {/* Order Summary Sidebar */}

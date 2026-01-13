@@ -82,7 +82,7 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
         {/* Checkbox */}
         <button
           onClick={handleCheckboxToggle}
-          className="flex-shrink-0 self-start mt-1"
+          className="shrink-0 self-start mt-1"
           aria-label={isSelected ? t('remove') : t('addBack')}
         >
           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
@@ -95,7 +95,7 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
         </button>
 
         {/* Image */}
-        <div className="relative w-14 h-14 rounded-md overflow-hidden flex-shrink-0 bg-gray-800">
+        <div className="relative w-14 h-14 rounded-md overflow-hidden shrink-0 bg-gray-800">
           <Image
             src={item.image || '/images/menu/placeholder-default.svg'}
             alt={item.name[locale]}
@@ -119,7 +119,7 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
             </div>
 
             {/* Price column */}
-            <div className="text-right flex-shrink-0">
+            <div className="text-right shrink-0">
               <span className="font-display text-amarillo text-lg">
                 {formatPrice(itemTotalPrice)}
               </span>
@@ -151,7 +151,7 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
-          <span className="px-3 text-sm font-medium text-white min-w-[2rem] text-center">
+          <span className="px-3 text-sm font-medium text-white min-w-8 text-center">
             {quantity}
           </span>
           <button

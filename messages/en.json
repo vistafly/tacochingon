@@ -98,6 +98,7 @@
     "payAmount": "Pay {amount}",
     "processing": "Processing...",
     "loadingPayment": "Loading payment...",
+    "continueToPayment": "Continue to Payment",
     "tryAgain": "Try again",
     "paymentInfo": "Payment Information",
     "fillAllFields": "Please fill in all required fields",
@@ -121,12 +122,29 @@
   },
   "order": {
     "confirmation": "Order Confirmed!",
-    "orderNumber": "Order Number",
+    "orderNumber": "Order #{number}",
     "status": "Status",
-    "pending": "Pending",
+    "pending": "Order Received",
     "preparing": "Preparing",
     "ready": "Ready for Pickup",
-    "completed": "Completed"
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "trackOrder": "Track Your Order",
+    "orderDetails": "Order Details",
+    "pickupTime": "Pickup Time",
+    "items": "Items",
+    "total": "Total",
+    "questions": "Questions about your order?",
+    "callUs": "Call us at",
+    "statusPendingDesc": "We've received your order and will start preparing it soon.",
+    "statusPreparingDesc": "Our kitchen is preparing your delicious food!",
+    "statusReadyDesc": "Your order is ready! Come pick it up.",
+    "statusCompletedDesc": "Thank you for dining with us!",
+    "orderNotFound": "Order Not Found",
+    "orderNotFoundDesc": "We couldn't find an order with this ID. Please check your order confirmation.",
+    "backToMenu": "Back to Menu",
+    "refreshStatus": "Refresh Status",
+    "thankYou": "Thank You!"
   },
   "location": {
     "title": "Location & Hours",
@@ -150,7 +168,8 @@
   "footer": {
     "copyright": "El Taco Chingon. All rights reserved.",
     "tagline": "Authentic Mexican Street Food",
-    "orderOnline": "Order Online"
+    "orderOnline": "Order Online",
+    "securePayments": "Secure payments accepted"
   },
   "categories": {
     "tacos": "Tacos",

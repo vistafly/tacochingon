@@ -1,20 +1,46 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { CheckCircle, ArrowRight, Phone } from 'lucide-react';
+import { CheckCircle, ArrowRight, Phone, Loader2 } from 'lucide-react';
 import { useCartStore } from '@/store/cart-store';
 import { BUSINESS_INFO } from '@/lib/constants';
 
 export default function CheckoutSuccessPage() {
   const t = useTranslations('checkout');
   const { clearCart } = useCartStore();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  // Clear cart on mount (in case redirect didn't trigger it)
+  // Get payment intent ID from URL (Stripe redirect)
+  const paymentIntentId = searchParams.get('payment_intent');
+
   useEffect(() => {
+    // Clear cart on mount
     clearCart();
-  }, [clearCart]);
+
+    // If we have a payment intent ID, redirect to order status page
+    if (paymentIntentId) {
+      router.push(`/order/${paymentIntentId}`);
+    }
+  }, [clearCart, paymentIntentId, router]);
+
+  // If we have payment intent, show loading while redirecting
+  if (paymentIntentId) {
+    return (
+      <div className="py-12 md:py-16 bg-negro min-h-screen">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-20">
+            <Loader2 className="w-12 h-12 text-amarillo animate-spin mx-auto mb-4" />
+            <p className="text-gray-400">Redirecting to your order...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-12 md:py-16 bg-negro min-h-screen">
