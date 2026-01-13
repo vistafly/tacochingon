@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { X, Plus, Minus, Check } from 'lucide-react';
@@ -50,7 +51,13 @@ export function ItemCustomizationModal({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const removeOptions = item.customizations?.filter((c) => c.type === 'remove') || [];
   const addOptions = item.customizations?.filter((c) => c.type === 'add') || [];
@@ -88,7 +95,7 @@ export function ItemCustomizationModal({
     onClose();
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
@@ -260,6 +267,7 @@ export function ItemCustomizationModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
