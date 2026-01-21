@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { mockMenuItems } from '@/data/mock-menu';
@@ -21,8 +21,61 @@ export function FeaturedSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartRef = useRef<number>(0);
+  const touchEndRef = useRef<number>(0);
 
   const featuredItems = mockMenuItems.filter(item => item.isFeatured).slice(0, 4);
+
+  // Pause auto-scroll for 8 seconds after manual interaction
+  const pauseAutoScroll = useCallback(() => {
+    setIsPaused(true);
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 8000);
+  }, []);
+
+  // Navigation functions
+  const goToSlide = useCallback((index: number) => {
+    setCurrentSlide(index);
+    pauseAutoScroll();
+  }, [pauseAutoScroll]);
+
+  const goToPrev = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + featuredItems.length) % featuredItems.length);
+    pauseAutoScroll();
+  }, [featuredItems.length, pauseAutoScroll]);
+
+  const goToNext = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % featuredItems.length);
+    pauseAutoScroll();
+  }, [featuredItems.length, pauseAutoScroll]);
+
+  // Touch handlers for swipe
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const swipeThreshold = 50;
+    const diff = touchStartRef.current - touchEndRef.current;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        goToNext();
+      } else {
+        goToPrev();
+      }
+    }
+  }, [goToNext, goToPrev]);
 
   // Check for mobile screen size
   useEffect(() => {
@@ -35,16 +88,25 @@ export function FeaturedSection() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Auto-play carousel on mobile
+  // Auto-play carousel on mobile (respects pause)
   useEffect(() => {
-    if (!isMobile || featuredItems.length === 0) return;
+    if (!isMobile || featuredItems.length === 0 || isPaused) return;
 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featuredItems.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isMobile, featuredItems.length]);
+  }, [isMobile, featuredItems.length, isPaused]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // GSAP animation for desktop grid
   useEffect(() => {
@@ -98,67 +160,92 @@ export function FeaturedSection() {
 
         {/* Mobile Carousel */}
         <div className="sm:hidden mb-12">
-          <div className="relative overflow-hidden">
-            <div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          <div className="relative">
+            {/* Previous Arrow */}
+            <button
+              onClick={goToPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+              aria-label="Previous item"
             >
-              {featuredItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="w-full flex-shrink-0 px-2"
-                >
-                  <div className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden">
-                    {/* Image */}
-                    <div className="relative aspect-square overflow-hidden">
-                      {item.image && !item.image.includes('placeholder') ? (
-                        <Image
-                          src={item.image}
-                          alt={item.name[locale]}
-                          fill
-                          sizes="calc(100vw - 16px)"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                          <span className="text-4xl">🌮</span>
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Next Arrow */}
+            <button
+              onClick={goToNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+              aria-label="Next item"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <div
+              className="overflow-hidden mx-10"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {featuredItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="w-full flex-shrink-0 px-2"
+                  >
+                    <div className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden">
+                      {/* Image */}
+                      <div className="relative aspect-square overflow-hidden">
+                        {item.image && !item.image.includes('placeholder') ? (
+                          <Image
+                            src={item.image}
+                            alt={item.name[locale]}
+                            fill
+                            sizes="calc(100vw - 16px)"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                            <span className="text-4xl">🌮</span>
+                          </div>
+                        )}
+
+                        {/* Featured badge */}
+                        <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
+                          <span className="font-display text-xs flex items-center gap-1 uppercase">
+                            <Star className="w-3 h-3 fill-current" />
+                            {tCommon('featured')}
+                          </span>
                         </div>
-                      )}
-
-                      {/* Featured badge */}
-                      <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
-                        <span className="font-display text-xs flex items-center gap-1 uppercase">
-                          <Star className="w-3 h-3 fill-current" />
-                          {tCommon('featured')}
-                        </span>
                       </div>
-                    </div>
 
-                    {/* Content */}
-                    <div className="p-4">
-                      <span className="text-xs text-amarillo font-medium uppercase">
-                        {item.categoryId}
-                      </span>
-                      <h3 className="font-display text-lg text-white mt-1">
-                        {item.name[locale]}
-                      </h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">
-                        {item.description[locale]}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="font-display text-xl text-amarillo">
-                          ${item.price.toFixed(2)}
+                      {/* Content */}
+                      <div className="p-4">
+                        <span className="text-xs text-amarillo font-medium uppercase">
+                          {item.categoryId}
                         </span>
-                        <Link href={`/menu?item=${item.id}`}>
-                          <button className="btn-order text-sm py-2 px-4">
-                            {tCommon('orderNow')}
-                          </button>
-                        </Link>
+                        <h3 className="font-display text-lg text-white mt-1">
+                          {item.name[locale]}
+                        </h3>
+                        <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                          {item.description[locale]}
+                        </p>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="font-display text-xl text-amarillo">
+                            ${item.price.toFixed(2)}
+                          </span>
+                          <Link href={`/menu?item=${item.id}`}>
+                            <button className="btn-order text-sm py-2 px-4">
+                              {tCommon('orderNow')}
+                            </button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
@@ -167,7 +254,7 @@ export function FeaturedSection() {
             {featuredItems.map((_, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentSlide(index)}
+                onClick={() => goToSlide(index)}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   index === currentSlide
                     ? 'bg-amarillo w-6'

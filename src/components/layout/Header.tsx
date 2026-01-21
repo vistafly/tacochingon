@@ -160,7 +160,7 @@ export function Header() {
                     setMobileMenuOpen(false);
                   }}
                   className={cn(
-                    'px-4 py-3 font-display text-base transition-colors rounded',
+                    'px-4 py-3 font-display text-base transition-colors rounded text-center',
                     isActive(link.href)
                       ? 'bg-amarillo/10 text-amarillo'
                       : 'text-white hover:bg-gray-800'

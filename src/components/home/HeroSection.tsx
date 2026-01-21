@@ -11,6 +11,7 @@ import { ORDER_LINKS } from '@/lib/constants';
 import type { Locale } from '@/types';
 
 const SLIDE_DURATION = 6000; // 6 seconds per slide
+const PAUSE_DURATION = 8000; // 8 seconds pause after manual interaction
 
 export function HeroSection() {
   const t = useTranslations('home');
@@ -20,8 +21,21 @@ export function HeroSection() {
   const slideRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const featuredItems = mockMenuItems.filter(item => item.isFeatured);
+
+  // Pause auto-scroll for 8 seconds after manual interaction
+  const pauseAutoScroll = useCallback(() => {
+    setIsPaused(true);
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, PAUSE_DURATION);
+  }, []);
 
   const animateSlide = useCallback((direction: 'next' | 'prev' | 'jump', targetIndex?: number) => {
     if (isAnimating || !slideRef.current) return;
@@ -65,28 +79,41 @@ export function HeroSection() {
 
   const goToNext = useCallback(() => {
     animateSlide('next');
-  }, [animateSlide]);
+    pauseAutoScroll();
+  }, [animateSlide, pauseAutoScroll]);
 
   const goToPrev = useCallback(() => {
     animateSlide('prev');
-  }, [animateSlide]);
+    pauseAutoScroll();
+  }, [animateSlide, pauseAutoScroll]);
 
   const goToSlide = useCallback((index: number) => {
     if (index === currentIndex) return;
     animateSlide('jump', index);
-  }, [currentIndex, animateSlide]);
+    pauseAutoScroll();
+  }, [currentIndex, animateSlide, pauseAutoScroll]);
 
-  // Auto-advance slideshow
+  // Auto-advance slideshow (respects pause)
   useEffect(() => {
-    if (featuredItems.length === 0) return;
+    if (featuredItems.length === 0 || isPaused) return;
     const interval = setInterval(() => {
       if (!isAnimating) {
-        goToNext();
+        // Don't call goToNext here as it would trigger pause
+        animateSlide('next');
       }
     }, SLIDE_DURATION);
 
     return () => clearInterval(interval);
-  }, [isAnimating, goToNext, featuredItems.length]);
+  }, [isAnimating, animateSlide, featuredItems.length, isPaused]);
+
+  // Cleanup pause timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {

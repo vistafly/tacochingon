@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, MapPin, Clock, Phone, Star } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Clock, Phone, Star } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturedSection } from '@/components/home/FeaturedSection';
@@ -22,6 +23,12 @@ export default function HomePage() {
 
 function TestimonialsSection() {
   const t = useTranslations('home');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartRef = useRef<number>(0);
+  const touchEndRef = useRef<number>(0);
 
   // Real reviews from Yelp and DoorDash
   const testimonials = [
@@ -44,6 +51,86 @@ function TestimonialsSection() {
       source: 'Yelp',
     },
   ];
+
+  // Pause auto-scroll for 8 seconds after manual interaction
+  const pauseAutoScroll = useCallback(() => {
+    setIsPaused(true);
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+    }
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 8000);
+  }, []);
+
+  // Navigation functions
+  const goToSlide = useCallback((index: number) => {
+    setCurrentSlide(index);
+    pauseAutoScroll();
+  }, [pauseAutoScroll]);
+
+  const goToPrev = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    pauseAutoScroll();
+  }, [testimonials.length, pauseAutoScroll]);
+
+  const goToNext = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    pauseAutoScroll();
+  }, [testimonials.length, pauseAutoScroll]);
+
+  // Touch handlers for swipe
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const swipeThreshold = 50;
+    const diff = touchStartRef.current - touchEndRef.current;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        goToNext();
+      } else {
+        goToPrev();
+      }
+    }
+  }, [goToNext, goToPrev]);
+
+  // Check for mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Auto-play carousel on mobile (respects pause)
+  useEffect(() => {
+    if (!isMobile || testimonials.length === 0 || isPaused) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isMobile, testimonials.length, isPaused]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (pauseTimeoutRef.current) {
+        clearTimeout(pauseTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Business rating info
   const overallRating = 4.3;
@@ -97,8 +184,89 @@ function TestimonialsSection() {
           </div>
         </div>
 
-        {/* Testimonials grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-4">
+        {/* Mobile Carousel */}
+        <div className="md:hidden mb-4">
+          <div className="relative">
+            {/* Previous Arrow */}
+            <button
+              onClick={goToPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+              aria-label="Previous review"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {/* Next Arrow */}
+            <button
+              onClick={goToNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+              aria-label="Next review"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            <div
+              className="overflow-hidden mx-10"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {testimonials.map((testimonial, index) => (
+                  <div
+                    key={index}
+                    className="w-full flex-shrink-0 px-2"
+                  >
+                    <div className="bg-negro-light border-2 border-gray-700 rounded-lg p-6">
+                      {/* Stars */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex gap-1">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <Star key={i} className="w-5 h-5 text-amarillo fill-current" />
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+                          {testimonial.source}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-300 mb-6 italic leading-relaxed">&quot;{testimonial.text}&quot;</p>
+
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-rojo flex items-center justify-center text-white font-bold">
+                          {testimonial.name[0]}
+                        </div>
+                        <span className="font-medium text-white">{testimonial.name}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="flex justify-center gap-2 mt-4">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  index === currentSlide
+                    ? 'bg-amarillo w-6'
+                    : 'bg-gray-600 hover:bg-gray-500'
+                }`}
+                aria-label={`Go to review ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-6 mb-4">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
@@ -129,23 +297,23 @@ function TestimonialsSection() {
         </div>
 
         {/* Review Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-row items-center justify-center gap-3">
           <a
             href={yelpUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#FF1A1A] hover:bg-[#D32323] text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 bg-[#FF1A1A] hover:bg-[#D32323] text-white font-bold py-3 px-5 rounded-lg transition-colors"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21.111 18.226c-.141.969-2.119 3.483-3.029 3.847-.311.124-.611.094-.85-.09-.154-.12-.314-.396-2.529-4.146l-.438-.742a.625.625 0 0 0-.2-.205.498.498 0 0 0-.519.021.638.638 0 0 0-.218.246l-.707 1.217c-.108.186-.107.375.003.564.119.206 2.153 3.624 2.274 3.84.121.216.153.404.104.582-.077.281-.411.484-.856.545-.636.086-3.747-.597-4.098-.914-.156-.142-.211-.332-.173-.558.022-.13.053-.199.606-2.063l.561-1.88a.627.627 0 0 0 .019-.224.503.503 0 0 0-.386-.344.593.593 0 0 0-.315.032l-1.314.509c-.199.076-.332.227-.397.448-.071.239-.892 3.904-.987 4.202-.066.209-.168.337-.318.396-.234.091-.594.03-.963-.164-.855-.451-2.812-2.869-2.978-3.799-.056-.313.015-.551.217-.712.133-.107.288-.163 3.479-1.167l.636-.2a.667.667 0 0 0 .247-.128.507.507 0 0 0 .118-.519.632.632 0 0 0-.167-.27l-1.009-.946c-.155-.144-.351-.191-.58-.14-.246.055-3.918.896-4.218.967-.213.05-.375.026-.502-.077-.193-.156-.243-.477-.138-.865.256-.952 1.626-3.696 2.355-4.191.24-.164.481-.183.716-.055.156.084.303.236 3.201 3.224l.574.593a.616.616 0 0 0 .196.139.499.499 0 0 0 .506-.103.618.618 0 0 0 .158-.288l.226-1.392c.034-.212-.023-.389-.171-.524-.16-.147-2.814-2.907-2.971-3.076-.158-.169-.218-.326-.188-.49.046-.255.335-.424.707-.449.927-.063 4.058.504 4.498.749.158.087.251.226.281.408.019.112-.006.258-.362 2.182l-.36 1.94a.63.63 0 0 0 .001.241.5.5 0 0 0 .417.318.607.607 0 0 0 .312-.055l1.266-.581c.191-.087.312-.248.361-.478.053-.248.671-3.993.72-4.297.035-.215.131-.356.299-.437.255-.122.612-.101 1.01.061.905.367 3.097 2.484 3.323 3.433.075.316.023.561-.16.735-.12.114-.276.188-3.37 1.569l-.617.275a.658.658 0 0 0-.23.156.502.502 0 0 0-.064.526c.04.097.1.177.182.239l1.101.829c.168.126.365.151.581.074.233-.083 3.854-1.245 4.147-1.339.207-.067.374-.054.516.041.214.143.297.446.225.845z"/>
+            <svg className="w-5 h-5" viewBox="0 0 16 16" fill="currentColor">
+              <path d="m4.188 10.095.736-.17.073-.02A.813.813 0 0 0 5.45 8.65a1 1 0 0 0-.3-.258 3 3 0 0 0-.428-.198l-.808-.295a76 76 0 0 0-1.364-.493C2.253 7.3 2 7.208 1.783 7.14c-.041-.013-.087-.025-.124-.038a2.1 2.1 0 0 0-.606-.116.72.72 0 0 0-.572.245 2 2 0 0 0-.105.132 1.6 1.6 0 0 0-.155.309c-.15.443-.225.908-.22 1.376.002.423.013.966.246 1.334a.8.8 0 0 0 .22.24c.166.114.333.129.507.141.26.019.513-.045.764-.103l2.447-.566zm8.219-3.911a4.2 4.2 0 0 0-.8-1.14 1.6 1.6 0 0 0-.275-.21 2 2 0 0 0-.15-.073.72.72 0 0 0-.621.031c-.142.07-.294.182-.496.37-.028.028-.063.06-.094.089-.167.156-.353.35-.574.575q-.51.516-1.01 1.042l-.598.62a3 3 0 0 0-.298.365 1 1 0 0 0-.157.364.8.8 0 0 0 .007.301q0 .007.003.013a.81.81 0 0 0 .945.616l.074-.014 3.185-.736c.251-.058.506-.112.732-.242.151-.088.295-.175.394-.35a.8.8 0 0 0 .093-.313c.05-.434-.178-.927-.36-1.308M6.706 7.523c.23-.29.23-.722.25-1.075.07-1.181.143-2.362.201-3.543.022-.448.07-.89.044-1.34-.022-.372-.025-.799-.26-1.104C6.528-.077 5.644-.033 5.04.05q-.278.038-.553.104a8 8 0 0 0-.543.149c-.58.19-1.393.537-1.53 1.204-.078.377.106.763.249 1.107.173.417.41.792.625 1.185.57 1.036 1.15 2.066 1.728 3.097.172.308.36.697.695.857q.033.015.068.025c.15.057.313.068.469.032l.028-.007a.8.8 0 0 0 .377-.226zm-.276 3.161a.74.74 0 0 0-.923-.234 1 1 0 0 0-.145.09 2 2 0 0 0-.346.354c-.026.033-.05.077-.08.104l-.512.705q-.435.591-.861 1.193c-.185.26-.346.479-.472.673l-.072.11c-.152.235-.238.406-.282.559a.7.7 0 0 0-.03.314c.013.11.05.217.108.312q.046.07.1.138a1.6 1.6 0 0 0 .257.237 4.5 4.5 0 0 0 2.196.76 1.6 1.6 0 0 0 .349-.027 2 2 0 0 0 .163-.048.8.8 0 0 0 .278-.178.7.7 0 0 0 .17-.266c.059-.147.098-.335.123-.613l.012-.13c.02-.231.03-.502.045-.821q.037-.735.06-1.469l.033-.87a2.1 2.1 0 0 0-.055-.623 1 1 0 0 0-.117-.27Zm5.783 1.362a2.2 2.2 0 0 0-.498-.378l-.112-.067c-.199-.12-.438-.246-.719-.398q-.644-.353-1.295-.695l-.767-.407c-.04-.012-.08-.04-.118-.059a2 2 0 0 0-.466-.166 1 1 0 0 0-.17-.018.74.74 0 0 0-.725.616 1 1 0 0 0 .01.293c.038.204.13.406.224.583l.41.768q.341.65.696 1.294c.152.28.28.52.398.719q.036.057.068.112c.145.239.261.39.379.497a.73.73 0 0 0 .596.201 2 2 0 0 0 .168-.029 1.6 1.6 0 0 0 .325-.129 4 4 0 0 0 .855-.64c.306-.3.577-.63.788-1.006q.045-.08.076-.165a2 2 0 0 0 .051-.161q.019-.083.029-.168a.8.8 0 0 0-.038-.327.7.7 0 0 0-.165-.27"/>
             </svg>
-            {t('readReviewsYelp')}
+            Yelp
           </a>
           <a
             href={googleSearchUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 font-bold py-3 px-6 rounded-lg transition-colors"
+            className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 font-bold py-3 px-5 rounded-lg transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -153,7 +321,7 @@ function TestimonialsSection() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            {t('reviewOnGoogle')}
+            Google
           </a>
         </div>
       </div>

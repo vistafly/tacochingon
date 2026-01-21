@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 
 const intlMiddleware = createMiddleware(routing);
 
-export default function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip locale handling for admin and API routes

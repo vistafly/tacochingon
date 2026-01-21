@@ -1,20 +1,26 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Order } from '@/lib/supabase/types';
 
 const MAX_RETRIES = 10;
 const RETRY_DELAY = 2000; // 2 seconds
-const POLL_INTERVAL = 3000; // Poll every 3 seconds for updates
+const POLL_INTERVAL = 15000; // Poll every 15 seconds for updates
+const MAX_POLL_DURATION = 30 * 60 * 1000; // Stop polling after 30 minutes
 
 export function useOrderSubscription(orderId: string) {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const retryCountRef = useRef(0);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const orderRef = useRef<Order | null>(null);
+  const pollStartTimeRef = useRef<number>(0);
+  const isPollingRef = useRef(false);
+
+  // Stable fetch function using ref for orderId
+  const orderIdRef = useRef(orderId);
+  orderIdRef.current = orderId;
 
   const fetchOrder = useCallback(async (isRetry = false) => {
     if (!isRetry) {
@@ -24,28 +30,25 @@ export function useOrderSubscription(orderId: string) {
     }
 
     try {
-      // Get customer email from localStorage
-      const customerEmail = localStorage.getItem(`order_${orderId}_email`);
+      const currentOrderId = orderIdRef.current;
+      const customerEmail = localStorage.getItem(`order_${currentOrderId}_email`);
 
-      // Build API URL with email parameter for authentication
       const url = customerEmail
-        ? `/api/orders/${orderId}?email=${encodeURIComponent(customerEmail)}`
-        : `/api/orders/${orderId}`;
+        ? `/api/orders/${currentOrderId}?email=${encodeURIComponent(customerEmail)}`
+        : `/api/orders/${currentOrderId}`;
 
       const response = await fetch(url);
 
       if (response.ok) {
         const data = await response.json();
         setOrder(data.order);
+        orderRef.current = data.order;
         setError(null);
         setLoading(false);
         retryCountRef.current = 0;
       } else if (response.status === 404 && retryCountRef.current < MAX_RETRIES) {
-        // Order not found yet - webhook may still be processing
         retryCountRef.current += 1;
-        retryTimeoutRef.current = setTimeout(() => {
-          fetchOrder(true);
-        }, RETRY_DELAY);
+        setTimeout(() => fetchOrder(true), RETRY_DELAY);
       } else if (response.status === 401) {
         setError('Unauthorized - invalid order access');
         setOrder(null);
@@ -60,29 +63,44 @@ export function useOrderSubscription(orderId: string) {
       setError('Failed to fetch order');
       setLoading(false);
     }
-  }, [orderId]);
+  }, []); // No dependencies - uses refs
 
   useEffect(() => {
+    // Reset on orderId change
+    pollStartTimeRef.current = Date.now();
+    isPollingRef.current = true;
+
+    // Initial fetch
     fetchOrder();
 
-    // Set up polling for order updates (instead of real-time subscription)
-    // This replaces the Supabase subscription which won't work with RLS enabled
-    pollIntervalRef.current = setInterval(() => {
-      // Only poll if we have an order and it's not in a terminal state
-      if (order && order.status !== 'completed' && order.status !== 'cancelled') {
+    // Set up polling
+    const intervalId = setInterval(() => {
+      const currentOrder = orderRef.current;
+      const elapsed = Date.now() - pollStartTimeRef.current;
+
+      // Stop polling conditions
+      if (
+        !isPollingRef.current ||
+        currentOrder?.status === 'completed' ||
+        currentOrder?.status === 'cancelled' ||
+        elapsed > MAX_POLL_DURATION
+      ) {
+        clearInterval(intervalId);
+        isPollingRef.current = false;
+        return;
+      }
+
+      // Only poll if we have an order (not during initial retries)
+      if (currentOrder) {
         fetchOrder(true);
       }
     }, POLL_INTERVAL);
 
     return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
+      clearInterval(intervalId);
+      isPollingRef.current = false;
     };
-  }, [orderId, fetchOrder, order]);
+  }, [orderId, fetchOrder]);
 
   return { order, loading, error, refetch: fetchOrder };
 }

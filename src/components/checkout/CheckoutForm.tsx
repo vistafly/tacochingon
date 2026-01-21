@@ -16,6 +16,7 @@ import { useCartStore } from '@/store/cart-store';
 import { useActiveOrderStore } from '@/store/active-order-store';
 import { TimePillPicker } from './TimePillPicker';
 import { PaymentMethods } from '@/components/ui/PaymentMethods';
+import { DevQuickFill } from './DevQuickFill';
 import { OrderItem } from '@/types/order';
 
 const stripePromise = loadStripe(
@@ -318,6 +319,14 @@ export function CheckoutForm({
     setPhone(formatted);
   };
 
+  // DEV ONLY: Quick fill handler for Ctrl+Shift+D
+  const handleQuickFill = (data: { name: string; email: string; phone: string; pickupTime: string }) => {
+    setName(data.name);
+    setEmail(data.email);
+    setPhone(data.phone);
+    setPickupTime(data.pickupTime);
+  };
+
   if (!isOpen) {
     return (
       <div className="bg-negro-light rounded-lg border border-gray-700 p-6">
@@ -467,6 +476,9 @@ export function CheckoutForm({
       {/* Secure Payment Notice */}
       <p className="text-xs text-gray-500 text-center">{t('securePayment')}</p>
       <PaymentMethods className="mt-4" />
+
+      {/* DEV ONLY: Quick fill with Ctrl+Shift+D - Remove when done testing */}
+      <DevQuickFill onFill={handleQuickFill} minTime={minTime} />
     </div>
   );
 }
