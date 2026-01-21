@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
@@ -12,8 +13,10 @@ import {
   RefreshCw,
   AlertCircle,
   Loader2,
+  MapPin,
 } from 'lucide-react';
 import { useOrderSubscription } from '@/hooks/useOrderSubscription';
+import { useActiveOrderStore } from '@/store/active-order-store';
 import { formatPrice } from '@/lib/utils';
 import { mockSettings } from '@/data/mock-settings';
 import { OrderStatus } from '@/types/order';
@@ -42,6 +45,27 @@ export default function OrderStatusPage() {
   const orderId = params.id as string;
 
   const { order, loading, error, refetch } = useOrderSubscription(orderId);
+  const { setActiveOrder, clearActiveOrder } = useActiveOrderStore();
+
+  // Sync order status with active order store
+  useEffect(() => {
+    if (order) {
+      if (order.status === 'completed' || order.status === 'cancelled') {
+        // Clear active order when completed or cancelled
+        clearActiveOrder();
+      } else {
+        // Update or set active order
+        setActiveOrder({
+          paymentIntentId: orderId,
+          orderNumber: order.order_number,
+          status: order.status as 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled',
+          createdAt: order.created_at,
+          pickupTime: order.pickup_time,
+          total: order.total,
+        });
+      }
+    }
+  }, [order, orderId, setActiveOrder, clearActiveOrder]);
 
   if (loading) {
     return (
@@ -238,7 +262,7 @@ export default function OrderStatusPage() {
         {/* Contact & Actions */}
         <div className="bg-negro-light rounded-lg border border-gray-700 p-6">
           <p className="text-gray-400 mb-4">{t('questions')}</p>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <a
               href={`tel:${mockSettings.phone.replace(/\D/g, '')}`}
               className="flex-1 flex items-center justify-center gap-2 bg-verde hover:bg-verde/90 text-white py-3 rounded-lg transition-colors"
@@ -254,6 +278,15 @@ export default function OrderStatusPage() {
               {t('refreshStatus')}
             </button>
           </div>
+          <a
+            href="https://maps.google.com/?q=123+Main+Street+Fresno+CA+93722"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 bg-amarillo hover:bg-amarillo/90 text-negro font-semibold py-3 rounded-lg transition-colors"
+          >
+            <MapPin className="w-5 h-5" />
+            {t('getDirections')}
+          </a>
         </div>
       </div>
     </div>

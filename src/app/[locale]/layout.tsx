@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/cart/CartDrawer';
+import { ActiveOrderBanner } from '@/components/layout/ActiveOrderBanner';
 import { GSAPProvider } from '@/components/animations/GSAPProvider';
 import { LoadingProvider } from '@/components/providers/LoadingProvider';
 import { InnerLoader } from '@/components/loading/InnerLoader';
@@ -36,6 +37,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <NextIntlClientProvider messages={messages}>
       <LoadingProvider>
         <GSAPProvider>
+          <ActiveOrderBanner />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

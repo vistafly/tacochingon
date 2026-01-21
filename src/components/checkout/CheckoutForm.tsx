@@ -13,6 +13,7 @@ import { useRouter } from '@/i18n/routing';
 import { User, Mail, Phone, AlertCircle, Loader2 } from 'lucide-react';
 import { mockSettings } from '@/data/mock-settings';
 import { useCartStore } from '@/store/cart-store';
+import { useActiveOrderStore } from '@/store/active-order-store';
 import { TimePillPicker } from './TimePillPicker';
 import { PaymentMethods } from '@/components/ui/PaymentMethods';
 import { OrderItem } from '@/types/order';
@@ -52,6 +53,7 @@ function PaymentForm({
   const elements = useElements();
   const router = useRouter();
   const { clearCart } = useCartStore();
+  const { setActiveOrder } = useActiveOrderStore();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -92,6 +94,15 @@ function PaymentForm({
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Payment succeeded without redirect
         clearCart();
+        // Store customer email for order verification
+        localStorage.setItem(`order_${paymentIntentId}_email`, customerInfo.email);
+        // Save active order for banner display
+        setActiveOrder({
+          paymentIntentId,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          pickupTime: customerInfo.pickupTime,
+        });
         // Redirect to order status page with payment intent ID
         router.push(`/order/${paymentIntentId}`);
       }

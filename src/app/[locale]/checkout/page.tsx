@@ -94,7 +94,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="py-12 md:py-16 bg-negro min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
             <ShoppingBag className="w-20 h-20 text-gray-600 mx-auto mb-6" />
             <h2 className="text-xl font-display text-white mb-2">
@@ -114,12 +114,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="py-12 md:py-16 bg-negro min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/cart" className="inline-flex items-center text-gray-400 hover:text-amarillo transition-colors mb-4">
+          <Link href="/menu" className="inline-flex items-center text-gray-400 hover:text-amarillo transition-colors mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('backToCart')}
+            {tCart('continueShopping')}
           </Link>
           <h1 className="font-display text-3xl md:text-4xl text-white">
             {t('title')}

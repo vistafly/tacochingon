@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { Minus, Plus, Trash2, Check, MessageSquare, Pencil } from 'lucide-react';
@@ -24,6 +24,28 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   const [showNotes, setShowNotes] = useState(!!notes);
   const [localNotes, setLocalNotes] = useState(notes || '');
   const [showCustomizations, setShowCustomizations] = useState(false);
+  const customizationsRef = useRef<HTMLDivElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close customizations panel when clicking outside
+  useEffect(() => {
+    if (!showCustomizations) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        customizationsRef.current &&
+        !customizationsRef.current.contains(target) &&
+        editButtonRef.current &&
+        !editButtonRef.current.contains(target)
+      ) {
+        setShowCustomizations(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showCustomizations]);
 
   const handleCheckboxToggle = () => {
     if (isSelected) {
@@ -76,138 +98,153 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   const customizationsText = getCustomizationsText();
 
   return (
-    <div className="bg-negro-light rounded-lg p-4 border border-gray-700">
+    <div className="bg-negro-light rounded-xl p-5 border border-gray-700/80 shadow-lg">
       {/* Main content row */}
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         {/* Checkbox */}
         <button
           onClick={handleCheckboxToggle}
-          className="shrink-0 self-start mt-1"
+          className="shrink-0 self-center"
           aria-label={isSelected ? t('remove') : t('addBack')}
         >
-          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+          <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
             isSelected
-              ? 'bg-verde border-verde'
+              ? 'bg-verde border-verde shadow-sm shadow-verde/30'
               : 'border-gray-500 hover:border-rojo'
           }`}>
-            {isSelected && <Check className="w-3 h-3 text-white" />}
+            {isSelected && <Check className="w-4 h-4 text-white" />}
           </div>
         </button>
 
         {/* Image */}
-        <div className="relative w-14 h-14 rounded-md overflow-hidden shrink-0 bg-gray-800">
+        <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-800 shadow-md">
           <Image
             src={item.image || '/images/menu/placeholder-default.svg'}
             alt={item.name[locale]}
             fill
             className="object-cover"
-            sizes="56px"
+            sizes="64px"
           />
         </div>
 
         {/* Item details */}
         <div className="flex-1 min-w-0">
           {/* Name and price row */}
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h3 className="font-display text-white text-sm leading-tight">
+              <h3 className="font-display text-white text-base font-semibold leading-tight">
                 {item.name[locale]}
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-sm text-gray-400 mt-1">
                 {formatPrice(item.price)} each
               </p>
             </div>
 
             {/* Price column */}
             <div className="text-right shrink-0">
-              <span className="font-display text-amarillo text-lg">
+              <span className="font-display text-amarillo text-xl font-bold">
                 {formatPrice(itemTotalPrice)}
               </span>
               {addOnCost > 0 && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-400 mt-0.5">
                   +{formatPrice(addOnCost * quantity)} {tCustom('extras')}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Customizations text - subtle below name */}
-          {customizationsText && (
-            <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
-              {customizationsText}
-            </p>
-          )}
         </div>
       </div>
 
+      {/* Customizations text - full width below main content */}
+      {customizationsText && (
+        <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+          {customizationsText}
+        </p>
+      )}
+
       {/* Quantity, Edit customizations, and Delete - full width row */}
-      <div className="flex items-center justify-between mt-3">
+      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700/50">
         {/* Quantity controls */}
-        <div className="flex items-center bg-negro rounded border border-gray-600">
+        <div className="flex items-center bg-negro rounded-lg border border-gray-600">
           <button
             onClick={() => updateCartItemQuantity(cartItemId, quantity - 1)}
-            className="p-1.5 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-l-lg transition-colors"
             aria-label="Decrease quantity"
           >
-            <Minus className="w-3.5 h-3.5" />
+            <Minus className="w-4 h-4" />
           </button>
-          <span className="px-3 text-sm font-medium text-white min-w-8 text-center">
+          <span className="px-4 text-base font-semibold text-white min-w-10 text-center">
             {quantity}
           </span>
           <button
             onClick={() => updateCartItemQuantity(cartItemId, quantity + 1)}
-            className="p-1.5 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-r-lg transition-colors"
             aria-label="Increase quantity"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Edit customizations button */}
-        {hasCustomizations && (
-          <button
-            onClick={() => setShowCustomizations(!showCustomizations)}
-            className="flex items-center gap-1 text-xs text-gray-500 hover:text-amarillo transition-colors"
-          >
-            <Pencil className="w-3 h-3" />
-            <span>{t('editCustomizations')}</span>
-            {customizations && customizations.length > 0 && (
-              <span className="text-amarillo/70">({customizations.length})</span>
-            )}
-          </button>
-        )}
+        {/* Action buttons - grouped on right */}
+        <div className="flex items-center gap-2">
+          {/* Edit customizations button */}
+          {hasCustomizations && (
+            <button
+              ref={editButtonRef}
+              onClick={() => setShowCustomizations(!showCustomizations)}
+              className={`flex items-center gap-1.5 px-2 py-1.5 text-sm rounded-lg transition-colors ${
+                showCustomizations
+                  ? 'text-amarillo bg-amarillo/15'
+                  : 'text-gray-400 hover:text-amarillo hover:bg-amarillo/10'
+              }`}
+              title={t('editCustomizations')}
+            >
+              <Pencil className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('editCustomizations')}</span>
+              {customizations && customizations.length > 0 && (
+                <span className={`font-medium ${showCustomizations ? 'text-amarillo' : 'text-amarillo'}`}>({customizations.length})</span>
+              )}
+            </button>
+          )}
 
-        {/* Notes button (if enabled) */}
-        {showNotesEditor && (
-          <button
-            onClick={() => setShowNotes(!showNotes)}
-            className="flex items-center gap-1 text-xs text-gray-500 hover:text-amarillo transition-colors"
-          >
-            <MessageSquare className="w-3 h-3" />
-            <span>{notes ? t('editNotes') : t('addNotes')}</span>
-          </button>
-        )}
+          {/* Notes button (if enabled) */}
+          {showNotesEditor && (
+            <button
+              onClick={() => setShowNotes(!showNotes)}
+              className={`flex items-center gap-1.5 px-2 py-1.5 text-sm rounded-lg transition-colors ${
+                showNotes
+                  ? 'text-amarillo bg-amarillo/15'
+                  : 'text-gray-400 hover:text-amarillo hover:bg-amarillo/10'
+              }`}
+              title={notes ? t('editNotes') : t('addNotes')}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">{notes ? t('editNotes') : t('addNotes')}</span>
+            </button>
+          )}
 
-        {/* Delete button */}
-        <button
-          onClick={() => removeCartItem(cartItemId)}
-          className="p-1.5 text-gray-500 hover:text-rojo transition-colors"
-          aria-label={t('remove')}
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+          {/* Delete button */}
+          <button
+            onClick={() => removeCartItem(cartItemId)}
+            className="p-2 text-gray-400 hover:text-rojo hover:bg-rojo/10 rounded-lg transition-colors"
+            aria-label={t('remove')}
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Display existing notes */}
       {!showNotes && notes && (
-        <p className="mt-2 text-xs text-gray-500 italic">
+        <p className="mt-3 text-sm text-gray-400 italic pl-1 border-l-2 border-amarillo/30">
           &quot;{notes}&quot;
         </p>
       )}
 
       {/* Customizations editor panel */}
       {showCustomizations && hasCustomizations && (
-        <div className="mt-3 pt-3 border-t border-t-gray-700/50 space-y-3">
+        <div ref={customizationsRef} className="mt-3 pt-3 border-t border-t-gray-700/50 space-y-3">
           {removeOptions.length > 0 && (
             <div>
               <p className="text-xs text-gray-600 mb-2">{tCustom('removeIngredients')}</p>

@@ -104,7 +104,7 @@ export function CartDrawer() {
             </div>
 
             {/* Checkout Options */}
-            <Link href="/cart" onClick={closeCart}>
+            <Link href="/checkout" onClick={closeCart}>
               <button className="w-full btn-order py-4 mb-3">
                 {t('checkout')}
               </button>

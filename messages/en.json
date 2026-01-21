@@ -123,6 +123,8 @@
   "order": {
     "confirmation": "Order Confirmed!",
     "orderNumber": "Order #{number}",
+    "yourOrder": "Your Order",
+    "tapToView": "Tap to view",
     "status": "Status",
     "pending": "Order Received",
     "preparing": "Preparing",
@@ -144,7 +146,9 @@
     "orderNotFoundDesc": "We couldn't find an order with this ID. Please check your order confirmation.",
     "backToMenu": "Back to Menu",
     "refreshStatus": "Refresh Status",
-    "thankYou": "Thank You!"
+    "thankYou": "Thank You!",
+    "pickupLocation": "Pickup Location",
+    "getDirections": "Get Directions"
   },
   "location": {
     "title": "Location & Hours",

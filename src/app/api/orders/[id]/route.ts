@@ -7,8 +7,26 @@ interface RouteParams {
 }
 
 // GET /api/orders/[id] - Get order by payment intent ID or order number
+// Requires either admin authentication OR customer email verification
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  const { searchParams } = new URL(request.url);
+
+  // Check if admin is authenticated
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get('admin_token');
+  const isAdmin = adminToken?.value === process.env.ADMIN_PIN;
+
+  // If not admin, require customer email for verification
+  const customerEmail = searchParams.get('email');
+
+  if (!isAdmin && !customerEmail) {
+    return NextResponse.json(
+      { error: 'Unauthorized - customer email required' },
+      { status: 401 }
+    );
+  }
+
   const supabase = createServerClient();
 
   // Try to find by payment intent ID first
@@ -17,16 +35,26 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     .select('*')
     .eq('stripe_payment_intent_id', id);
 
+  // Add email filter if not admin
+  if (!isAdmin && customerEmail) {
+    query = query.eq('customer_email', customerEmail);
+  }
+
   let { data: order, error } = await query.single();
 
   // If not found, try by order number
   if (!order && !isNaN(Number(id))) {
-    const { data: orderByNumber, error: numberError } = await supabase
+    let orderQuery = supabase
       .from('orders')
       .select('*')
-      .eq('order_number', Number(id))
-      .single();
+      .eq('order_number', Number(id));
 
+    // Add email filter if not admin
+    if (!isAdmin && customerEmail) {
+      orderQuery = orderQuery.eq('customer_email', customerEmail);
+    }
+
+    const { data: orderByNumber, error: numberError } = await orderQuery.single();
     order = orderByNumber;
     error = numberError;
   }

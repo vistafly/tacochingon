@@ -30,14 +30,20 @@ export async function GET(request: NextRequest) {
 
   // Filter by date
   if (date === 'today') {
+    // For 'today', we want:
+    // - All non-completed orders from today
+    // - All completed orders from the last 24 hours
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
-    query = query
-      .gte('created_at', today.toISOString())
-      .lt('created_at', tomorrow.toISOString());
+    // Use OR filter: (created today) OR (completed in last 24 hours)
+    query = query.or(
+      `created_at.gte.${today.toISOString()},and(status.eq.completed,updated_at.gte.${twentyFourHoursAgo.toISOString()})`
+    );
   } else if (date) {
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);

@@ -123,6 +123,8 @@
   "order": {
     "confirmation": "Orden Confirmada!",
     "orderNumber": "Orden #{number}",
+    "yourOrder": "Tu Orden",
+    "tapToView": "Toca para ver",
     "status": "Estado",
     "pending": "Orden Recibida",
     "preparing": "Preparando",
@@ -144,7 +146,9 @@
     "orderNotFoundDesc": "No pudimos encontrar una orden con este ID. Por favor verifica tu confirmacion de orden.",
     "backToMenu": "Volver al Menu",
     "refreshStatus": "Actualizar Estado",
-    "thankYou": "¡Gracias!"
+    "thankYou": "¡Gracias!",
+    "pickupLocation": "Ubicacion de Recogida",
+    "getDirections": "Obtener Direcciones"
   },
   "location": {
     "title": "Ubicacion y Horarios",
