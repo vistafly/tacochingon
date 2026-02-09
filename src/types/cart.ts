@@ -3,8 +3,9 @@ import { MenuItem } from './menu';
 // Selected customization for an item in cart
 export interface SelectedCustomization {
   id: string;
-  type: 'remove' | 'add';
+  type: 'remove' | 'add' | 'select';
   price?: number; // For add-ons with extra cost
+  group?: string; // Group name for 'select' type
 }
 
 export interface CartItem {

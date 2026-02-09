@@ -152,12 +152,12 @@ html {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: all 0.15s ease;
-  box-shadow: 4px 4px 0 #1A1A1A;
+  box-shadow: 4px 4px 0 #FFD700;
 }
 
 .btn-verde:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #1A1A1A;
+  box-shadow: 6px 6px 0 #FFD700;
 }
 
 /* Legacy button support */
@@ -360,8 +360,8 @@ html {
 /* ===== ANIMATIONS ===== */
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4)); }
+  50% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.6)); }
 }
 
 .animate-pulse-glow {

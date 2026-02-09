@@ -5,6 +5,7 @@ import { persist } from 'zustand/middleware';
 import { MenuItem, CartItem } from '@/types';
 import { SelectedCustomization } from '@/types/cart';
 import { TAX_RATE } from '@/lib/constants';
+import { mockMenuItems } from '@/data/mock-menu';
 
 // Generate unique ID for cart items
 const generateCartItemId = () => `cart-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
@@ -220,6 +221,22 @@ export const useCartStore = create<CartState>()(
     {
       name: 'el-taco-chingon-cart',
       partialize: (state) => ({ items: state.items, orderNotes: state.orderNotes }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<CartState>;
+        const menuMap = new Map(mockMenuItems.map(i => [i.id, i]));
+        // Remove stale items and refresh item data (image, price, name) from current menu
+        const freshItems = (persisted.items || [])
+          .filter(cartItem => menuMap.has(cartItem.item.id))
+          .map(cartItem => ({
+            ...cartItem,
+            item: menuMap.get(cartItem.item.id)!,
+          }));
+        return {
+          ...currentState,
+          ...persisted,
+          items: freshItems,
+        };
+      },
     }
   )
 );

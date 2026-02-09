@@ -338,16 +338,16 @@ function LocationSection() {
     : `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 
   return (
-    <section className="relative py-20 bg-negro">
+    <section className="relative py-12 md:py-20 bg-negro">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-6 md:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-verde text-white rounded mb-4">
             <MapPin className="w-4 h-4" />
             <span className="font-display text-sm uppercase">{tLocation('findUs')}</span>
           </div>
 
-          <h2 className="font-display text-4xl md:text-5xl text-white mb-4">
+          <h2 className="font-display text-3xl md:text-5xl text-white mb-4">
             {t('locationTitle')}
           </h2>
 
@@ -359,9 +359,9 @@ function LocationSection() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-5 md:gap-8">
           {/* Embedded Google Map */}
-          <div className="relative aspect-video md:aspect-[4/3] rounded-lg overflow-hidden border-2 border-gray-700">
+          <div className="relative aspect-[4/3] md:aspect-[4/3] rounded-lg overflow-hidden border-2 border-gray-700">
             <iframe
               src={embedUrl}
               width="100%"
@@ -376,50 +376,59 @@ function LocationSection() {
           </div>
 
           {/* Info */}
-          <div className="space-y-6">
-            {/* Address */}
-            <div className="bg-negro rounded-lg p-6 border-2 border-gray-700 border-l-4 border-l-rojo">
-              <div className="flex items-start gap-4">
-                <MapPin className="w-6 h-6 text-rojo flex-shrink-0" />
-                <div>
-                  <h3 className="font-display text-lg text-white mb-2">{tLocation('address')}</h3>
-                  <p className="text-gray-400">
-                    {BUSINESS_INFO.address.street}<br />
-                    {BUSINESS_INFO.address.city}, {BUSINESS_INFO.address.state} {BUSINESS_INFO.address.zip}
-                  </p>
+          <div className="space-y-3 md:space-y-6">
+            {/* Address & Phone row on mobile */}
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-6">
+              {/* Address */}
+              <div className="bg-negro rounded-lg p-4 md:p-6 border-2 border-gray-700 border-l-4 border-l-rojo">
+                <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
+                  <div className="w-9 h-9 rounded-full bg-rojo/20 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-rojo" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-sm md:text-lg text-white mb-1 md:mb-2">{tLocation('address')}</h3>
+                    <p className="text-gray-400 text-xs md:text-base leading-relaxed">
+                      {BUSINESS_INFO.address.street}<br />
+                      {BUSINESS_INFO.address.city}, {BUSINESS_INFO.address.state} {BUSINESS_INFO.address.zip}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Hours */}
-            <div className="bg-negro rounded-lg p-6 border-2 border-gray-700 border-l-4 border-l-amarillo">
-              <div className="flex items-start gap-4">
-                <Clock className="w-6 h-6 text-amarillo flex-shrink-0" />
-                <div>
-                  <h3 className="font-display text-lg text-white mb-2">{tLocation('hours')}</h3>
-                  <div className="text-gray-400 space-y-1">
-                    <p className="flex justify-between gap-8">
-                      <span>{tLocation('monday')}:</span>
-                      <span className="text-rojo font-medium">{tLocation('closedDay')}</span>
-                    </p>
-                    <p className="flex justify-between gap-8">
-                      <span>{tLocation('tuesday')} - {tLocation('sunday')}:</span>
-                      <span>5:30 PM - 11:30 PM</span>
-                    </p>
+              {/* Phone */}
+              <div className="bg-negro rounded-lg p-4 md:p-6 border-2 border-gray-700 border-l-4 border-l-verde">
+                <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
+                  <div className="w-9 h-9 rounded-full bg-verde/20 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-verde" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-sm md:text-lg text-white mb-1 md:mb-2">{tLocation('callUs')}</h3>
+                    <a href={`tel:${BUSINESS_INFO.phone}`} className="text-amarillo hover:text-amarillo/80 transition-colors text-xs md:text-base">
+                      {BUSINESS_INFO.phone}
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Phone */}
-            <div className="bg-negro rounded-lg p-6 border-2 border-gray-700 border-l-4 border-l-verde">
-              <div className="flex items-start gap-4">
-                <Phone className="w-6 h-6 text-verde flex-shrink-0" />
-                <div>
-                  <h3 className="font-display text-lg text-white mb-2">{tLocation('callUs')}</h3>
-                  <a href={`tel:${BUSINESS_INFO.phone}`} className="text-amarillo hover:text-amarillo/80 transition-colors">
-                    {BUSINESS_INFO.phone}
-                  </a>
+            {/* Hours - full width */}
+            <div className="bg-negro rounded-lg p-4 md:p-6 border-2 border-gray-700 border-l-4 border-l-amarillo">
+              <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
+                <div className="w-9 h-9 rounded-full bg-amarillo/20 flex items-center justify-center flex-shrink-0">
+                  <Clock className="w-5 h-5 text-amarillo" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-display text-sm md:text-lg text-white mb-1 md:mb-2">{tLocation('hours')}</h3>
+                  <div className="text-gray-400 text-xs md:text-base space-y-1">
+                    <p className="flex justify-between gap-4">
+                      <span>{tLocation('monday')}:</span>
+                      <span className="text-rojo font-medium">{tLocation('closedDay')}</span>
+                    </p>
+                    <p className="flex justify-between gap-4">
+                      <span>{tLocation('tuesday')} - {tLocation('sunday')}:</span>
+                      <span>5:30 PM - 11:30 PM</span>
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -446,8 +455,8 @@ function CTASection() {
       {/* Background */}
       <div className="absolute inset-0">
         <Image
-          src="/images/menu/asadafries.jpg"
-          alt="Asada Fries"
+          src="/images/menu/quesabirria.jpg"
+          alt="Quesabirria Tacos"
           fill
           className="object-cover opacity-20"
         />

@@ -7,9 +7,11 @@ export interface LocalizedString {
 export interface ItemCustomization {
   id: string;
   name: LocalizedString;
-  type: 'remove' | 'add'; // Remove an ingredient or add extra
+  type: 'remove' | 'add' | 'select'; // Remove ingredient, add extra, or select choice
   price?: number; // Additional price for 'add' type options
   default?: boolean; // Whether this is included by default (for 'remove' type)
+  group?: string; // Group name for 'select' type (e.g., 'meat', 'flavor')
+  groupLabel?: LocalizedString; // Display label for the group (only on first item in group)
 }
 
 export interface MenuItem {

@@ -10,7 +10,7 @@ export type OrderStatus =
 export interface OrderItemCustomization {
   id: string;
   name: LocalizedString;
-  type: 'remove' | 'add';
+  type: 'remove' | 'add' | 'select';
   price: number;
 }
 

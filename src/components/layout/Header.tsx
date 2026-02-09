@@ -57,10 +57,7 @@ export function Header() {
       )}
     >
       {/* Mexican flag stripe - top */}
-      <div
-        className="h-1.5 w-full bg-gradient-to-r from-verde via-white to-rojo"
-        style={{ boxShadow: '0 2px 10px rgba(0, 104, 71, 0.4), 0 2px 10px rgba(206, 17, 38, 0.4)' }}
-      />
+      <div className="h-1 w-full bg-gradient-to-r from-verde via-white to-rojo" />
 
       <nav className="w-full px-6 lg:px-12">
         <div className="relative flex items-center justify-between h-20 md:h-24">
@@ -189,10 +186,7 @@ export function Header() {
       </nav>
 
       {/* Mexican flag stripe - bottom */}
-      <div
-        className="h-1.5 w-full bg-gradient-to-r from-verde via-white to-rojo"
-        style={{ boxShadow: '0 2px 10px rgba(0, 104, 71, 0.4), 0 2px 10px rgba(206, 17, 38, 0.4)' }}
-      />
+      <div className="h-1 w-full bg-gradient-to-r from-verde via-white to-rojo" />
     </header>
   );
 }

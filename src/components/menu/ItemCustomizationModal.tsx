@@ -31,13 +31,36 @@ export function ItemCustomizationModal({
   const [quantity, setQuantity] = useState(1);
   const [selectedCustomizations, setSelectedCustomizations] = useState<SelectedCustomization[]>([]);
 
+  // Get select groups from customizations
+  const selectGroups = (() => {
+    const groups: Record<string, { label?: { en: string; es: string }; options: ItemCustomization[] }> = {};
+    item.customizations?.filter(c => c.type === 'select').forEach(c => {
+      const group = c.group || 'default';
+      if (!groups[group]) groups[group] = { options: [] };
+      if (c.groupLabel) groups[group].label = c.groupLabel;
+      groups[group].options.push(c);
+    });
+    return groups;
+  })();
+
   // Reset state when modal opens with new item, pre-fill with initial customizations
   useEffect(() => {
     if (isOpen) {
       setQuantity(1);
-      setSelectedCustomizations(initialCustomizations);
+      if (initialCustomizations.length > 0) {
+        setSelectedCustomizations(initialCustomizations);
+      } else {
+        // Pre-select first option of each select group
+        const defaults: SelectedCustomization[] = [];
+        Object.entries(selectGroups).forEach(([groupName, group]) => {
+          if (group.options.length > 0) {
+            defaults.push({ id: group.options[0].id, type: 'select', group: groupName });
+          }
+        });
+        setSelectedCustomizations(defaults);
+      }
     }
-  }, [isOpen, item.id, initialCustomizations]);
+  }, [isOpen, item.id]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -61,9 +84,29 @@ export function ItemCustomizationModal({
 
   const removeOptions = item.customizations?.filter((c) => c.type === 'remove') || [];
   const addOptions = item.customizations?.filter((c) => c.type === 'add') || [];
+  const hasMeatOnly = removeOptions.some((c) => c.id === 'meat-only');
+  const isMeatOnlySelected = selectedCustomizations.some((c) => c.id === 'meat-only');
 
   const handleToggleCustomization = (customization: ItemCustomization) => {
     setSelectedCustomizations((prev) => {
+      // Special handling for "Meat Only" toggle
+      if (customization.id === 'meat-only') {
+        const wasSelected = prev.some((c) => c.id === 'meat-only');
+        if (wasSelected) {
+          // Turning OFF: remove meat-only and all other remove options
+          const removeIds = new Set(removeOptions.map((r) => r.id));
+          return prev.filter((c) => !removeIds.has(c.id));
+        } else {
+          // Turning ON: add meat-only and all other remove options
+          const existingNonRemove = prev.filter((c) => c.type !== 'remove');
+          const allRemoveSelections = removeOptions.map((r) => ({
+            id: r.id,
+            type: 'remove' as const,
+          }));
+          return [...existingNonRemove, ...allRemoveSelections];
+        }
+      }
+
       const exists = prev.find((c) => c.id === customization.id);
       if (exists) {
         return prev.filter((c) => c.id !== customization.id);
@@ -76,6 +119,15 @@ export function ItemCustomizationModal({
           price: customization.price,
         },
       ];
+    });
+  };
+
+  const handleSelectOption = (customization: ItemCustomization) => {
+    const group = customization.group || 'default';
+    setSelectedCustomizations((prev) => {
+      // Remove any existing selection from this group, then add the new one
+      const filtered = prev.filter((c) => c.group !== group);
+      return [...filtered, { id: customization.id, type: 'select' as const, group }];
     });
   };
 
@@ -106,7 +158,7 @@ export function ItemCustomizationModal({
       {/* Modal */}
       <div className="relative bg-negro-light border border-gray-700 rounded-xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col">
         {/* Header with image */}
-        <div className="relative h-36 bg-gray-800 flex-shrink-0">
+        <div className="relative h-36 bg-gray-800 shrink-0">
           {item.image && !item.image.includes('placeholder') ? (
             <Image
               src={item.image}
@@ -148,35 +200,78 @@ export function ItemCustomizationModal({
             <p className="text-gray-300 text-xs">{item.description[locale]}</p>
           </div>
 
-          {/* Remove options */}
-          {removeOptions.length > 0 && (
-            <div className="px-3 py-2 border-b border-gray-700">
-              <h3 className="font-display text-white text-sm mb-2">{t('removeIngredients')}</h3>
+          {/* Select groups (meat/flavor choices) */}
+          {Object.entries(selectGroups).map(([groupName, group]) => (
+            <div key={groupName} className="px-3 py-2 border-b border-gray-700">
+              <h3 className="font-display text-white text-sm mb-2">
+                {group.label ? group.label[locale] : groupName}
+              </h3>
               <div className="grid grid-cols-2 gap-1.5">
-                {removeOptions.map((option) => (
+                {group.options.map((option) => (
                   <button
                     key={option.id}
-                    onClick={() => handleToggleCustomization(option)}
+                    onClick={() => handleSelectOption(option)}
                     className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
                       isCustomizationSelected(option.id)
-                        ? 'border-rojo bg-rojo/10 text-rojo'
+                        ? 'border-amarillo bg-amarillo/10 text-amarillo'
                         : 'border-gray-600 text-gray-300 hover:border-gray-500'
                     }`}
                   >
                     <span className="text-xs">{option.name[locale]}</span>
                     <div
-                      className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
                         isCustomizationSelected(option.id)
-                          ? 'bg-rojo border-rojo'
+                          ? 'bg-amarillo border-amarillo'
                           : 'border-gray-500'
                       }`}
                     >
                       {isCustomizationSelected(option.id) && (
-                        <X className="w-2.5 h-2.5 text-white" />
+                        <div className="w-2 h-2 rounded-full bg-negro" />
                       )}
                     </div>
                   </button>
                 ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Remove options */}
+          {removeOptions.length > 0 && (
+            <div className="px-3 py-2 border-b border-gray-700">
+              <h3 className="font-display text-white text-sm mb-2">{t('removeIngredients')}</h3>
+              <div className="grid grid-cols-2 gap-1.5">
+                {removeOptions.map((option) => {
+                  const isMeatOnlyBtn = option.id === 'meat-only';
+                  const forcedByMeatOnly = !isMeatOnlyBtn && isMeatOnlySelected;
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => !forcedByMeatOnly && handleToggleCustomization(option)}
+                      className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
+                        isMeatOnlyBtn && isMeatOnlySelected
+                          ? 'border-rojo bg-rojo/20 text-rojo ring-1 ring-rojo/30'
+                          : isCustomizationSelected(option.id)
+                            ? 'border-rojo bg-rojo/10 text-rojo'
+                            : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                      } ${forcedByMeatOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span className={`text-xs ${forcedByMeatOnly ? 'line-through' : ''}`}>
+                        {option.name[locale]}
+                      </span>
+                      <div
+                        className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                          isCustomizationSelected(option.id)
+                            ? 'bg-rojo border-rojo'
+                            : 'border-gray-500'
+                        }`}
+                      >
+                        {isCustomizationSelected(option.id) && (
+                          <X className="w-2.5 h-2.5 text-white" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -205,7 +300,7 @@ export function ItemCustomizationModal({
                       )}
                     </div>
                     <div
-                      className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                      className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
                         isCustomizationSelected(option.id)
                           ? 'bg-verde border-verde'
                           : 'border-gray-500'
@@ -230,7 +325,7 @@ export function ItemCustomizationModal({
         </div>
 
         {/* Footer with quantity and add to cart */}
-        <div className="px-3 py-3 border-t border-gray-700 bg-negro-light flex-shrink-0">
+        <div className="px-3 py-3 border-t border-gray-700 bg-negro-light shrink-0">
           <div className="flex items-center justify-between mb-3">
             {/* Quantity selector */}
             <div className="flex items-center border border-gray-600 rounded-lg">

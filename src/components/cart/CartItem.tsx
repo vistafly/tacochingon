@@ -24,6 +24,7 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   const [showNotes, setShowNotes] = useState(!!notes);
   const [localNotes, setLocalNotes] = useState(notes || '');
   const [showCustomizations, setShowCustomizations] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const customizationsRef = useRef<HTMLDivElement>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -62,6 +63,23 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
 
   const handleCustomizationToggle = (customizationId: string, type: 'remove' | 'add', price?: number) => {
     const currentCustomizations = customizations || [];
+
+    // Special handling for "Meat Only" toggle
+    if (customizationId === 'meat-only') {
+      const wasSelected = currentCustomizations.some(c => c.id === 'meat-only');
+      if (wasSelected) {
+        // Turning OFF: remove meat-only and all other remove options
+        const removeIds = new Set(removeOptions.map(r => r.id));
+        updateCartItemCustomizations(cartItemId, currentCustomizations.filter(c => !removeIds.has(c.id)));
+      } else {
+        // Turning ON: add meat-only and all other remove options
+        const existingNonRemove = currentCustomizations.filter(c => c.type !== 'remove');
+        const allRemoveSelections: SelectedCustomization[] = removeOptions.map(r => ({ id: r.id, type: 'remove' as const }));
+        updateCartItemCustomizations(cartItemId, [...existingNonRemove, ...allRemoveSelections]);
+      }
+      return;
+    }
+
     const isCurrentlySelected = currentCustomizations.some(c => c.id === customizationId);
 
     let newCustomizations: SelectedCustomization[];
@@ -74,6 +92,12 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
     updateCartItemCustomizations(cartItemId, newCustomizations);
   };
 
+  const handleSelectOption = (customizationId: string, group: string) => {
+    const currentCustomizations = customizations || [];
+    const filtered = currentCustomizations.filter(c => c.group !== group);
+    updateCartItemCustomizations(cartItemId, [...filtered, { id: customizationId, type: 'select', group }]);
+  };
+
   const isCustomizationSelected = (customizationId: string) => {
     return customizations?.some(c => c.id === customizationId) || false;
   };
@@ -81,17 +105,34 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   const removeOptions = item.customizations?.filter(c => c.type === 'remove') || [];
   const addOptions = item.customizations?.filter(c => c.type === 'add') || [];
   const hasCustomizations = item.customizations && item.customizations.length > 0;
+  const isMeatOnlySelected = customizations?.some(c => c.id === 'meat-only') || false;
 
   const addOnCost = customizations?.filter(c => c.type === 'add' && c.price).reduce((sum, c) => sum + (c.price || 0), 0) || 0;
   const itemTotalPrice = (item.price + addOnCost) * quantity;
 
+  // Get select groups from item customizations
+  const selectGroups = (() => {
+    const groups: Record<string, { label?: { en: string; es: string }; options: import('@/types/menu').ItemCustomization[] }> = {};
+    item.customizations?.filter(c => c.type === 'select').forEach(c => {
+      const group = c.group || 'default';
+      if (!groups[group]) groups[group] = { options: [] };
+      if (c.groupLabel) groups[group].label = c.groupLabel;
+      groups[group].options.push(c);
+    });
+    return groups;
+  })();
+
   // Format customizations text
   const getCustomizationsText = () => {
     if (!customizations || customizations.length === 0) return null;
-    return customizations.map((c) => {
+    // When meat-only is selected, show "Meat Only" + select/add options only (hide individual removes)
+    const filtered = isMeatOnlySelected
+      ? customizations.filter(c => c.id === 'meat-only' || c.type !== 'remove')
+      : customizations;
+    return filtered.map((c) => {
       const option = item.customizations?.find(opt => opt.id === c.id);
       if (!option) return null;
-      return c.type === 'remove' ? `No ${option.name[locale].replace('No ', '')}` : option.name[locale];
+      return option.name[locale];
     }).filter(Boolean).join(', ');
   };
 
@@ -118,13 +159,20 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
 
         {/* Image */}
         <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-800 shadow-md">
-          <Image
-            src={item.image || '/images/menu/placeholder-default.svg'}
-            alt={item.name[locale]}
-            fill
-            className="object-cover"
-            sizes="64px"
-          />
+          {item.image && !imgError ? (
+            <Image
+              src={item.image}
+              alt={item.name[locale]}
+              fill
+              className="object-cover"
+              sizes="64px"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-2xl">🌮</span>
+            </div>
+          )}
         </div>
 
         {/* Item details */}
@@ -245,24 +293,55 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
       {/* Customizations editor panel */}
       {showCustomizations && hasCustomizations && (
         <div ref={customizationsRef} className="mt-3 pt-3 border-t border-t-gray-700/50 space-y-3">
+          {/* Select groups (meat/flavor choices) */}
+          {Object.entries(selectGroups).map(([groupName, group]) => (
+            <div key={groupName}>
+              <p className="text-xs text-gray-600 mb-2">
+                {group.label ? group.label[locale] : groupName}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {group.options.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleSelectOption(option.id, groupName)}
+                    className={`px-2.5 py-1 text-xs rounded border transition-all ${
+                      isCustomizationSelected(option.id)
+                        ? 'bg-amarillo/20 border-amarillo/50 text-amarillo'
+                        : 'border-gray-600 text-gray-400 hover:border-gray-500'
+                    }`}
+                  >
+                    {isCustomizationSelected(option.id) && <span className="mr-1">●</span>}
+                    {option.name[locale]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+
           {removeOptions.length > 0 && (
             <div>
               <p className="text-xs text-gray-600 mb-2">{tCustom('removeIngredients')}</p>
               <div className="flex flex-wrap gap-1.5">
-                {removeOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    onClick={() => handleCustomizationToggle(option.id, 'remove')}
-                    className={`px-2.5 py-1 text-xs rounded border transition-all ${
-                      isCustomizationSelected(option.id)
-                        ? 'bg-rojo/20 border-rojo/50 text-rojo'
-                        : 'border-gray-600 text-gray-400 hover:border-gray-500'
-                    }`}
-                  >
-                    {isCustomizationSelected(option.id) && <span className="mr-1">✕</span>}
-                    {option.name[locale]}
-                  </button>
-                ))}
+                {removeOptions.map((option) => {
+                  const isMeatOnlyBtn = option.id === 'meat-only';
+                  const forcedByMeatOnly = !isMeatOnlyBtn && isMeatOnlySelected;
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => !forcedByMeatOnly && handleCustomizationToggle(option.id, 'remove')}
+                      className={`px-2.5 py-1 text-xs rounded border transition-all ${
+                        isMeatOnlyBtn && isMeatOnlySelected
+                          ? 'bg-rojo/30 border-rojo/60 text-rojo ring-1 ring-rojo/30'
+                          : isCustomizationSelected(option.id)
+                            ? 'bg-rojo/20 border-rojo/50 text-rojo'
+                            : 'border-gray-600 text-gray-400 hover:border-gray-500'
+                      } ${forcedByMeatOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {isCustomizationSelected(option.id) && <span className="mr-1">✕</span>}
+                      <span className={forcedByMeatOnly ? 'line-through' : ''}>{option.name[locale]}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
