@@ -11,7 +11,8 @@ import {
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { User, Mail, Phone, AlertCircle, Loader2 } from 'lucide-react';
-import { mockSettings } from '@/data/mock-settings';
+import { useSettings } from '@/hooks/useSettings';
+import { usePrepTime } from '@/hooks/usePrepTime';
 import { useCartStore } from '@/store/cart-store';
 import { useActiveOrderStore } from '@/store/active-order-store';
 import { TimePillPicker } from './TimePillPicker';
@@ -93,7 +94,12 @@ function PaymentForm({
         onError(confirmError.message || t('paymentError'));
         setIsProcessing(false);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment succeeded without redirect
+        // Payment succeeded — create order in Firebase immediately
+        try {
+          await fetch(`/api/orders/${paymentIntentId}`, { method: 'POST' });
+        } catch {
+          // Non-blocking: webhook will create the order as fallback
+        }
         clearCart();
         // Store customer email for order verification
         localStorage.setItem(`order_${paymentIntentId}_email`, customerInfo.email);
@@ -155,67 +161,34 @@ export function CheckoutForm({
   const [phone, setPhone] = useState('');
   const [pickupTime, setPickupTime] = useState('');
 
-  // Calculate available pickup times
-  const { isOpen, minTime, maxTime, minTime12hr, maxTime12hr, closedMessage } = useMemo(() => {
+  const { settings } = useSettings();
+  const { totalPrepTime } = usePrepTime();
+
+  // Determine close reason: manual vs schedule
+  const isManualClosed = !settings.isOpen || !settings.isAcceptingOrders;
+
+  const isWithinHours = useMemo(() => {
+    const now = new Date();
+    const dayKey = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof settings.hours;
+    const dayHours = settings.hours[dayKey];
+    if (!dayHours) return false;
+    const [oH, oM] = dayHours.open.split(':').map(Number);
+    const [cH, cM] = dayHours.close.split(':').map(Number);
+    const mins = now.getHours() * 60 + now.getMinutes();
+    return mins >= oH * 60 + oM && mins < cH * 60 + cM;
+  }, [settings]);
+
+  const isOpen = !isManualClosed && isWithinHours;
+
+  // Calculate available pickup times based on business hours
+  const { minTime, maxTime, minTime12hr, maxTime12hr } = useMemo(() => {
     const now = new Date();
     const dayOfWeek = now
       .toLocaleDateString('en-US', { weekday: 'long' })
-      .toLowerCase() as keyof typeof mockSettings.hours;
-    const todayHours = mockSettings.hours[dayOfWeek];
+      .toLowerCase() as keyof typeof settings.hours;
+    const todayHours = settings.hours[dayOfWeek];
 
-    if (!todayHours) {
-      return {
-        isOpen: false,
-        minTime: '',
-        maxTime: '',
-        minTime12hr: '',
-        maxTime12hr: '',
-        closedMessage: t('closedToday'),
-      };
-    }
-
-    const [openHour, openMin] = todayHours.open.split(':').map(Number);
-    const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
-
-    const openTime = new Date(now);
-    openTime.setHours(openHour, openMin, 0, 0);
-
-    const closeTime = new Date(now);
-    closeTime.setHours(closeHour, closeMin, 0, 0);
-
-    // Minimum pickup time is now + prep time
-    const minPickupTime = new Date(now.getTime() + mockSettings.prepTime * 60 * 1000);
-
-    // If we're before opening, set min to opening time + prep
-    if (now < openTime) {
-      minPickupTime.setTime(openTime.getTime() + mockSettings.prepTime * 60 * 1000);
-    }
-
-    // If min pickup time is after closing, we're closed for orders
-    if (minPickupTime >= closeTime) {
-      return {
-        isOpen: false,
-        minTime: '',
-        maxTime: '',
-        minTime12hr: '',
-        maxTime12hr: '',
-        closedMessage: t('closedForToday'),
-      };
-    }
-
-    // If current time is after closing
-    if (now >= closeTime) {
-      return {
-        isOpen: false,
-        minTime: '',
-        maxTime: '',
-        minTime12hr: '',
-        maxTime12hr: '',
-        closedMessage: t('closedForToday'),
-      };
-    }
-
-    const formatTime = (date: Date) => {
+    const formatTimeFn = (date: Date) => {
       return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
     };
 
@@ -226,15 +199,32 @@ export function CheckoutForm({
       return `${displayHours}:${String(mins).padStart(2, '0')} ${period}`;
     };
 
+    if (!todayHours) {
+      // No hours set for today — default to now + prep through midnight
+      const minPickup = new Date(now.getTime() + totalPrepTime * 60 * 1000);
+      const minT = formatTimeFn(minPickup);
+      return { minTime: minT, maxTime: '23:59', minTime12hr: formatTime12hr(minT), maxTime12hr: '11:59 PM' };
+    }
+
+    const [openHour, openMin] = todayHours.open.split(':').map(Number);
+    const openTime = new Date(now);
+    openTime.setHours(openHour, openMin, 0, 0);
+
+    const minPickupTime = new Date(now.getTime() + totalPrepTime * 60 * 1000);
+
+    // If before opening, earliest pickup is opening + prep
+    if (now < openTime) {
+      minPickupTime.setTime(openTime.getTime() + totalPrepTime * 60 * 1000);
+    }
+
+    const minT = formatTimeFn(minPickupTime);
     return {
-      isOpen: true,
-      minTime: formatTime(minPickupTime),
+      minTime: minT,
       maxTime: todayHours.close,
-      minTime12hr: formatTime12hr(formatTime(minPickupTime)),
+      minTime12hr: formatTime12hr(minT),
       maxTime12hr: formatTime12hr(todayHours.close),
-      closedMessage: null,
     };
-  }, [t]);
+  }, [settings, totalPrepTime]);
 
   const handleContinueToPayment = async () => {
     // Validate form
@@ -328,16 +318,7 @@ export function CheckoutForm({
   };
 
   if (!isOpen) {
-    return (
-      <div className="bg-negro-light rounded-lg border border-gray-700 p-6">
-        <div className="flex items-center gap-3 text-rojo mb-4">
-          <AlertCircle className="w-6 h-6" />
-          <h3 className="font-display text-lg">{t('storeClosed')}</h3>
-        </div>
-        <p className="text-gray-400">{closedMessage}</p>
-        <p className="text-gray-500 text-sm mt-2">{t('tryAgainDuringHours')}</p>
-      </div>
-    );
+    return null;
   }
 
   // Show payment form if we have a client secret

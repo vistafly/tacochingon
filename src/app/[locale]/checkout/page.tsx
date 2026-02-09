@@ -5,11 +5,11 @@ import { useTranslations } from 'next-intl';
 import { ArrowLeft, ShoppingBag, MessageSquare, AlertCircle } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useCartStore } from '@/store/cart-store';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatTime } from '@/lib/utils';
 import { ORDER_LINKS } from '@/lib/constants';
 import { CartItem } from '@/components/cart/CartItem';
 import { CheckoutForm } from '@/components/checkout/CheckoutForm';
-import { mockSettings } from '@/data/mock-settings';
+import { useSettings } from '@/hooks/useSettings';
 import { OrderItem } from '@/types/order';
 
 export default function CheckoutPage() {
@@ -25,35 +25,27 @@ export default function CheckoutPage() {
   } = useCartStore();
 
   const [localOrderNotes, setLocalOrderNotes] = useState(orderNotes);
+  const { settings } = useSettings();
 
   const subtotal = getSubtotal();
   const tax = getTax();
   const total = getTotal();
 
-  // Check if store is currently open
-  const isStoreOpen = useMemo(() => {
+  // Determine store status: manual close vs schedule close
+  const isManualClosed = !settings.isOpen || !settings.isAcceptingOrders;
+
+  const isWithinHours = useMemo(() => {
     const now = new Date();
-    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof mockSettings.hours;
-    const todayHours = mockSettings.hours[dayOfWeek];
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof settings.hours;
+    const todayHours = settings.hours[dayOfWeek];
+    if (!todayHours) return false;
+    const [openH, openM] = todayHours.open.split(':').map(Number);
+    const [closeH, closeM] = todayHours.close.split(':').map(Number);
+    const mins = now.getHours() * 60 + now.getMinutes();
+    return mins >= openH * 60 + openM && mins < closeH * 60 + closeM;
+  }, [settings]);
 
-    if (!todayHours) {
-      return false;
-    }
-
-    const [openHour, openMin] = todayHours.open.split(':').map(Number);
-    const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
-
-    const openTime = new Date(now);
-    openTime.setHours(openHour, openMin, 0, 0);
-
-    const closeTime = new Date(now);
-    closeTime.setHours(closeHour, closeMin, 0, 0);
-
-    // Check if within prep time of closing
-    const minPickupTime = new Date(now.getTime() + mockSettings.prepTime * 60 * 1000);
-
-    return now >= openTime && minPickupTime < closeTime;
-  }, []);
+  const isStoreOpen = !isManualClosed && isWithinHours;
 
   const handleOrderNotesChange = (value: string) => {
     setLocalOrderNotes(value);
@@ -202,7 +194,24 @@ export default function CheckoutPage() {
                     <AlertCircle className="w-5 h-5" />
                     <span className="font-display">{t('storeClosed')}</span>
                   </div>
-                  <p className="text-sm text-gray-400">{t('tryAgainDuringHours')}</p>
+                  {(() => {
+                    const now = new Date();
+                    const dayKey = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof settings.hours;
+                    const todayHours = settings.hours[dayKey];
+
+                    if (!todayHours) {
+                      // Day has no scheduled hours — show "Closed today"
+                      return <p className="text-sm text-gray-400">{t('closedToday')}</p>;
+                    }
+
+                    if (isManualClosed && settings.pauseMessage) {
+                      // Toggle OFF with a message — show admin's pause message
+                      return <p className="text-sm text-gray-400">{settings.pauseMessage}</p>;
+                    }
+
+                    // Closed by schedule (outside hours) — show when store opens
+                    return <p className="text-sm text-gray-400">{t('opensAt', { time: formatTime(todayHours.open) })}</p>;
+                  })()}
                 </div>
               )}
 

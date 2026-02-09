@@ -14,18 +14,20 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Order, OrderStatus } from '@/types/order';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatCustomizations } from '@/lib/utils';
 import { useNewOrderSound } from '@/hooks/useNewOrderSound';
 import { AdminNav } from '@/components/admin/AdminNav';
+import { useAdminLocale } from '@/components/admin/AdminLocaleProvider';
 
-const statusTabs: { status: OrderStatus | 'all'; label: string }[] = [
-  { status: 'pending', label: 'New' },
-  { status: 'preparing', label: 'Preparing' },
-  { status: 'ready', label: 'Ready' },
-  { status: 'completed', label: 'Completed' },
+const statusTabKeys: { status: OrderStatus | 'all'; labelKey: string }[] = [
+  { status: 'pending', labelKey: 'new' },
+  { status: 'preparing', labelKey: 'preparing' },
+  { status: 'ready', labelKey: 'ready' },
+  { status: 'completed', labelKey: 'completed' },
 ];
 
 const statusColors: Record<OrderStatus, string> = {
@@ -46,10 +48,11 @@ const nextStatus: Record<OrderStatus, OrderStatus | null> = {
 
 export default function AdminOrdersPage() {
   const router = useRouter();
+  const t = useTranslations('admin');
+  const { locale } = useAdminLocale();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<OrderStatus | 'all'>('pending');
-  const [autoRefresh, setAutoRefresh] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const previousOrdersRef = useRef<string[]>([]);
   const { playSound, isMuted, toggleMute } = useNewOrderSound();
@@ -97,19 +100,12 @@ export default function AdminOrdersPage() {
     }
   }, [router, playSound]);
 
-  // Initial fetch and auto-refresh
+  // Initial fetch and auto-refresh (always on)
   useEffect(() => {
     fetchOrders();
-
-    let interval: NodeJS.Timeout;
-    if (autoRefresh) {
-      interval = setInterval(fetchOrders, 30000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [fetchOrders, autoRefresh]);
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [fetchOrders]);
 
   // Real-time subscription via Firestore onSnapshot
   useEffect(() => {
@@ -123,7 +119,6 @@ export default function AdminOrdersPage() {
     );
 
     const unsubscribe = onSnapshot(ordersQuery, () => {
-      // When any order changes, refetch via API (which handles complex filtering)
       fetchOrders();
     });
 
@@ -163,7 +158,7 @@ export default function AdminOrdersPage() {
   });
 
   // Count orders per status
-  const orderCounts = statusTabs.reduce(
+  const orderCounts = statusTabKeys.reduce(
     (acc, tab) => {
       acc[tab.status] = orders.filter((o) => o.status === tab.status).length;
       return acc;
@@ -183,61 +178,52 @@ export default function AdminOrdersPage() {
     <div className="min-h-screen bg-negro">
       {/* Header */}
       <header className="bg-negro-light border-b border-gray-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-display text-amarillo">
-            El Taco Chingon - Orders
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <h1 className="font-display text-amarillo text-lg sm:text-xl whitespace-nowrap">
+            <span className="sm:hidden">{t('orders')}</span>
+            <span className="hidden sm:inline">{t('pageOrders')}</span>
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={toggleMute}
               className={`p-2 rounded-lg transition-colors ${
                 isMuted ? 'bg-gray-700 text-gray-400' : 'bg-verde/20 text-verde'
               }`}
-              title={isMuted ? 'Unmute notifications' : 'Mute notifications'}
             >
-              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-            </button>
-            <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className={`p-2 rounded-lg transition-colors ${
-                autoRefresh ? 'bg-verde/20 text-verde' : 'bg-gray-700 text-gray-400'
-              }`}
-              title={autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
-            >
-              <RefreshCw className={`w-5 h-5 ${autoRefresh ? 'animate-spin' : ''}`} />
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
             <button
               onClick={fetchOrders}
               className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-              title="Refresh now"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className="w-4 h-4" />
             </button>
+            <div className="w-px h-6 bg-gray-600 mx-0.5 hidden sm:block" />
             <AdminNav onLogout={handleLogout} />
           </div>
         </div>
 
         {/* Status Tabs */}
-        <div className="max-w-7xl mx-auto px-4 pb-4 flex gap-2 overflow-x-auto">
-          {statusTabs.map((tab) => (
+        <div className="max-w-7xl mx-auto px-4 pb-3 flex gap-2 sm:gap-3">
+          {statusTabKeys.map((tab) => (
             <button
               key={tab.status}
               onClick={() => setActiveTab(tab.status)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+              className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.status
                   ? 'bg-amarillo text-negro'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              {tab.label}
+              {t(tab.labelKey)}
               {orderCounts[tab.status] > 0 && (
                 <span
-                  className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                    activeTab === tab.status
-                      ? 'bg-negro text-amarillo'
-                      : tab.status === 'pending'
+                  className={`w-4 h-4 sm:w-5 sm:h-5 inline-flex items-center justify-center text-[9px] sm:text-[10px] font-bold rounded-full shrink-0 ${
+                    tab.status === 'pending'
                       ? 'bg-rojo text-white'
-                      : 'bg-gray-600 text-white'
+                      : activeTab === tab.status
+                      ? 'bg-negro text-amarillo'
+                      : 'bg-gray-500 text-white'
                   }`}
                 >
                   {orderCounts[tab.status]}
@@ -253,14 +239,15 @@ export default function AdminOrdersPage() {
         {filteredOrders.length === 0 ? (
           <div className="text-center py-20">
             <AlertCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">No orders in this category</p>
+            <p className="text-gray-400">{t('noOrders')}</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
             {filteredOrders.map((order) => (
               <OrderCard
                 key={order.id}
                 order={order}
+                locale={locale}
                 onStatusUpdate={updateStatus}
                 onSelect={() => setSelectedOrder(order)}
               />
@@ -273,6 +260,7 @@ export default function AdminOrdersPage() {
       {selectedOrder && (
         <OrderDetailsModal
           order={selectedOrder}
+          locale={locale}
           onClose={() => setSelectedOrder(null)}
           onStatusUpdate={updateStatus}
         />
@@ -283,29 +271,46 @@ export default function AdminOrdersPage() {
 
 interface OrderCardProps {
   order: Order;
+  locale: string;
   onStatusUpdate: (orderId: string, status: OrderStatus) => void;
   onSelect: () => void;
 }
 
-function OrderCard({ order, onStatusUpdate, onSelect }: OrderCardProps) {
-  const pickupTime = new Date(order.pickup_time).toLocaleTimeString('en-US', {
+function OrderCard({ order, locale, onStatusUpdate, onSelect }: OrderCardProps) {
+  const t = useTranslations('admin');
+  const localeStr = locale === 'es' ? 'es-US' : 'en-US';
+
+  const pickupTime = new Date(order.pickup_time).toLocaleTimeString(localeStr, {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
 
-  const timeAgo = getTimeAgo(new Date(order.created_at));
+  const timeAgo = getTimeAgo(new Date(order.created_at), t);
   const next = nextStatus[order.status as OrderStatus];
 
+  const statusLabelMap: Record<OrderStatus, string> = {
+    pending: t('new'),
+    preparing: t('preparing'),
+    ready: t('ready'),
+    completed: t('completed'),
+    cancelled: t('completed'),
+  };
+
+  const nextLabelMap: Record<string, string> = {
+    preparing: t('startPreparing'),
+    ready: t('markReady'),
+    completed: t('complete'),
+  };
+
   // Compact item display
+  const lang = locale as 'en' | 'es';
   const itemsSummary = order.items
     .map((item) => {
-      let text = `${item.quantity}x ${item.name.en}`;
+      let text = `${item.quantity}x ${item.name[lang] || item.name.en}`;
       if (item.customizations && item.customizations.length > 0) {
-        const mods = item.customizations
-          .map((c) => (c.type === 'remove' ? `No ${c.name.en}` : `+${c.name.en}`))
-          .join(', ');
-        text += ` (${mods})`;
+        const mods = formatCustomizations(item.customizations, lang);
+        if (mods) text += ` (${mods})`;
       }
       return text;
     })
@@ -318,82 +323,73 @@ function OrderCard({ order, onStatusUpdate, onSelect }: OrderCardProps) {
       } overflow-hidden`}
     >
       {/* Header */}
-      <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+      <div className="px-3 py-2 border-b border-gray-700 flex items-center justify-between">
         <div>
-          <p className="font-display text-lg text-white">#{order.order_number}</p>
-          <p className="text-sm text-gray-400">{timeAgo}</p>
+          <p className="font-display text-sm sm:text-base text-white">#{order.order_number}</p>
+          <p className="text-xs text-gray-400">{timeAgo}</p>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
+          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
             statusColors[order.status as OrderStatus]
           }`}
         >
-          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+          {statusLabelMap[order.status as OrderStatus]}
         </span>
       </div>
 
       {/* Body */}
-      <div className="p-4 space-y-3">
+      <div className="px-3 py-2 space-y-1.5">
         {/* Customer */}
-        <div className="flex items-center gap-2">
-          <span className="text-white font-medium">{order.customer_name}</span>
-          <a
-            href={`tel:${order.customer_phone}`}
-            className="text-verde hover:underline flex items-center gap-1 text-sm"
-          >
-            <Phone className="w-4 h-4" />
-            {order.customer_phone}
-          </a>
-        </div>
+        <p className="text-white font-medium text-sm truncate">{order.customer_name}</p>
 
         {/* Pickup Time */}
-        <div className="flex items-center gap-2 text-amarillo">
-          <Clock className="w-4 h-4" />
-          <span className="text-sm">Pickup: {pickupTime}</span>
+        <div className="flex items-center gap-1 text-amarillo">
+          <Clock className="w-3 h-3 shrink-0" />
+          <span className="text-xs">{pickupTime}</span>
         </div>
 
         {/* Items Preview */}
-        <div className="text-sm text-gray-300 space-y-1">
+        <div className="text-xs text-gray-300 space-y-0.5">
           {itemsSummary.map((item, i) => (
             <p key={i} className="truncate">
               {item}
             </p>
           ))}
           {order.items.length > 3 && (
-            <p className="text-gray-500">+{order.items.length - 3} more items</p>
+            <p className="text-gray-500">{t('moreItems', { count: order.items.length - 3 })}</p>
           )}
         </div>
 
         {/* Special Instructions */}
         {order.special_instructions && (
-          <p className="text-sm text-rojo italic truncate">
-            Note: {order.special_instructions}
+          <p className="text-xs text-rojo italic truncate">
+            {t('note')}: {order.special_instructions}
           </p>
         )}
 
         {/* Total */}
-        <p className="text-lg font-display text-amarillo">
+        <p className="text-sm font-display text-amarillo">
           {formatPrice(order.total)}
         </p>
       </div>
 
       {/* Actions */}
-      <div className="p-4 border-t border-gray-700 flex gap-2">
+      <div className="px-3 py-2 border-t border-gray-700 flex flex-col sm:flex-row gap-1.5">
         <button
           onClick={onSelect}
-          className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors"
+          className="flex-1 px-2 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-xs transition-colors"
         >
-          View Details
+          {t('viewDetails')}
         </button>
         {next && (
           <button
             onClick={() => onStatusUpdate(order.stripe_payment_intent_id, next)}
-            className="flex-1 px-4 py-2 bg-verde hover:bg-verde/90 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1"
+            className="flex-1 px-2 py-1.5 bg-verde hover:bg-verde/90 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
           >
-            {next === 'preparing' && <ChefHat className="w-4 h-4" />}
-            {next === 'ready' && <Package className="w-4 h-4" />}
-            {next === 'completed' && <CheckCircle className="w-4 h-4" />}
-            {next.charAt(0).toUpperCase() + next.slice(1)}
+            {next === 'preparing' && <ChefHat className="w-3 h-3" />}
+            {next === 'ready' && <Package className="w-3 h-3" />}
+            {next === 'completed' && <CheckCircle className="w-3 h-3" />}
+            {nextLabelMap[next]}
           </button>
         )}
       </div>
@@ -403,16 +399,29 @@ function OrderCard({ order, onStatusUpdate, onSelect }: OrderCardProps) {
 
 interface OrderDetailsModalProps {
   order: Order;
+  locale: string;
   onClose: () => void;
   onStatusUpdate: (orderId: string, status: OrderStatus) => void;
 }
 
-function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModalProps) {
-  const pickupTime = new Date(order.pickup_time).toLocaleTimeString('en-US', {
+function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDetailsModalProps) {
+  const t = useTranslations('admin');
+  const localeStr = locale === 'es' ? 'es-US' : 'en-US';
+  const lang = locale as 'en' | 'es';
+
+  const pickupTime = new Date(order.pickup_time).toLocaleTimeString(localeStr, {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
+
+  const statusLabelMap: Record<OrderStatus, string> = {
+    pending: t('new'),
+    preparing: t('preparing'),
+    ready: t('ready'),
+    completed: t('completed'),
+    cancelled: t('completed'),
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -420,13 +429,13 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
         {/* Header */}
         <div className="p-6 border-b border-gray-700 flex items-center justify-between">
           <div>
-            <p className="font-display text-2xl text-white">Order #{order.order_number}</p>
+            <p className="font-display text-2xl text-white">{t('order')} #{order.order_number}</p>
             <span
               className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
                 statusColors[order.status as OrderStatus]
               }`}
             >
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              {statusLabelMap[order.status as OrderStatus]}
             </span>
           </div>
           <button
@@ -441,7 +450,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
         <div className="p-6 space-y-6">
           {/* Customer Info */}
           <div>
-            <h3 className="text-sm text-gray-400 mb-2">Customer</h3>
+            <h3 className="text-sm text-gray-400 mb-2">{t('customer')}</h3>
             <p className="text-white font-medium">{order.customer_name}</p>
             <a
               href={`tel:${order.customer_phone}`}
@@ -455,7 +464,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
 
           {/* Pickup Time */}
           <div>
-            <h3 className="text-sm text-gray-400 mb-2">Pickup Time</h3>
+            <h3 className="text-sm text-gray-400 mb-2">{t('pickupTime')}</h3>
             <p className="text-amarillo font-medium flex items-center gap-2">
               <Clock className="w-5 h-5" />
               {pickupTime}
@@ -464,21 +473,19 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
 
           {/* Items */}
           <div>
-            <h3 className="text-sm text-gray-400 mb-2">Items</h3>
+            <h3 className="text-sm text-gray-400 mb-2">{t('items')}</h3>
             <div className="space-y-3">
               {order.items.map((item, index) => (
                 <div key={index} className="bg-negro rounded-lg p-3">
                   <div className="flex justify-between">
                     <span className="text-white">
-                      {item.quantity}x {item.name.en}
+                      {item.quantity}x {item.name[lang] || item.name.en}
                     </span>
                     <span className="text-gray-300">{formatPrice(item.itemTotal)}</span>
                   </div>
                   {item.customizations && item.customizations.length > 0 && (
                     <p className="text-sm text-gray-400 mt-1">
-                      {item.customizations
-                        .map((c) => (c.type === 'remove' ? `No ${c.name.en}` : `+${c.name.en}`))
-                        .join(', ')}
+                      {formatCustomizations(item.customizations, lang)}
                     </p>
                   )}
                   {item.itemNotes && (
@@ -492,7 +499,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
           {/* Special Instructions */}
           {order.special_instructions && (
             <div>
-              <h3 className="text-sm text-gray-400 mb-2">Special Instructions</h3>
+              <h3 className="text-sm text-gray-400 mb-2">{t('specialInstructions')}</h3>
               <p className="text-rojo bg-rojo/10 rounded-lg p-3 italic">
                 {order.special_instructions}
               </p>
@@ -502,15 +509,15 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
           {/* Totals */}
           <div className="border-t border-gray-700 pt-4">
             <div className="flex justify-between text-gray-400 mb-1">
-              <span>Subtotal</span>
+              <span>{t('subtotal')}</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between text-gray-400 mb-2">
-              <span>Tax</span>
+              <span>{t('tax')}</span>
               <span>{formatPrice(order.tax)}</span>
             </div>
             <div className="flex justify-between text-lg font-display">
-              <span className="text-white">Total</span>
+              <span className="text-white">{t('total')}</span>
               <span className="text-amarillo">{formatPrice(order.total)}</span>
             </div>
           </div>
@@ -526,7 +533,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
                   className="flex-1 px-4 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium flex items-center justify-center gap-2"
                 >
                   <ChefHat className="w-5 h-5" />
-                  Start Preparing
+                  {t('startPreparing')}
                 </button>
               )}
               {order.status === 'preparing' && (
@@ -535,7 +542,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
                   className="flex-1 px-4 py-3 bg-verde hover:bg-verde/90 rounded-lg font-medium flex items-center justify-center gap-2"
                 >
                   <Package className="w-5 h-5" />
-                  Mark Ready
+                  {t('markReady')}
                 </button>
               )}
               {order.status === 'ready' && (
@@ -544,7 +551,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
                   className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-medium flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-5 h-5" />
-                  Complete
+                  {t('complete')}
                 </button>
               )}
             </>
@@ -553,7 +560,7 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
             onClick={onClose}
             className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg"
           >
-            Close
+            {t('close')}
           </button>
         </div>
       </div>
@@ -561,16 +568,16 @@ function OrderDetailsModal({ order, onClose, onStatusUpdate }: OrderDetailsModal
   );
 }
 
-function getTimeAgo(date: Date): string {
+function getTimeAgo(date: Date, t: ReturnType<typeof useTranslations>): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffMins < 1) return t('justNow');
+  if (diffMins < 60) return t('minutesAgo', { count: diffMins });
 
   const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffHours < 24) return t('hoursAgo', { count: diffHours });
 
   return date.toLocaleDateString();
 }

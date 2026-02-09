@@ -1,30 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   MapPin,
   Save,
   Loader2,
-  ToggleLeft,
-  ToggleRight,
+  Power,
   MessageSquare,
   AlertCircle,
   CheckCircle,
   Clock,
   Timer,
+  TriangleAlert,
+  X,
 } from 'lucide-react';
-import { AdminNav } from '@/components/admin/AdminNav';
+import { useTranslations } from 'next-intl';
+import { AdminNav, NavGuardResult } from '@/components/admin/AdminNav';
 import { BusinessSettings, BusinessHours, DayHours } from '@/types/settings';
 
-const DAYS: { key: keyof BusinessHours; label: string }[] = [
-  { key: 'monday', label: 'Monday' },
-  { key: 'tuesday', label: 'Tuesday' },
-  { key: 'wednesday', label: 'Wednesday' },
-  { key: 'thursday', label: 'Thursday' },
-  { key: 'friday', label: 'Friday' },
-  { key: 'saturday', label: 'Saturday' },
-  { key: 'sunday', label: 'Sunday' },
+const DAY_KEYS: (keyof BusinessHours)[] = [
+  'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
 ];
 
 // Generate time options in 30-min increments
@@ -46,6 +42,7 @@ const TIME_OPTIONS = generateTimeOptions();
 
 export default function AdminSettingsPage() {
   const router = useRouter();
+  const t = useTranslations('admin');
   const [settings, setSettings] = useState<BusinessSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,6 +73,40 @@ export default function AdminSettingsPage() {
 
   // Buffer time state
   const [prepTime, setPrepTime] = useState(30);
+
+  // Unsaved-changes modal state
+  const [showModal, setShowModal] = useState(false);
+  const modalResolverRef = useRef<((result: NavGuardResult) => void) | null>(null);
+
+  // Dirty state tracking — snapshot of saved values
+  const savedRef = useRef<string>('');
+  const currentSnapshot = JSON.stringify({ street, city, state, zip, isOpen, statusMessage, isAcceptingOrders, pauseMessage, hours, prepTime });
+  const hasChanges = savedRef.current !== '' && currentSnapshot !== savedRef.current;
+
+  // Open modal and return a promise that resolves when user picks an action
+  const openUnsavedModal = useCallback((): Promise<NavGuardResult> => {
+    return new Promise((resolve) => {
+      modalResolverRef.current = resolve;
+      setShowModal(true);
+    });
+  }, []);
+
+  const closeModal = useCallback((result: NavGuardResult) => {
+    setShowModal(false);
+    modalResolverRef.current?.(result);
+    modalResolverRef.current = null;
+  }, []);
+
+  // Warn on browser close / reload with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasChanges]);
 
   // Check authentication
   useEffect(() => {
@@ -108,6 +139,7 @@ export default function AdminSettingsPage() {
           setPrepTime(s.prepTime ?? 30);
 
           // Load hours
+          const loadedHours = s.hours || hours;
           if (s.hours) {
             setHours(s.hours);
             // Detect default hours from the first open day
@@ -119,6 +151,20 @@ export default function AdminSettingsPage() {
               setDefaultClose(firstOpen.close);
             }
           }
+
+          // Snapshot saved state for dirty detection
+          savedRef.current = JSON.stringify({
+            street: s.address.street,
+            city: s.address.city,
+            state: s.address.state,
+            zip: s.address.zip,
+            isOpen: s.isOpen ?? true,
+            statusMessage: s.statusMessage || '',
+            isAcceptingOrders: s.isAcceptingOrders,
+            pauseMessage: s.pauseMessage || '',
+            hours: loadedHours,
+            prepTime: s.prepTime ?? 30,
+          });
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -157,13 +203,15 @@ export default function AdminSettingsPage() {
       if (response.ok) {
         const data = await response.json();
         setSettings(data.settings);
-        setSaveMessage({ type: 'success', text: 'Settings saved successfully!' });
+        // Snapshot current values as saved
+        savedRef.current = currentSnapshot;
+        setSaveMessage({ type: 'success', text: t('saveSuccess') });
       } else {
-        setSaveMessage({ type: 'error', text: 'Failed to save settings.' });
+        setSaveMessage({ type: 'error', text: t('saveError') });
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      setSaveMessage({ type: 'error', text: 'An error occurred while saving.' });
+      setSaveMessage({ type: 'error', text: t('saveErrorGeneric') });
     } finally {
       setSaving(false);
       setTimeout(() => setSaveMessage(null), 3000);
@@ -171,6 +219,11 @@ export default function AdminSettingsPage() {
   };
 
   const handleLogout = async () => {
+    if (hasChanges) {
+      const result = await openUnsavedModal();
+      if (result === 'stay') return;
+      if (result === 'save') await handleSave();
+    }
     await fetch('/api/admin/auth', { method: 'DELETE' });
     router.push('/admin/login');
   };
@@ -178,9 +231,9 @@ export default function AdminSettingsPage() {
   // Apply default hours to all currently open days
   const applyDefaultToAll = () => {
     const updated = { ...hours };
-    for (const day of DAYS) {
-      if (updated[day.key] !== null) {
-        updated[day.key] = { open: defaultOpen, close: defaultClose };
+    for (const key of DAY_KEYS) {
+      if (updated[key] !== null) {
+        updated[key] = { open: defaultOpen, close: defaultClose };
       }
     }
     setHours(updated);
@@ -214,67 +267,101 @@ export default function AdminSettingsPage() {
     <div className="min-h-screen bg-negro">
       {/* Header */}
       <header className="bg-negro-light border-b border-gray-700 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-display text-amarillo">
-            El Taco Chingon - Settings
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <h1 className="font-display text-amarillo text-lg sm:text-xl whitespace-nowrap">
+            <span className="sm:hidden">{t('settings')}</span>
+            <span className="hidden sm:inline">{t('pageSettings')}</span>
           </h1>
-          <AdminNav onLogout={handleLogout} />
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleSave}
+              disabled={saving || !hasChanges}
+              className={`relative p-2 rounded-lg transition-colors ${
+                hasChanges
+                  ? 'bg-verde text-white hover:bg-verde/90'
+                  : 'bg-gray-700 text-gray-400'
+              }`}
+              title={saving ? t('saving') : t('saveChanges')}
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {hasChanges && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amarillo rounded-full" />
+              )}
+            </button>
+            <AdminNav
+              onLogout={handleLogout}
+              confirmNavigation={async () => {
+                if (!hasChanges) return 'discard';
+                const result = await openUnsavedModal();
+                if (result === 'save') await handleSave();
+                return result;
+              }}
+            />
+          </div>
         </div>
+        {saveMessage && (
+          <div className={`max-w-4xl mx-auto px-4 pb-2 flex items-center gap-1.5 text-xs ${
+            saveMessage.type === 'success' ? 'text-verde' : 'text-rojo'
+          }`}>
+            {saveMessage.type === 'success' ? <CheckCircle className="w-3.5 h-3.5 shrink-0" /> : <AlertCircle className="w-3.5 h-3.5 shrink-0" />}
+            {saveMessage.text}
+          </div>
+        )}
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
         {/* Location Section */}
-        <section className="bg-negro-light rounded-lg border border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-rojo/20 rounded-lg flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-rojo" />
+        <section className="bg-negro-light rounded-lg border border-gray-700 p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rojo/20 rounded-lg flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-rojo" />
             </div>
             <div>
-              <h2 className="font-display text-lg text-white">Location</h2>
-              <p className="text-sm text-gray-400">Update the truck&apos;s current address</p>
+              <h2 className="font-display text-base sm:text-lg text-white">{t('location')}</h2>
+              <p className="text-xs sm:text-sm text-gray-400">{t('locationDesc')}</p>
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Street Address</label>
+              <label className="block text-xs sm:text-sm text-gray-400 mb-1">{t('streetAddress')}</label>
               <input
                 type="text"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full bg-negro border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-amarillo focus:outline-none transition-colors"
+                className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                 placeholder="123 Main St"
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">City</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="col-span-2 sm:col-span-1">
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">{t('city')}</label>
                 <input
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-amarillo focus:outline-none transition-colors"
+                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                   placeholder="Fresno"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">State</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">{t('state')}</label>
                 <input
                   type="text"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-amarillo focus:outline-none transition-colors"
+                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                   placeholder="CA"
                   maxLength={2}
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">ZIP Code</label>
+                <label className="block text-xs sm:text-sm text-gray-400 mb-1">{t('zipCode')}</label>
                 <input
                   type="text"
                   value={zip}
                   onChange={(e) => setZip(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-amarillo focus:outline-none transition-colors"
+                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                   placeholder="93726"
                   maxLength={10}
                 />
@@ -283,236 +370,199 @@ export default function AdminSettingsPage() {
           </div>
         </section>
 
-        {/* Status Section */}
-        <section className="bg-negro-light rounded-lg border border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-verde/20 rounded-lg flex items-center justify-center">
-              {isOpen ? (
-                <ToggleRight className="w-5 h-5 text-verde" />
-              ) : (
-                <ToggleLeft className="w-5 h-5 text-gray-400" />
-              )}
-            </div>
-            <div>
-              <h2 className="font-display text-lg text-white">Truck Status</h2>
-              <p className="text-sm text-gray-400">Control the truck&apos;s open/closed status</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {/* Open/Closed Toggle */}
-            <div className="flex items-center justify-between bg-negro rounded-lg px-4 py-3 border border-gray-600">
-              <div>
-                <p className="text-white font-medium">Truck is {isOpen ? 'Open' : 'Closed'}</p>
-                <p className="text-sm text-gray-400">
-                  {isOpen ? 'Customers can see the truck is open' : 'Customers will see the truck is closed'}
-                </p>
+        {/* Accepting Orders — Master Control */}
+        <section className={`rounded-lg border-2 p-4 sm:p-6 transition-colors ${
+          isOpen ? 'bg-negro-light border-verde/40' : 'bg-negro-light border-rojo/40'
+        }`}>
+          {/* Big master toggle */}
+          <button
+            onClick={() => {
+              const next = !isOpen;
+              setIsOpen(next);
+              setIsAcceptingOrders(next);
+            }}
+            className="w-full"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+                  isOpen ? 'bg-verde' : 'bg-rojo'
+                }`}>
+                  <Power className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+                </div>
+                <div className="text-left min-w-0">
+                  <h2 className="font-display text-base sm:text-2xl text-white truncate">
+                    {isOpen ? t('acceptingOrders') : t('notAcceptingOrders')}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
+                    {isOpen ? t('acceptingDesc') : t('notAcceptingDesc')}
+                  </p>
+                </div>
               </div>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors ${
-                  isOpen ? 'bg-verde' : 'bg-gray-600'
-                }`}
-              >
-                <span
-                  className={`inline-block h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                    isOpen ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Status Message */}
-            <div>
-              <label className="flex items-center gap-2 text-sm text-gray-400 mb-1">
-                <MessageSquare className="w-4 h-4" />
-                Status Message (optional)
-              </label>
-              <input
-                type="text"
-                value={statusMessage}
-                onChange={(e) => setStatusMessage(e.target.value)}
-                className="w-full bg-negro border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-amarillo focus:outline-none transition-colors"
-                placeholder="e.g., Moving to new spot, back in 30 min"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This message will be shown on the public site when set
-              </p>
-            </div>
-
-            {/* Accepting Orders Toggle */}
-            <div className="flex items-center justify-between bg-negro rounded-lg px-4 py-3 border border-gray-600">
-              <div>
-                <p className="text-white font-medium">Accepting Orders: {isAcceptingOrders ? 'Yes' : 'No'}</p>
-                <p className="text-sm text-gray-400">
-                  {isAcceptingOrders ? 'Online ordering is enabled' : 'Online ordering is paused'}
-                </p>
+              <div className={`relative inline-flex h-8 w-14 sm:h-10 sm:w-18 shrink-0 items-center rounded-full transition-colors ${
+                isOpen ? 'bg-verde' : 'bg-gray-600'
+              }`}>
+                <span className={`inline-block h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-white shadow transition-transform ${
+                  isOpen ? 'translate-x-7 sm:translate-x-9' : 'translate-x-1'
+                }`} />
               </div>
-              <button
-                onClick={() => setIsAcceptingOrders(!isAcceptingOrders)}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors ${
-                  isAcceptingOrders ? 'bg-verde' : 'bg-gray-600'
-                }`}
-              >
-                <span
-                  className={`inline-block h-6 w-6 rounded-full bg-white shadow transition-transform ${
-                    isAcceptingOrders ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-                />
-              </button>
             </div>
+          </button>
 
-            {/* Pause Message */}
-            {!isAcceptingOrders && (
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">
-                  Pause Message (shown to customers)
-                </label>
-                <input
-                  type="text"
-                  value={pauseMessage}
-                  onChange={(e) => setPauseMessage(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-amarillo focus:outline-none transition-colors"
-                  placeholder="e.g., We're taking a short break, back soon!"
-                />
-              </div>
-            )}
+          {/* Status / Pause message */}
+          <div className="mt-4 pt-4 sm:mt-5 sm:pt-5 border-t border-gray-700">
+            <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-400 mb-1">
+              <MessageSquare className="w-4 h-4 shrink-0" />
+              {isOpen ? t('statusMessageLabel') : t('customerMessageLabel')}
+            </label>
+            <input
+              type="text"
+              value={isOpen ? statusMessage : pauseMessage}
+              onChange={(e) => isOpen ? setStatusMessage(e.target.value) : setPauseMessage(e.target.value)}
+              className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
+              placeholder={isOpen ? t('statusPlaceholder') : t('pausePlaceholder')}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {isOpen ? t('statusHint') : t('pauseHint')}
+            </p>
           </div>
         </section>
 
-        {/* Business Hours Section */}
-        <section className="bg-negro-light rounded-lg border border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-amarillo/20 rounded-lg flex items-center justify-center">
-              <Clock className="w-5 h-5 text-amarillo" />
+        {/* Schedule & Hours */}
+        <section className="bg-negro-light rounded-lg border border-gray-700 p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amarillo/20 rounded-lg flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amarillo" />
             </div>
             <div>
-              <h2 className="font-display text-lg text-white">Business Hours</h2>
-              <p className="text-sm text-gray-400">Set default hours, then adjust individual days</p>
+              <h2 className="font-display text-base sm:text-lg text-white">{t('schedule')}</h2>
+              <p className="text-xs sm:text-sm text-gray-400">{t('scheduleDesc')}</p>
             </div>
           </div>
+          <p className="text-xs text-gray-500 mb-4 sm:mb-5">
+            {t('scheduleNote')}
+          </p>
 
           {/* Default Hours */}
-          <div className="bg-negro rounded-lg px-4 py-4 border border-gray-600 mb-4">
-            <p className="text-white font-medium mb-3">Default Hours</p>
-            <div className="flex items-center gap-3 flex-wrap">
+          <div className="bg-negro rounded-lg px-3 sm:px-4 py-3 sm:py-4 border border-gray-600 mb-4">
+            <p className="text-white font-medium text-sm sm:text-base mb-3">{t('defaultHours')}</p>
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-400">Open</label>
+                <label className="text-xs sm:text-sm text-gray-400 shrink-0">{t('open')}</label>
                 <select
                   value={defaultOpen}
                   onChange={(e) => setDefaultOpen(e.target.value)}
-                  className="bg-negro border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-amarillo focus:outline-none text-sm"
+                  className="w-full sm:w-auto bg-negro border border-gray-600 rounded-lg px-2 py-1.5 text-white focus:border-amarillo focus:outline-none text-xs sm:text-sm"
                 >
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
+                  {TIME_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
               </div>
-              <span className="text-gray-500">to</span>
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-400">Close</label>
+                <label className="text-xs sm:text-sm text-gray-400 shrink-0">{t('closed')}</label>
                 <select
                   value={defaultClose}
                   onChange={(e) => setDefaultClose(e.target.value)}
-                  className="bg-negro border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-amarillo focus:outline-none text-sm"
+                  className="w-full sm:w-auto bg-negro border border-gray-600 rounded-lg px-2 py-1.5 text-white focus:border-amarillo focus:outline-none text-xs sm:text-sm"
                 >
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
+                  {TIME_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
               </div>
               <button
                 onClick={applyDefaultToAll}
-                className="ml-auto text-sm px-4 py-2 bg-amarillo/20 text-amarillo rounded-lg hover:bg-amarillo/30 transition-colors"
+                className="col-span-2 sm:col-span-1 sm:ml-auto text-xs sm:text-sm px-3 py-2 bg-amarillo/20 text-amarillo rounded-lg hover:bg-amarillo/30 transition-colors"
               >
-                Apply to All Open Days
+                {t('applyToAll')}
               </button>
             </div>
           </div>
 
           {/* Per-Day Schedule */}
           <div className="space-y-2">
-            {DAYS.map((day) => {
-              const dayHours = hours[day.key];
+            {DAY_KEYS.map((key) => {
+              const dayHours = hours[key];
               const isOpenDay = dayHours !== null;
 
               return (
                 <div
-                  key={day.key}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 border ${
+                  key={key}
+                  className={`rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 border ${
                     isOpenDay ? 'bg-negro border-gray-600' : 'bg-negro/50 border-gray-700'
                   }`}
                 >
-                  {/* Day Toggle */}
-                  <button
-                    onClick={() => toggleDay(day.key)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-                      isOpenDay ? 'bg-verde' : 'bg-gray-600'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                        isOpenDay ? 'translate-x-6' : 'translate-x-1'
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      onClick={() => toggleDay(key)}
+                      className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 shrink-0 items-center rounded-full transition-colors ${
+                        isOpenDay ? 'bg-verde' : 'bg-gray-600'
                       }`}
-                    />
-                  </button>
+                    >
+                      <span
+                        className={`inline-block h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-white shadow transition-transform ${
+                          isOpenDay ? 'translate-x-4.5 sm:translate-x-6' : 'translate-x-0.5 sm:translate-x-1'
+                        }`}
+                      />
+                    </button>
 
-                  {/* Day Name */}
-                  <span className={`w-24 text-sm font-medium ${isOpenDay ? 'text-white' : 'text-gray-500'}`}>
-                    {day.label}
-                  </span>
+                    <span className={`w-16 sm:w-24 text-xs sm:text-sm font-medium truncate ${isOpenDay ? 'text-white' : 'text-gray-500'}`}>
+                      {t(key)}
+                    </span>
 
-                  {isOpenDay ? (
-                    <div className="flex items-center gap-2 flex-1">
-                      <select
-                        value={dayHours!.open}
-                        onChange={(e) => updateDayTime(day.key, 'open', e.target.value)}
-                        className="bg-negro border border-gray-600 rounded px-2 py-1.5 text-white text-sm focus:border-amarillo focus:outline-none"
-                      >
-                        {TIME_OPTIONS.map((t) => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
-                        ))}
-                      </select>
-                      <span className="text-gray-500 text-sm">to</span>
-                      <select
-                        value={dayHours!.close}
-                        onChange={(e) => updateDayTime(day.key, 'close', e.target.value)}
-                        className="bg-negro border border-gray-600 rounded px-2 py-1.5 text-white text-sm focus:border-amarillo focus:outline-none"
-                      >
-                        {TIME_OPTIONS.map((t) => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : (
-                    <span className="text-rojo text-sm font-medium">Closed</span>
-                  )}
+                    {isOpenDay ? (
+                      <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                        <select
+                          value={dayHours!.open}
+                          onChange={(e) => updateDayTime(key, 'open', e.target.value)}
+                          className="flex-1 min-w-0 bg-negro border border-gray-600 rounded px-1 sm:px-2 py-1 sm:py-1.5 text-white text-xs sm:text-sm focus:border-amarillo focus:outline-none"
+                        >
+                          {TIME_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <span className="text-gray-500 text-xs shrink-0">–</span>
+                        <select
+                          value={dayHours!.close}
+                          onChange={(e) => updateDayTime(key, 'close', e.target.value)}
+                          className="flex-1 min-w-0 bg-negro border border-gray-600 rounded px-1 sm:px-2 py-1 sm:py-1.5 text-white text-xs sm:text-sm focus:border-amarillo focus:outline-none"
+                        >
+                          {TIME_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      <span className="text-rojo text-xs sm:text-sm font-medium">{t('closed')}</span>
+                    )}
+                  </div>
                 </div>
               );
             })}
           </div>
         </section>
 
-        {/* Buffer Time Section */}
-        <section className="bg-negro-light rounded-lg border border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-rojo/20 rounded-lg flex items-center justify-center">
-              <Timer className="w-5 h-5 text-rojo" />
+        {/* Extra Buffer Section */}
+        <section className="bg-negro-light rounded-lg border border-gray-700 p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rojo/20 rounded-lg flex items-center justify-center shrink-0">
+              <Timer className="w-4 h-4 sm:w-5 sm:h-5 text-rojo" />
             </div>
             <div>
-              <h2 className="font-display text-lg text-white">Prep Time</h2>
-              <p className="text-sm text-gray-400">Estimated time to prepare an order</p>
+              <h2 className="font-display text-base sm:text-lg text-white">{t('extraBuffer')}</h2>
+              <p className="text-xs sm:text-sm text-gray-400">{t('extraBufferDesc')}</p>
             </div>
           </div>
 
-          <div className="bg-negro rounded-lg px-4 py-4 border border-gray-600">
+          <div className="bg-negro rounded-lg px-3 sm:px-4 py-3 sm:py-4 border border-gray-600">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-white font-medium">Buffer Time</p>
-              <span className="text-amarillo font-display text-2xl">{prepTime} min</span>
+              <p className="text-white font-medium text-sm sm:text-base">{t('extraBuffer')}</p>
+              <span className="text-amarillo font-display text-xl sm:text-2xl">+{prepTime} min</span>
             </div>
             <input
               type="range"
-              min={5}
+              min={0}
               max={60}
               step={5}
               value={prepTime}
@@ -520,46 +570,74 @@ export default function AdminSettingsPage() {
               className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-amarillo"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>5 min</span>
+              <span>0 min</span>
               <span>60 min</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Shown to customers as estimated wait time
+              {t('extraBufferHint')}
             </p>
           </div>
         </section>
 
-        {/* Save Button */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-8 py-3 bg-verde hover:bg-verde/90 rounded-lg font-medium transition-colors disabled:opacity-50"
-          >
-            {saving ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Save className="w-5 h-5" />
-            )}
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-
-          {saveMessage && (
-            <div
-              className={`flex items-center gap-2 text-sm ${
-                saveMessage.type === 'success' ? 'text-verde' : 'text-rojo'
-              }`}
-            >
-              {saveMessage.type === 'success' ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <AlertCircle className="w-4 h-4" />
-              )}
-              {saveMessage.text}
-            </div>
-          )}
-        </div>
       </main>
+
+      {/* Unsaved Changes Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => closeModal('stay')}
+          />
+          {/* Dialog */}
+          <div className="relative bg-negro-light border border-gray-600 rounded-xl shadow-2xl w-full max-w-sm animate-in fade-in zoom-in-95 duration-200">
+            {/* Close button */}
+            <button
+              onClick={() => closeModal('stay')}
+              className="absolute top-3 right-3 p-1 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="p-5 sm:p-6 text-center">
+              {/* Icon */}
+              <div className="mx-auto w-12 h-12 bg-amarillo/20 rounded-full flex items-center justify-center mb-4">
+                <TriangleAlert className="w-6 h-6 text-amarillo" />
+              </div>
+
+              <h3 className="font-display text-lg text-white mb-1">
+                {t('unsavedTitle')}
+              </h3>
+              <p className="text-sm text-gray-400 mb-6">
+                {t('unsavedBody')}
+              </p>
+
+              {/* Actions */}
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => closeModal('save')}
+                  className="w-full py-2.5 bg-verde hover:bg-verde/90 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {t('saveAndLeave')}
+                </button>
+                <button
+                  onClick={() => closeModal('discard')}
+                  className="w-full py-2.5 bg-rojo/20 hover:bg-rojo/30 text-rojo text-sm font-medium rounded-lg transition-colors"
+                >
+                  {t('discardAndLeave')}
+                </button>
+                <button
+                  onClick={() => closeModal('stay')}
+                  className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-medium rounded-lg transition-colors"
+                >
+                  {t('stayOnPage')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

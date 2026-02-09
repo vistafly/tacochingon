@@ -1,3 +1,5 @@
+import { AdminLocaleProvider } from '@/components/admin/AdminLocaleProvider';
+
 export const metadata = {
   title: 'El Taco Chingon - Admin',
   description: 'Staff dashboard for order management',
@@ -8,5 +10,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <AdminLocaleProvider>{children}</AdminLocaleProvider>;
 }

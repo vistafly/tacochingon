@@ -1,11 +1,13 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { MapPin, Phone, Clock, ExternalLink } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { BUSINESS_INFO, SOCIAL_LINKS, ORDER_LINKS, REVIEW_LINKS } from '@/lib/constants';
 import { PaymentMethods } from '@/components/ui/PaymentMethods';
 import { useSettings } from '@/hooks/useSettings';
+import { formatTime } from '@/lib/utils';
 import Image from 'next/image';
 
 export function Footer() {
@@ -14,6 +16,19 @@ export function Footer() {
   const { settings } = useSettings();
   const address = settings.address || BUSINESS_INFO.address;
   const phone = settings.phone || BUSINESS_INFO.phone;
+
+  // Combine toggle + schedule for accurate open/closed status
+  const isStoreOpen = useMemo(() => {
+    if (!settings.isOpen || !settings.isAcceptingOrders) return false;
+    const now = new Date();
+    const dayKey = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof settings.hours;
+    const dayHours = settings.hours[dayKey];
+    if (!dayHours) return false;
+    const [oH, oM] = dayHours.open.split(':').map(Number);
+    const [cH, cM] = dayHours.close.split(':').map(Number);
+    const mins = now.getHours() * 60 + now.getMinutes();
+    return mins >= oH * 60 + oM && mins < cH * 60 + cM;
+  }, [settings]);
 
   return (
     <footer className="bg-negro-light text-white border-t border-gray-700">
@@ -88,6 +103,18 @@ export function Footer() {
           {/* Contact Info */}
           <div>
             <h3 className="font-display text-lg text-amarillo mb-4">{t('location.title')}</h3>
+            {/* Truck Status */}
+            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 ${
+              isStoreOpen ? 'bg-verde/20 text-verde' : 'bg-rojo/20 text-rojo'
+            }`}>
+              <span className={`w-2 h-2 rounded-full ${isStoreOpen ? 'bg-verde animate-pulse' : 'bg-rojo'}`} />
+              <span className="text-sm font-medium">
+                {isStoreOpen ? t('common.openNow') : t('common.closed')}
+              </span>
+            </div>
+            {settings.statusMessage && (
+              <p className="text-sm text-amarillo mb-3">{settings.statusMessage}</p>
+            )}
             <div className="space-y-3">
               <div className="flex items-start justify-center md:justify-start gap-3">
                 <MapPin className="w-5 h-5 text-rojo mt-0.5 shrink-0" />
@@ -102,11 +129,21 @@ export function Footer() {
                   {phone}
                 </a>
               </div>
-              <div className="flex items-center justify-center md:justify-start gap-3">
-                <Clock className="w-5 h-5 text-amarillo shrink-0" />
-                <span className="text-gray-400">
-                  Tue-Sun: 5:30 PM - 11:30 PM
-                </span>
+              <div className="flex items-start justify-center md:justify-start gap-3">
+                <Clock className="w-5 h-5 text-amarillo shrink-0 mt-0.5" />
+                <div className="text-gray-400 text-sm space-y-0.5">
+                  {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => {
+                    const h = settings.hours[day];
+                    return (
+                      <div key={day} className="flex justify-between gap-4">
+                        <span className="capitalize">{day.slice(0, 3)}</span>
+                        <span className={h ? 'text-white' : 'text-rojo'}>
+                          {h ? `${formatTime(h.open)} - ${formatTime(h.close)}` : 'Closed'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>

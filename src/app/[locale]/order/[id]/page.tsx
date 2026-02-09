@@ -17,8 +17,8 @@ import {
 } from 'lucide-react';
 import { useOrderSubscription } from '@/hooks/useOrderSubscription';
 import { useActiveOrderStore } from '@/store/active-order-store';
-import { formatPrice } from '@/lib/utils';
-import { mockSettings } from '@/data/mock-settings';
+import { useSettings } from '@/hooks/useSettings';
+import { formatPrice, formatCustomizations } from '@/lib/utils';
 import { OrderStatus } from '@/types/order';
 
 const statusIcons: Record<OrderStatus, React.ReactNode> = {
@@ -46,6 +46,7 @@ export default function OrderStatusPage() {
 
   const { order, loading, error, refetch } = useOrderSubscription(orderId);
   const { setActiveOrder, clearActiveOrder } = useActiveOrderStore();
+  const { settings } = useSettings();
 
   // Sync order status with active order store
   useEffect(() => {
@@ -101,9 +102,14 @@ export default function OrderStatusPage() {
   const currentStepIndex = statusSteps.indexOf(order.status as OrderStatus);
   const locale = params.locale as string || 'en';
 
-  // Format pickup time
+  // Add admin buffer on top of the customer's selected pickup time
+  // This ensures admin buffer changes are always reflected (e.g. rush hour adjustments)
   const pickupDate = new Date(order.pickup_time);
-  const pickupTimeFormatted = pickupDate.toLocaleTimeString(locale === 'es' ? 'es-US' : 'en-US', {
+  const adminBuffer = settings.prepTime; // admin "extra buffer" slider value
+  const estimatedReady = new Date(pickupDate.getTime() + adminBuffer * 60 * 1000);
+
+  const localeStr = locale === 'es' ? 'es-US' : 'en-US';
+  const pickupTimeFormatted = estimatedReady.toLocaleTimeString(localeStr, {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -202,6 +208,11 @@ export default function OrderStatusPage() {
                 <p className="text-lg text-white font-medium">{pickupTimeFormatted}</p>
               </div>
             </div>
+            {adminBuffer > 0 && order.status === 'pending' && (
+              <p className="text-sm text-amarillo/80 mt-3 pt-3 border-t border-gray-700">
+                {t('highDemandNotice')}
+              </p>
+            )}
           </div>
         )}
 
@@ -217,12 +228,7 @@ export default function OrderStatusPage() {
                   </p>
                   {item.customizations && item.customizations.length > 0 && (
                     <p className="text-sm text-gray-400">
-                      {item.customizations
-                        .map((c) => {
-                          const prefix = c.type === 'remove' ? 'No ' : '+';
-                          return `${prefix}${c.name[locale as 'en' | 'es'] || c.name.en}`;
-                        })
-                        .join(', ')}
+                      {formatCustomizations(item.customizations, locale as 'en' | 'es')}
                     </p>
                   )}
                   {item.itemNotes && (
@@ -264,11 +270,11 @@ export default function OrderStatusPage() {
           <p className="text-gray-400 mb-4">{t('questions')}</p>
           <div className="flex flex-col sm:flex-row gap-3 mb-3">
             <a
-              href={`tel:${mockSettings.phone.replace(/\D/g, '')}`}
+              href={`tel:${settings.phone.replace(/\D/g, '')}`}
               className="flex-1 flex items-center justify-center gap-2 bg-verde hover:bg-verde/90 text-white py-3 rounded-lg transition-colors"
             >
               <Phone className="w-5 h-5" />
-              {t('callUs')} {mockSettings.phone}
+              {t('callUs')} {settings.phone}
             </a>
             <button
               onClick={() => refetch()}
@@ -279,7 +285,7 @@ export default function OrderStatusPage() {
             </button>
           </div>
           <a
-            href="https://maps.google.com/?q=123+Main+Street+Fresno+CA+93722"
+            href={`https://maps.google.com/?q=${encodeURIComponent(`${settings.address.street} ${settings.address.city} ${settings.address.state} ${settings.address.zip}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 bg-amarillo hover:bg-amarillo/90 text-negro font-semibold py-3 rounded-lg transition-colors"

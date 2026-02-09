@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { gsap } from 'gsap';
 import { ArrowRight, ArrowLeft, MapPin, Star } from 'lucide-react';
@@ -178,6 +178,20 @@ export function HeroSection() {
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { settings } = useSettings();
+
+  // Combine toggle + schedule for accurate open/closed status
+  const isStoreOpen = useMemo(() => {
+    if (!settings.isOpen || !settings.isAcceptingOrders) return false;
+    const now = new Date();
+    const dayKey = now.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() as keyof typeof settings.hours;
+    const dayHours = settings.hours[dayKey];
+    if (!dayHours) return false;
+    const [oH, oM] = dayHours.open.split(':').map(Number);
+    const [cH, cM] = dayHours.close.split(':').map(Number);
+    const mins = now.getHours() * 60 + now.getMinutes();
+    return mins >= oH * 60 + oM && mins < cH * 60 + cM;
+  }, [settings]);
+
   const featuredItems = mockMenuItems.filter(item => item.isFeatured);
 
   const pauseAutoScroll = useCallback(() => {
@@ -311,9 +325,19 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left side - Text */}
           <div>
-            <div className="hero-badge inline-flex items-center gap-2 px-4 py-2 bg-negro-light border border-amarillo/30 rounded mb-6 opacity-0" style={{ transform: 'translateY(20px)' }}>
-              <MapPin className="w-4 h-4 text-amarillo" />
-              <span className="text-sm text-white font-medium">{settings.address.city}, {settings.address.state}</span>
+            <div className="hero-badge flex flex-wrap items-center gap-3 mb-6 opacity-0" style={{ transform: 'translateY(20px)' }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-negro-light border border-amarillo/30 rounded">
+                <MapPin className="w-4 h-4 text-amarillo" />
+                <span className="text-sm text-white font-medium">{settings.address.city}, {settings.address.state}</span>
+              </div>
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded ${
+                isStoreOpen ? 'bg-verde/20 border border-verde/30' : 'bg-rojo/20 border border-rojo/30'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${isStoreOpen ? 'bg-verde animate-pulse' : 'bg-rojo'}`} />
+                <span className={`text-sm font-medium ${isStoreOpen ? 'text-verde' : 'text-rojo'}`}>
+                  {isStoreOpen ? tCommon('openNow') : tCommon('closed')}
+                </span>
+              </div>
             </div>
 
             <h1 className="hero-title mb-6 opacity-0" style={{ transform: 'translateY(40px)' }}>
