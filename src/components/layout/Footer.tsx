@@ -5,11 +5,15 @@ import { MapPin, Phone, Clock, ExternalLink } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { BUSINESS_INFO, SOCIAL_LINKS, ORDER_LINKS, REVIEW_LINKS } from '@/lib/constants';
 import { PaymentMethods } from '@/components/ui/PaymentMethods';
+import { useSettings } from '@/hooks/useSettings';
 import Image from 'next/image';
 
 export function Footer() {
   const t = useTranslations();
   const currentYear = new Date().getFullYear();
+  const { settings } = useSettings();
+  const address = settings.address || BUSINESS_INFO.address;
+  const phone = settings.phone || BUSINESS_INFO.phone;
 
   return (
     <footer className="bg-negro-light text-white border-t border-gray-700">
@@ -88,14 +92,14 @@ export function Footer() {
               <div className="flex items-start justify-center md:justify-start gap-3">
                 <MapPin className="w-5 h-5 text-rojo mt-0.5 shrink-0" />
                 <span className="text-gray-400">
-                  {BUSINESS_INFO.address.street}<br />
-                  {BUSINESS_INFO.address.city}, {BUSINESS_INFO.address.state} {BUSINESS_INFO.address.zip}
+                  {address.street}<br />
+                  {address.city}, {address.state} {address.zip}
                 </span>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-3">
                 <Phone className="w-5 h-5 text-verde shrink-0" />
-                <a href={`tel:${BUSINESS_INFO.phone}`} className="text-gray-400 hover:text-amarillo transition-colors">
-                  {BUSINESS_INFO.phone}
+                <a href={`tel:${phone}`} className="text-gray-400 hover:text-amarillo transition-colors">
+                  {phone}
                 </a>
               </div>
               <div className="flex items-center justify-center md:justify-start gap-3">

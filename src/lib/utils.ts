@@ -12,7 +12,8 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
-export function formatTime(time24: string): string {
+export function formatTime(time24: string | null): string {
+  if (!time24) return '';
   const [hours, minutes] = time24.split(':').map(Number);
   const period = hours >= 12 ? 'PM' : 'AM';
   const hours12 = hours % 12 || 12;

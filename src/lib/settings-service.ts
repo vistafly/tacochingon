@@ -1,23 +1,55 @@
 import { BusinessSettings } from '@/types/settings';
 import { mockSettings } from '@/data/mock-settings';
+import { adminDb } from '@/lib/firebase/admin';
 
-// This service abstracts the data layer, making it easy to switch from mock to Firebase
-
-let settings = { ...mockSettings };
+const SETTINGS_COLLECTION = 'settings';
+const SETTINGS_DOC = 'business';
 
 export const settingsService = {
   async getSettings(): Promise<BusinessSettings> {
-    // In production, this would fetch from Firebase
-    return settings;
+    try {
+      const doc = await adminDb
+        .collection(SETTINGS_COLLECTION)
+        .doc(SETTINGS_DOC)
+        .get();
+
+      if (doc.exists) {
+        return doc.data() as BusinessSettings;
+      }
+
+      // If no settings doc exists yet, seed with defaults and return them
+      await adminDb
+        .collection(SETTINGS_COLLECTION)
+        .doc(SETTINGS_DOC)
+        .set(mockSettings);
+      return mockSettings;
+    } catch (error) {
+      console.error('Error fetching settings from Firestore:', error);
+      return mockSettings;
+    }
   },
 
   async updateSettings(data: Partial<BusinessSettings>): Promise<void> {
-    // In production, this would update Firebase
-    settings = { ...settings, ...data };
+    await adminDb
+      .collection(SETTINGS_COLLECTION)
+      .doc(SETTINGS_DOC)
+      .set(
+        { ...data, updatedAt: new Date().toISOString() },
+        { merge: true }
+      );
   },
 
   async toggleAcceptingOrders(isAccepting: boolean, message?: string): Promise<void> {
-    settings.isAcceptingOrders = isAccepting;
-    settings.pauseMessage = message || null;
+    await adminDb
+      .collection(SETTINGS_COLLECTION)
+      .doc(SETTINGS_DOC)
+      .set(
+        {
+          isAcceptingOrders: isAccepting,
+          pauseMessage: message || null,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
   },
 };

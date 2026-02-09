@@ -7,6 +7,8 @@
     "soldOut": "Sold Out",
     "openNow": "Open Now",
     "closed": "Closed",
+    "truckClosed": "We're currently closed",
+    "statusMessage": "Status Update",
     "language": "Language",
     "featured": "Featured",
     "order": "Order",

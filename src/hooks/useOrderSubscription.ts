@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Order } from '@/lib/supabase/types';
+import { Order } from '@/types/order';
 
 const MAX_RETRIES = 10;
 const RETRY_DELAY = 2000; // 2 seconds

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createServerClient } from '@/lib/supabase/server';
+import { adminDb } from '@/lib/firebase/admin';
 import { OrderItem } from '@/types/order';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -78,14 +78,13 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
   const metadata = paymentIntent.metadata;
 
   // Check if order already exists (idempotency)
-  const supabase = createServerClient();
-  const { data: existingOrder } = await supabase
-    .from('orders')
-    .select('id')
-    .eq('stripe_payment_intent_id', paymentIntent.id)
-    .single();
+  const existingSnapshot = await adminDb
+    .collection('orders')
+    .where('stripe_payment_intent_id', '==', paymentIntent.id)
+    .limit(1)
+    .get();
 
-  if (existingOrder) {
+  if (!existingSnapshot.empty) {
     console.log('Order already exists for PaymentIntent:', paymentIntent.id);
     return;
   }
@@ -101,13 +100,25 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
   const total = parseFloat(metadata.total || '0');
   const items = reconstructItems(metadata);
 
-  // Create order in Supabase
+  // Generate next order number
+  const counterRef = adminDb.collection('counters').doc('orders');
+  const orderNumber = await adminDb.runTransaction(async (transaction) => {
+    const counterDoc = await transaction.get(counterRef);
+    const current = counterDoc.exists ? (counterDoc.data()?.current || 0) : 0;
+    const next = current + 1;
+    transaction.set(counterRef, { current: next });
+    return next;
+  });
+
+  // Create order in Firestore
+  const now = new Date().toISOString();
   const orderData = {
+    order_number: orderNumber,
     status: 'pending' as const,
     customer_name: customerName,
     customer_email: customerEmail,
     customer_phone: customerPhone,
-    items: items as unknown as Record<string, unknown>[],
+    items,
     subtotal,
     tax,
     total,
@@ -115,18 +126,10 @@ async function handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     special_instructions: specialInstructions,
     stripe_payment_intent_id: paymentIntent.id,
     staff_notes: null,
+    created_at: now,
+    updated_at: now,
   };
 
-  const { data: order, error } = await supabase
-    .from('orders')
-    .insert(orderData as never)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating order in Supabase:', error);
-    throw new Error(`Failed to create order: ${error.message}`);
-  }
-
-  console.log('Order created successfully:', (order as { order_number: number }).order_number);
+  const docRef = await adminDb.collection('orders').add(orderData);
+  console.log('Order created successfully:', orderNumber, 'doc:', docRef.id);
 }

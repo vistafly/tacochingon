@@ -34,4 +34,7 @@ export interface BusinessSettings {
   taxRate: number;
   isAcceptingOrders: boolean;
   pauseMessage: string | null;
+  isOpen: boolean;
+  statusMessage: string | null;
+  updatedAt: string | null;
 }

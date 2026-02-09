@@ -6,7 +6,9 @@ import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Clock, Phone, Star } fro
 import { Link } from '@/i18n/routing';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturedSection } from '@/components/home/FeaturedSection';
-import { BUSINESS_INFO, ORDER_LINKS, REVIEW_LINKS } from '@/lib/constants';
+import { REVIEW_LINKS } from '@/lib/constants';
+import { useSettings } from '@/hooks/useSettings';
+import { formatTime } from '@/lib/utils';
 import Image from 'next/image';
 
 export default function HomePage() {
@@ -332,7 +334,9 @@ function TestimonialsSection() {
 function LocationSection() {
   const t = useTranslations('home');
   const tLocation = useTranslations('location');
-  const address = `${BUSINESS_INFO.address.street}, ${BUSINESS_INFO.address.city}, ${BUSINESS_INFO.address.state} ${BUSINESS_INFO.address.zip}`;
+  const { settings } = useSettings();
+  const addr = settings.address;
+  const address = `${addr.street}, ${addr.city}, ${addr.state} ${addr.zip}`;
   const embedUrl = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     ? `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(address)}`
     : `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
@@ -388,8 +392,8 @@ function LocationSection() {
                   <div>
                     <h3 className="font-display text-sm md:text-lg text-white mb-1 md:mb-2">{tLocation('address')}</h3>
                     <p className="text-gray-400 text-xs md:text-base leading-relaxed">
-                      {BUSINESS_INFO.address.street}<br />
-                      {BUSINESS_INFO.address.city}, {BUSINESS_INFO.address.state} {BUSINESS_INFO.address.zip}
+                      {addr.street}<br />
+                      {addr.city}, {addr.state} {addr.zip}
                     </p>
                   </div>
                 </div>
@@ -403,8 +407,8 @@ function LocationSection() {
                   </div>
                   <div>
                     <h3 className="font-display text-sm md:text-lg text-white mb-1 md:mb-2">{tLocation('callUs')}</h3>
-                    <a href={`tel:${BUSINESS_INFO.phone}`} className="text-amarillo hover:text-amarillo/80 transition-colors text-xs md:text-base">
-                      {BUSINESS_INFO.phone}
+                    <a href={`tel:${settings.phone}`} className="text-amarillo hover:text-amarillo/80 transition-colors text-xs md:text-base">
+                      {settings.phone}
                     </a>
                   </div>
                 </div>
@@ -420,14 +424,27 @@ function LocationSection() {
                 <div className="flex-1">
                   <h3 className="font-display text-sm md:text-lg text-white mb-1 md:mb-2">{tLocation('hours')}</h3>
                   <div className="text-gray-400 text-xs md:text-base space-y-1">
-                    <p className="flex justify-between gap-4">
-                      <span>{tLocation('monday')}:</span>
-                      <span className="text-rojo font-medium">{tLocation('closedDay')}</span>
-                    </p>
-                    <p className="flex justify-between gap-4">
-                      <span>{tLocation('tuesday')} - {tLocation('sunday')}:</span>
-                      <span>5:30 PM - 11:30 PM</span>
-                    </p>
+                    {([
+                      { key: 'monday', label: tLocation('monday') },
+                      { key: 'tuesday', label: tLocation('tuesday') },
+                      { key: 'wednesday', label: tLocation('wednesday') },
+                      { key: 'thursday', label: tLocation('thursday') },
+                      { key: 'friday', label: tLocation('friday') },
+                      { key: 'saturday', label: tLocation('saturday') },
+                      { key: 'sunday', label: tLocation('sunday') },
+                    ] as const).map((day) => {
+                      const h = settings.hours[day.key];
+                      return (
+                        <p key={day.key} className="flex justify-between gap-4">
+                          <span>{day.label}:</span>
+                          {h?.open && h?.close ? (
+                            <span>{formatTime(h.open)} - {formatTime(h.close)}</span>
+                          ) : (
+                            <span className="text-rojo font-medium">{tLocation('closedDay')}</span>
+                          )}
+                        </p>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

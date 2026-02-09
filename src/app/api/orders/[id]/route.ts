@@ -1,9 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { adminDb } from '@/lib/firebase/admin';
 import { cookies } from 'next/headers';
+import { Order } from '@/types/order';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+// Helper to find an order by payment intent ID or order number
+async function findOrder(
+  id: string,
+  emailFilter?: string | null
+): Promise<{ docId: string; order: Order } | null> {
+  // Try by payment intent ID first
+  let snapshot = await adminDb
+    .collection('orders')
+    .where('stripe_payment_intent_id', '==', id)
+    .limit(1)
+    .get();
+
+  if (snapshot.empty && !isNaN(Number(id))) {
+    // Try by order number
+    snapshot = await adminDb
+      .collection('orders')
+      .where('order_number', '==', Number(id))
+      .limit(1)
+      .get();
+  }
+
+  if (snapshot.empty) return null;
+
+  const doc = snapshot.docs[0];
+  const order = { id: doc.id, ...doc.data() } as Order;
+
+  // If email filter is provided, verify it matches
+  if (emailFilter && order.customer_email !== emailFilter) {
+    return null;
+  }
+
+  return { docId: doc.id, order };
 }
 
 // GET /api/orders/[id] - Get order by payment intent ID or order number
@@ -27,46 +62,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  const supabase = createServerClient();
+  try {
+    const result = await findOrder(id, isAdmin ? null : customerEmail);
 
-  // Try to find by payment intent ID first
-  let query = supabase
-    .from('orders')
-    .select('*')
-    .eq('stripe_payment_intent_id', id);
-
-  // Add email filter if not admin
-  if (!isAdmin && customerEmail) {
-    query = query.eq('customer_email', customerEmail);
-  }
-
-  let { data: order, error } = await query.single();
-
-  // If not found, try by order number
-  if (!order && !isNaN(Number(id))) {
-    let orderQuery = supabase
-      .from('orders')
-      .select('*')
-      .eq('order_number', Number(id));
-
-    // Add email filter if not admin
-    if (!isAdmin && customerEmail) {
-      orderQuery = orderQuery.eq('customer_email', customerEmail);
+    if (!result) {
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      );
     }
 
-    const { data: orderByNumber, error: numberError } = await orderQuery.single();
-    order = orderByNumber;
-    error = numberError;
-  }
-
-  if (error || !order) {
+    return NextResponse.json({ order: result.order });
+  } catch (error) {
+    console.error('Error fetching order:', error);
     return NextResponse.json(
-      { error: 'Order not found' },
-      { status: 404 }
+      { error: 'Failed to fetch order' },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json({ order });
 }
 
 // PATCH /api/orders/[id] - Update order status (admin only)
@@ -96,40 +109,35 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  const supabase = createServerClient();
+  try {
+    const result = await findOrder(id);
 
-  // Build update object
-  const updateData: Record<string, string | null> = {};
-  if (status) updateData.status = status;
-  if (staffNotes !== undefined) updateData.staff_notes = staffNotes;
+    if (!result) {
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      );
+    }
 
-  // Try to update by payment intent ID first
-  let { data: order, error } = await supabase
-    .from('orders')
-    .update(updateData as never)
-    .eq('stripe_payment_intent_id', id)
-    .select()
-    .single();
+    // Build update object
+    const updateData: Record<string, string | null> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (status) updateData.status = status;
+    if (staffNotes !== undefined) updateData.staff_notes = staffNotes;
 
-  // If not found, try by order number
-  if (!order && !isNaN(Number(id))) {
-    const { data: orderByNumber, error: numberError } = await supabase
-      .from('orders')
-      .update(updateData as never)
-      .eq('order_number', Number(id))
-      .select()
-      .single();
+    await adminDb.collection('orders').doc(result.docId).update(updateData);
 
-    order = orderByNumber;
-    error = numberError;
-  }
+    // Fetch updated order
+    const updatedDoc = await adminDb.collection('orders').doc(result.docId).get();
+    const updatedOrder = { id: updatedDoc.id, ...updatedDoc.data() } as Order;
 
-  if (error || !order) {
+    return NextResponse.json({ order: updatedOrder });
+  } catch (error) {
+    console.error('Error updating order:', error);
     return NextResponse.json(
       { error: 'Order not found or update failed' },
       { status: 404 }
     );
   }
-
-  return NextResponse.json({ order });
 }

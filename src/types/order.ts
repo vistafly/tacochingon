@@ -30,19 +30,22 @@ export interface Customer {
   email: string;
 }
 
+// Order as stored in Firestore (snake_case to match existing data shape)
 export interface Order {
   id: string;
-  orderNumber: number;
+  order_number: number;
   status: OrderStatus;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string;
   items: OrderItem[];
   subtotal: number;
   tax: number;
   total: number;
-  customer: Customer;
-  stripePaymentIntentId: string;
-  pickupTime: string;
-  specialInstructions: string | null;
-  staffNotes: string | null;
-  createdAt: string;
-  updatedAt: string;
+  pickup_time: string;
+  special_instructions: string | null;
+  stripe_payment_intent_id: string;
+  staff_notes: string | null;
+  created_at: string;
+  updated_at: string;
 }

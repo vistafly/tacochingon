@@ -6,8 +6,9 @@ import { usePathname } from 'next/navigation';
 import { Package, X, ChefHat, Clock } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useActiveOrderStore } from '@/store/active-order-store';
-import { supabase } from '@/lib/supabase/client';
-import { Order } from '@/lib/supabase/types';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase/client';
+import { Order } from '@/types/order';
 
 const statusIcons = {
   pending: Clock,
@@ -40,37 +41,29 @@ export function ActiveOrderBanner() {
     setIsHydrated(true);
   }, []);
 
-  // Subscribe to real-time order updates
+  // Subscribe to real-time order updates via Firestore
   useEffect(() => {
     if (!isHydrated || !activeOrder?.paymentIntentId || isOrderPage) return;
 
-    const channel = supabase
-      .channel(`banner-order-${activeOrder.paymentIntentId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `stripe_payment_intent_id=eq.${activeOrder.paymentIntentId}`,
-        },
-        (payload) => {
-          const updatedOrder = payload.new as Order;
-          if (updatedOrder.status === 'completed' || updatedOrder.status === 'cancelled') {
-            clearActiveOrder();
-          } else {
-            updateOrderStatus(
-              updatedOrder.status as 'pending' | 'preparing' | 'ready',
-              updatedOrder.order_number
-            );
-          }
-        }
-      )
-      .subscribe();
+    const ordersQuery = query(
+      collection(db, 'orders'),
+      where('stripe_payment_intent_id', '==', activeOrder.paymentIntentId)
+    );
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const unsubscribe = onSnapshot(ordersQuery, (snapshot) => {
+      if (snapshot.empty) return;
+      const updatedOrder = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Order;
+      if (updatedOrder.status === 'completed' || updatedOrder.status === 'cancelled') {
+        clearActiveOrder();
+      } else {
+        updateOrderStatus(
+          updatedOrder.status as 'pending' | 'preparing' | 'ready',
+          updatedOrder.order_number
+        );
+      }
+    });
+
+    return () => unsubscribe();
   }, [isHydrated, activeOrder?.paymentIntentId, isOrderPage, updateOrderStatus, clearActiveOrder]);
 
   useEffect(() => {

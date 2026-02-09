@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { adminDb } from '@/lib/firebase/admin';
 import { cookies } from 'next/headers';
+import { Order } from '@/types/order';
 
 // Check admin authentication
 async function isAuthenticated(): Promise<boolean> {
@@ -19,54 +20,84 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status'); // comma-separated list
   const date = searchParams.get('date'); // 'today' or ISO date
 
-  const supabase = createServerClient();
-  let query = supabase.from('orders').select('*');
+  try {
+    let query: FirebaseFirestore.Query = adminDb.collection('orders');
 
-  // Filter by status
-  if (status) {
-    const statuses = status.split(',');
-    query = query.in('status', statuses);
-  }
+    // Filter by date
+    if (date === 'today') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      // Firestore doesn't support OR queries across different fields easily,
+      // so we fetch all orders from today and filter completed ones in memory
+      query = query.where('created_at', '>=', today.toISOString());
+    } else if (date) {
+      const targetDate = new Date(date);
+      targetDate.setHours(0, 0, 0, 0);
+      const nextDay = new Date(targetDate);
+      nextDay.setDate(nextDay.getDate() + 1);
 
-  // Filter by date
-  if (date === 'today') {
-    // For 'today', we want:
-    // - All non-completed orders from today
-    // - All completed orders from the last 24 hours
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const twentyFourHoursAgo = new Date();
-    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+      query = query
+        .where('created_at', '>=', targetDate.toISOString())
+        .where('created_at', '<', nextDay.toISOString());
+    }
 
-    // Use OR filter: (created today) OR (completed in last 24 hours)
-    query = query.or(
-      `created_at.gte.${today.toISOString()},and(status.eq.completed,updated_at.gte.${twentyFourHoursAgo.toISOString()})`
-    );
-  } else if (date) {
-    const targetDate = new Date(date);
-    targetDate.setHours(0, 0, 0, 0);
-    const nextDay = new Date(targetDate);
-    nextDay.setDate(nextDay.getDate() + 1);
+    // Order by created_at descending (newest first)
+    query = query.orderBy('created_at', 'desc');
 
-    query = query
-      .gte('created_at', targetDate.toISOString())
-      .lt('created_at', nextDay.toISOString());
-  }
+    const snapshot = await query.get();
+    let orders: Order[] = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Order[];
 
-  // Order by created_at descending (newest first)
-  query = query.order('created_at', { ascending: false });
+    // Filter by status in memory (Firestore doesn't support IN + range queries together)
+    if (status) {
+      const statuses = status.split(',');
+      orders = orders.filter((o) => statuses.includes(o.status));
+    }
 
-  const { data: orders, error } = await query;
+    // For 'today' filter, also include completed orders from last 24 hours
+    if (date === 'today') {
+      try {
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+        const cutoff = twentyFourHoursAgo.toISOString();
 
-  if (error) {
+        // Get recently completed orders that might have been created before today
+        const completedSnapshot = await adminDb
+          .collection('orders')
+          .where('status', '==', 'completed')
+          .where('updated_at', '>=', cutoff)
+          .orderBy('updated_at', 'desc')
+          .get();
+
+        const completedOrders = completedSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Order[];
+
+        // Merge, avoiding duplicates
+        const existingIds = new Set(orders.map((o) => o.id));
+        for (const order of completedOrders) {
+          if (!existingIds.has(order.id)) {
+            orders.push(order);
+          }
+        }
+
+        // Re-sort by created_at descending
+        orders.sort((a, b) => b.created_at.localeCompare(a.created_at));
+      } catch (indexError) {
+        // Composite index may not exist yet - skip this secondary query
+        console.warn('Completed orders query failed (composite index may be needed):', indexError);
+      }
+    }
+
+    return NextResponse.json({ orders });
+  } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(
       { error: 'Failed to fetch orders' },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ orders });
 }

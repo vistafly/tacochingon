@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RefreshCw,
-  LogOut,
   Phone,
   Clock,
   ChefHat,
@@ -15,10 +14,12 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { Order, OrderStatus } from '@/lib/supabase/types';
-import { supabase } from '@/lib/supabase/client';
+import { Order, OrderStatus } from '@/types/order';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase/client';
 import { formatPrice } from '@/lib/utils';
 import { useNewOrderSound } from '@/hooks/useNewOrderSound';
+import { AdminNav } from '@/components/admin/AdminNav';
 
 const statusTabs: { status: OrderStatus | 'all'; label: string }[] = [
   { status: 'pending', label: 'New' },
@@ -110,26 +111,23 @@ export default function AdminOrdersPage() {
     };
   }, [fetchOrders, autoRefresh]);
 
-  // Real-time subscription
+  // Real-time subscription via Firestore onSnapshot
   useEffect(() => {
-    const channel = supabase
-      .channel('admin-orders')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'orders',
-        },
-        () => {
-          fetchOrders();
-        }
-      )
-      .subscribe();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    const ordersQuery = query(
+      collection(db, 'orders'),
+      where('created_at', '>=', today.toISOString()),
+      orderBy('created_at', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(ordersQuery, () => {
+      // When any order changes, refetch via API (which handles complex filtering)
+      fetchOrders();
+    });
+
+    return () => unsubscribe();
   }, [fetchOrders]);
 
   // Update order status
@@ -215,13 +213,7 @@ export default function AdminOrdersPage() {
             >
               <RefreshCw className="w-5 h-5" />
             </button>
-            <button
-              onClick={handleLogout}
-              className="p-2 bg-rojo/20 hover:bg-rojo/30 text-rojo rounded-lg transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
+            <AdminNav onLogout={handleLogout} />
           </div>
         </div>
 

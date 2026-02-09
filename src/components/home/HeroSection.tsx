@@ -7,6 +7,7 @@ import { ArrowRight, ArrowLeft, MapPin, Star } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { mockMenuItems } from '@/data/mock-menu';
+import { useSettings } from '@/hooks/useSettings';
 
 import type { Locale } from '@/types';
 
@@ -176,6 +177,7 @@ export function HeroSection() {
   const [isPaused, setIsPaused] = useState(false);
   const pauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const { settings } = useSettings();
   const featuredItems = mockMenuItems.filter(item => item.isFeatured);
 
   const pauseAutoScroll = useCallback(() => {
@@ -311,7 +313,7 @@ export function HeroSection() {
           <div>
             <div className="hero-badge inline-flex items-center gap-2 px-4 py-2 bg-negro-light border border-amarillo/30 rounded mb-6 opacity-0" style={{ transform: 'translateY(20px)' }}>
               <MapPin className="w-4 h-4 text-amarillo" />
-              <span className="text-sm text-white font-medium">Fresno, CA</span>
+              <span className="text-sm text-white font-medium">{settings.address.city}, {settings.address.state}</span>
             </div>
 
             <h1 className="hero-title mb-6 opacity-0" style={{ transform: 'translateY(40px)' }}>

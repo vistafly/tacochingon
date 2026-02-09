@@ -27,4 +27,7 @@ export const mockSettings: BusinessSettings = {
   taxRate: 0.0775, // 7.75% Fresno tax
   isAcceptingOrders: true,
   pauseMessage: null,
+  isOpen: true,
+  statusMessage: null,
+  updatedAt: null,
 };
