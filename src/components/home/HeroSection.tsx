@@ -282,7 +282,7 @@ export function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[90vh] bg-negro overflow-hidden cursor-none [&_a]:cursor-pointer [&_button]:cursor-pointer"
+      className="relative min-h-[90vh] bg-negro overflow-hidden cursor-none"
       onMouseMove={(e) => {
         const rect = heroRef.current?.getBoundingClientRect();
         if (!rect || !smokeRef.current) return;
@@ -357,9 +357,9 @@ export function HeroSection() {
               {t('heroTagline')}
             </p>
 
-            <div className="hero-buttons flex flex-col sm:flex-row gap-4 opacity-0" style={{ transform: 'translateY(20px)' }}>
-              <Link href="/menu">
-                <button className="btn-order flex items-center justify-center gap-3 w-full sm:w-auto">
+            <div className="hero-buttons flex flex-col sm:flex-row gap-4 opacity-0 -m-4 p-4 cursor-auto" style={{ transform: 'translateY(20px)' }}>
+              <Link href="/menu" className="cursor-pointer">
+                <button className="btn-order flex items-center justify-center gap-3 w-full sm:w-auto cursor-pointer">
                   {tCommon('viewMenu')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -377,7 +377,7 @@ export function HeroSection() {
 
                   <div
                     ref={slideRef}
-                    className="relative bg-negro-light rounded-lg overflow-hidden border-4 border-amarillo"
+                    className="relative bg-negro-light rounded-lg overflow-hidden border-4 border-amarillo cursor-auto"
                   >
                     <div className="relative aspect-square">
                       {currentItem.image && !currentItem.image.includes('placeholder') ? (
@@ -411,9 +411,9 @@ export function HeroSection() {
                       <h3 className="font-display text-xl text-white mt-1">
                         {currentItem.name[locale]}
                       </h3>
-                      <div className="flex items-center justify-end mt-3">
-                        <Link href={`/menu?item=${currentItem.id}`}>
-                          <button className="btn-order text-sm py-2 px-6 uppercase">
+                      <div className="flex items-center justify-end mt-3 -m-2 p-2 cursor-pointer">
+                        <Link href={`/menu?item=${currentItem.id}`} className="cursor-pointer">
+                          <button className="btn-order text-sm py-2 px-6 uppercase cursor-pointer">
                             {tCommon('order')}
                           </button>
                         </Link>
@@ -424,7 +424,7 @@ export function HeroSection() {
                   <button
                     onClick={goToPrev}
                     disabled={isAnimating}
-                    className="absolute -left-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10"
+                    className="absolute -left-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10 cursor-pointer after:content-[''] after:absolute after:-inset-4"
                     aria-label="Previous slide"
                   >
                     <ArrowLeft className="w-5 h-5" />
@@ -433,20 +433,20 @@ export function HeroSection() {
                   <button
                     onClick={goToNext}
                     disabled={isAnimating}
-                    className="absolute -right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10"
+                    className="absolute -right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10 cursor-pointer after:content-[''] after:absolute after:-inset-4"
                     aria-label="Next slide"
                   >
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 mt-6">
+                <div className="flex items-center justify-center gap-2 mt-6 -m-4 p-4 cursor-auto">
                   {featuredItems.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => goToSlide(index)}
                       disabled={isAnimating}
-                      className={`h-2 rounded-full transition-all duration-300 ${
+                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                         index === currentIndex
                           ? 'bg-amarillo w-6'
                           : 'bg-gray-600 hover:bg-gray-500 w-2'
