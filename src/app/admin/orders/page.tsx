@@ -16,8 +16,6 @@ import {
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Order, OrderStatus } from '@/types/order';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
-import { db } from '@/lib/firebase/client';
 import { formatPrice, formatCustomizations } from '@/lib/utils';
 import { useNewOrderSound } from '@/hooks/useNewOrderSound';
 import { AdminNav } from '@/components/admin/AdminNav';
@@ -101,38 +99,11 @@ export default function AdminOrdersPage() {
     }
   }, [router, playSound]);
 
-  // Real-time subscription via Firestore onSnapshot — single source of truth
-  // Also does initial fetch and acts as a fallback polling every 60s
+  // Initial fetch + polling every 15s for near-real-time updates
   useEffect(() => {
-    // Initial fetch
     fetchOrders();
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const ordersQuery = query(
-      collection(db, 'orders'),
-      where('created_at', '>=', today.toISOString()),
-      orderBy('created_at', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(
-      ordersQuery,
-      () => {
-        fetchOrders();
-      },
-      (error) => {
-        console.error('Firestore snapshot error:', error);
-      }
-    );
-
-    // Fallback polling at 60s in case Firestore connection drops
-    const fallbackInterval = setInterval(fetchOrders, 60000);
-
-    return () => {
-      unsubscribe();
-      clearInterval(fallbackInterval);
-    };
+    const interval = setInterval(fetchOrders, 15000);
+    return () => clearInterval(interval);
   }, [fetchOrders]);
 
   // Update order status
