@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase/admin';
+import { adminDb, firebaseInitTime, firebaseInitStatus } from '@/lib/firebase/admin';
 import { cookies } from 'next/headers';
 import { Order } from '@/types/order';
 
@@ -19,6 +19,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status'); // comma-separated list
   const date = searchParams.get('date'); // 'today' or ISO date
+
+  const timing: Record<string, number> = {};
+  const routeStart = Date.now();
 
   try {
     let query: FirebaseFirestore.Query = adminDb.collection('orders');
@@ -44,7 +47,9 @@ export async function GET(request: NextRequest) {
     // Order by created_at descending (newest first)
     query = query.orderBy('created_at', 'desc');
 
+    const queryStart = Date.now();
     const snapshot = await query.get();
+    timing.ordersQuery = Date.now() - queryStart;
     let orders: Order[] = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -64,6 +69,7 @@ export async function GET(request: NextRequest) {
         const cutoff = twentyFourHoursAgo.toISOString();
 
         // Get recently completed orders that might have been created before today
+        const completedStart = Date.now();
         const completedSnapshot = await adminDb
           .collection('orders')
           .where('status', '==', 'completed')
@@ -71,6 +77,7 @@ export async function GET(request: NextRequest) {
           .orderBy('updated_at', 'desc')
           .get();
 
+        timing.completedQuery = Date.now() - completedStart;
         const completedOrders = completedSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -92,7 +99,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ orders });
+    timing.total = Date.now() - routeStart;
+    return NextResponse.json({
+      orders,
+      _debug: {
+        timing,
+        firebaseInit: { ms: firebaseInitTime, status: firebaseInitStatus },
+        orderCount: orders.length,
+      },
+    });
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(

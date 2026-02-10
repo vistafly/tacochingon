@@ -1,21 +1,35 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-if (!getApps().length) {
-  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
+export let firebaseInitTime = 0;
+export let firebaseInitStatus: 'ok' | 'fallback' | 'not-configured' = 'not-configured';
 
-  if (projectId && clientEmail && privateKey) {
-    initializeApp({
-      credential: cert({ projectId, clientEmail, privateKey }),
-    });
+if (!getApps().length) {
+  const initStart = Date.now();
+  const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+  if (serviceAccountKey) {
+    try {
+      const serviceAccount = JSON.parse(serviceAccountKey);
+      initializeApp({
+        credential: cert(serviceAccount),
+      });
+      firebaseInitStatus = 'ok';
+    } catch (e) {
+      console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:', e);
+      initializeApp({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'placeholder',
+      });
+      firebaseInitStatus = 'fallback';
+    }
   } else {
     console.warn('Firebase Admin SDK not configured - server features will not work');
     initializeApp({
       projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'placeholder',
     });
   }
+  firebaseInitTime = Date.now() - initStart;
+  console.log(`[Firebase Admin] init: ${firebaseInitTime}ms (status: ${firebaseInitStatus})`);
 }
 
 export const adminDb = getFirestore();

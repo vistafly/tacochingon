@@ -20,6 +20,7 @@ import { formatPrice, formatCustomizations } from '@/lib/utils';
 import { useNewOrderSound } from '@/hooks/useNewOrderSound';
 import { AdminNav } from '@/components/admin/AdminNav';
 import { useAdminLocale } from '@/components/admin/AdminLocaleProvider';
+import { AdminDebugPanel, useDebugTiming } from '@/components/admin/AdminDebugPanel';
 
 const statusTabKeys: { status: OrderStatus | 'all'; labelKey: string }[] = [
   { status: 'pending', labelKey: 'new' },
@@ -55,11 +56,15 @@ export default function AdminOrdersPage() {
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const previousOrdersRef = useRef<string[]>([]);
   const { playSound, isMuted, toggleMute } = useNewOrderSound();
+  const { entries: debugEntries, trackFetch } = useDebugTiming();
 
   // Fetch orders
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/orders?date=today');
+      const { response, data } = await trackFetch(
+        'GET /api/admin/orders',
+        '/api/admin/orders?date=today'
+      );
       if (!response.ok) {
         if (response.status === 401) {
           router.push('/admin/login');
@@ -67,7 +72,6 @@ export default function AdminOrdersPage() {
         }
         throw new Error('Failed to fetch orders');
       }
-      const data = await response.json();
 
       // Check for new orders
       const currentOrderIds = data.orders.map((o: Order) => o.id);
@@ -86,7 +90,7 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [router, playSound]);
+  }, [router, playSound, trackFetch]);
 
   // Initial fetch + polling every 15s for near-real-time updates
   useEffect(() => {
@@ -244,6 +248,8 @@ export default function AdminOrdersPage() {
           isUpdating={updatingOrderId === selectedOrder.stripe_payment_intent_id}
         />
       )}
+
+      <AdminDebugPanel entries={debugEntries} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { settingsService } from '@/lib/settings-service';
+import { firebaseInitTime, firebaseInitStatus } from '@/lib/firebase/admin';
 
 // Check admin authentication
 async function isAuthenticated(): Promise<boolean> {
@@ -12,9 +13,20 @@ async function isAuthenticated(): Promise<boolean> {
 
 // GET /api/settings - Public endpoint to fetch business settings
 export async function GET() {
+  const routeStart = Date.now();
   try {
+    const queryStart = Date.now();
     const settings = await settingsService.getSettings();
-    return NextResponse.json({ settings });
+    const queryMs = Date.now() - queryStart;
+    const totalMs = Date.now() - routeStart;
+
+    return NextResponse.json({
+      settings,
+      _debug: {
+        timing: { settingsQuery: queryMs, total: totalMs },
+        firebaseInit: { ms: firebaseInitTime, status: firebaseInitStatus },
+      },
+    });
   } catch (error) {
     console.error('Error fetching settings:', error);
     return NextResponse.json(

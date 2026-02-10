@@ -18,6 +18,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { AdminNav, NavGuardResult } from '@/components/admin/AdminNav';
 import { BusinessSettings, BusinessHours, DayHours } from '@/types/settings';
+import { AdminDebugPanel, useDebugTiming } from '@/components/admin/AdminDebugPanel';
 
 const DAY_KEYS: (keyof BusinessHours)[] = [
   'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
@@ -72,6 +73,9 @@ export default function AdminSettingsPage() {
   // Buffer time state
   const [prepTime, setPrepTime] = useState(30);
 
+  // Debug timing
+  const { entries: debugEntries, trackFetch } = useDebugTiming();
+
   // Unsaved-changes modal state
   const [showModal, setShowModal] = useState(false);
   const modalResolverRef = useRef<((result: NavGuardResult) => void) | null>(null);
@@ -113,9 +117,11 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch('/api/settings');
+        const { response, data } = await trackFetch(
+          'GET /api/settings',
+          '/api/settings'
+        );
         if (response.ok) {
-          const data = await response.json();
           const s: BusinessSettings = data.settings;
           setSettings(s);
           setStreet(s.address.street);
@@ -569,6 +575,8 @@ export default function AdminSettingsPage() {
         </section>
 
       </main>
+
+      <AdminDebugPanel entries={debugEntries} />
 
       {/* Unsaved Changes Modal */}
       {showModal && (
