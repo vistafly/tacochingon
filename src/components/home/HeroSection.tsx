@@ -139,8 +139,8 @@ function initSmoke(canvas: HTMLCanvasElement) {
     if (!gl) return;
 
     // Smooth mouse lerp for natural trailing
-    mouseX += (targetMouseX - mouseX) * 0.08;
-    mouseY += (targetMouseY - mouseY) * 0.08;
+    mouseX += (targetMouseX - mouseX) * 0.3;
+    mouseY += (targetMouseY - mouseY) * 0.3;
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0, 0, 0, 0);
@@ -172,6 +172,7 @@ export function HeroSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const smokeRef = useRef<{ destroy: () => void; setMouse: (x: number, y: number) => void } | null>(null);
   const slideRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -290,8 +291,15 @@ export function HeroSection() {
           (e.clientX - rect.left) / rect.width,
           (e.clientY - rect.top) / rect.height
         );
+        if (dotRef.current) {
+          dotRef.current.style.opacity = '1';
+          dotRef.current.style.transform = `translate(${e.clientX - rect.left}px, ${e.clientY - rect.top}px) translate(-50%, -50%)`;
+        }
       }}
-      onMouseLeave={() => smokeRef.current?.setMouse(-1, -1)}
+      onMouseLeave={() => {
+        smokeRef.current?.setMouse(-1, -1);
+        if (dotRef.current) dotRef.current.style.opacity = '0';
+      }}
       onTouchStart={(e) => {
         const touch = e.touches[0];
         const rect = heroRef.current?.getBoundingClientRect();
@@ -318,6 +326,13 @@ export function HeroSection() {
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
         aria-hidden="true"
+      />
+
+      {/* Custom cursor dot */}
+      <div
+        ref={dotRef}
+        className="absolute top-0 left-0 w-2 h-2 rounded-full bg-amarillo/50 pointer-events-none z-50 will-change-transform"
+        style={{ opacity: 0, transition: 'transform 0.07s ease-out, opacity 0.15s ease' }}
       />
 
       {/* Content */}
@@ -357,9 +372,9 @@ export function HeroSection() {
               {t('heroTagline')}
             </p>
 
-            <div className="hero-buttons flex flex-col sm:flex-row gap-4 opacity-0 -m-4 p-4 cursor-auto" style={{ transform: 'translateY(20px)' }}>
+            <div className="hero-buttons flex flex-col sm:flex-row gap-4 opacity-0" style={{ transform: 'translateY(20px)' }}>
               <Link href="/menu" className="cursor-pointer">
-                <button className="btn-order flex items-center justify-center gap-3 w-full sm:w-auto cursor-pointer">
+                <button className="btn-order flex items-center justify-center gap-3 !px-6 w-full sm:w-auto cursor-pointer">
                   {tCommon('viewMenu')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -411,7 +426,7 @@ export function HeroSection() {
                       <h3 className="font-display text-xl text-white mt-1">
                         {currentItem.name[locale]}
                       </h3>
-                      <div className="flex items-center justify-end mt-3 -m-2 p-2 cursor-pointer">
+                      <div className="flex items-center justify-end mt-3">
                         <Link href={`/menu?item=${currentItem.id}`} className="cursor-pointer">
                           <button className="btn-order text-sm py-2 px-6 uppercase cursor-pointer">
                             {tCommon('order')}
@@ -424,7 +439,7 @@ export function HeroSection() {
                   <button
                     onClick={goToPrev}
                     disabled={isAnimating}
-                    className="absolute -left-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10 cursor-pointer after:content-[''] after:absolute after:-inset-4"
+                    className="absolute -left-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10 cursor-pointer"
                     aria-label="Previous slide"
                   >
                     <ArrowLeft className="w-5 h-5" />
@@ -433,14 +448,14 @@ export function HeroSection() {
                   <button
                     onClick={goToNext}
                     disabled={isAnimating}
-                    className="absolute -right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10 cursor-pointer after:content-[''] after:absolute after:-inset-4"
+                    className="absolute -right-14 top-1/2 -translate-y-1/2 w-10 h-10 bg-negro-light border-2 border-amarillo rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro transition-colors duration-200 disabled:opacity-50 shadow-lg z-10 cursor-pointer"
                     aria-label="Next slide"
                   >
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 mt-6 -m-4 p-4 cursor-auto">
+                <div className="flex items-center justify-center gap-2 mt-6">
                   {featuredItems.map((_, index) => (
                     <button
                       key={index}
