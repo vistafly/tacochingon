@@ -109,17 +109,6 @@ export default function AdminSettingsPage() {
     return () => window.removeEventListener('beforeunload', handler);
   }, [hasChanges]);
 
-  // Check authentication
-  useEffect(() => {
-    const checkAuth = async () => {
-      const response = await fetch('/api/admin/auth');
-      if (!response.ok) {
-        router.push('/admin/login');
-      }
-    };
-    checkAuth();
-  }, [router]);
-
   // Fetch settings
   useEffect(() => {
     const fetchSettings = async () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Package, Settings, LogOut } from 'lucide-react';
@@ -27,6 +27,15 @@ export function AdminNav({ onLogout, confirmNavigation }: AdminNavProps) {
   const t = useTranslations('admin');
   const { locale, setLocale } = useAdminLocale();
   const [navigating, setNavigating] = useState(false);
+
+  // Prefetch all admin pages on mount for instant navigation
+  useEffect(() => {
+    navItems.forEach((item) => {
+      if (item.href !== pathname) {
+        router.prefetch(item.href);
+      }
+    });
+  }, [pathname, router]);
 
   const toggleLocale = () => {
     setLocale(locale === 'en' ? 'es' : 'en' as Locale);

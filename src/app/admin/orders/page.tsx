@@ -56,17 +56,6 @@ export default function AdminOrdersPage() {
   const previousOrdersRef = useRef<string[]>([]);
   const { playSound, isMuted, toggleMute } = useNewOrderSound();
 
-  // Check authentication
-  useEffect(() => {
-    const checkAuth = async () => {
-      const response = await fetch('/api/admin/auth');
-      if (!response.ok) {
-        router.push('/admin/login');
-      }
-    };
-    checkAuth();
-  }, [router]);
-
   // Fetch orders
   const fetchOrders = useCallback(async () => {
     try {
