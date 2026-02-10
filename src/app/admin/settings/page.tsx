@@ -74,7 +74,7 @@ export default function AdminSettingsPage() {
   const [prepTime, setPrepTime] = useState(30);
 
   // Debug timing
-  const { entries: debugEntries, trackFetch } = useDebugTiming();
+  const { entries: debugEntries, enabled: debugEnabled, trackFetch } = useDebugTiming();
 
   // Unsaved-changes modal state
   const [showModal, setShowModal] = useState(false);
@@ -576,7 +576,7 @@ export default function AdminSettingsPage() {
 
       </main>
 
-      <AdminDebugPanel entries={debugEntries} />
+      <AdminDebugPanel entries={debugEntries} enabled={debugEnabled} />
 
       {/* Unsaved Changes Modal */}
       {showModal && (

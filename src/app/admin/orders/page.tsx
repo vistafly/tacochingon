@@ -56,7 +56,7 @@ export default function AdminOrdersPage() {
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const previousOrdersRef = useRef<string[]>([]);
   const { playSound, isMuted, toggleMute } = useNewOrderSound();
-  const { entries: debugEntries, trackFetch } = useDebugTiming();
+  const { entries: debugEntries, enabled: debugEnabled, trackFetch } = useDebugTiming();
 
   // Fetch orders
   const fetchOrders = useCallback(async () => {
@@ -249,7 +249,7 @@ export default function AdminOrdersPage() {
         />
       )}
 
-      <AdminDebugPanel entries={debugEntries} />
+      <AdminDebugPanel entries={debugEntries} enabled={debugEnabled} />
     </div>
   );
 }

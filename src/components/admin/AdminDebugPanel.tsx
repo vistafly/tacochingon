@@ -1,7 +1,17 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import { Bug, ChevronDown, ChevronUp, RotateCw } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { Bug, ChevronDown, ChevronUp } from 'lucide-react';
+
+const DEBUG_KEY = 'admin_debug';
+
+function isDebugEnabled() {
+  try {
+    return localStorage.getItem(DEBUG_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
 
 interface TimingEntry {
   label: string;
@@ -12,11 +22,43 @@ interface TimingEntry {
   timestamp: number;
 }
 
+/**
+ * Hook that wraps fetch with optional timing tracking.
+ * When debug is off, trackFetch is a plain fetch+json passthrough.
+ * Toggle debug mode with Ctrl+Shift+D.
+ */
 export function useDebugTiming() {
+  const [enabled, setEnabled] = useState(false);
   const [entries, setEntries] = useState<TimingEntry[]>([]);
+
+  // Read initial state from localStorage (client only)
+  useEffect(() => {
+    setEnabled(isDebugEnabled());
+  }, []);
+
+  // Ctrl+Shift+D keyboard shortcut to toggle
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        const next = !isDebugEnabled();
+        localStorage.setItem(DEBUG_KEY, String(next));
+        setEnabled(next);
+        if (!next) setEntries([]);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const trackFetch = useCallback(
     async (label: string, url: string, init?: RequestInit) => {
+      if (!isDebugEnabled()) {
+        const response = await fetch(url, init);
+        const data = await response.json();
+        return { response, data };
+      }
+
       const clientStart = performance.now();
       const response = await fetch(url, init);
       const clientMs = Math.round(performance.now() - clientStart);
@@ -37,7 +79,7 @@ export function useDebugTiming() {
             },
             timestamp: Date.now(),
           },
-          ...prev.slice(0, 19), // keep last 20
+          ...prev.slice(0, 19),
         ]);
       }
 
@@ -46,24 +88,24 @@ export function useDebugTiming() {
     []
   );
 
-  return { entries, trackFetch };
+  return { entries, enabled, trackFetch };
 }
 
 interface AdminDebugPanelProps {
   entries: TimingEntry[];
+  enabled: boolean;
 }
 
-export function AdminDebugPanel({ entries }: AdminDebugPanelProps) {
+export function AdminDebugPanel({ entries, enabled }: AdminDebugPanelProps) {
   const [open, setOpen] = useState(false);
 
-  if (entries.length === 0) return null;
+  if (!enabled || entries.length === 0) return null;
 
   const latest = entries[0];
   const networkOverhead = latest
     ? latest.clientMs - (latest.serverMs.total || 0)
     : 0;
 
-  // Color code: green < 500ms, yellow < 2000ms, red >= 2000ms
   const colorFor = (ms: number) =>
     ms < 500 ? 'text-green-400' : ms < 2000 ? 'text-yellow-400' : 'text-red-400';
 
@@ -172,7 +214,7 @@ export function AdminDebugPanel({ entries }: AdminDebugPanelProps) {
                       <div className="flex-1 h-3 bg-gray-800 rounded overflow-hidden">
                         <div
                           className={`h-full rounded ${
-                            networkOverhead < 500
+                            (entry.clientMs - (entry.serverMs.total || 0)) < 500
                               ? 'bg-blue-500/70'
                               : 'bg-orange-500/70'
                           }`}
