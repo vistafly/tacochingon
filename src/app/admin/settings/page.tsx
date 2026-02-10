@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   MapPin,
@@ -23,8 +23,8 @@ const DAY_KEYS: (keyof BusinessHours)[] = [
   'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
 ];
 
-// Generate time options in 30-min increments
-function generateTimeOptions(): { value: string; label: string }[] {
+// Generate time options in 30-min increments — module-level constant
+const TIME_OPTIONS: { value: string; label: string }[] = (() => {
   const options: { value: string; label: string }[] = [];
   for (let h = 0; h < 24; h++) {
     for (const m of [0, 30]) {
@@ -36,9 +36,7 @@ function generateTimeOptions(): { value: string; label: string }[] {
     }
   }
   return options;
-}
-
-const TIME_OPTIONS = generateTimeOptions();
+})();
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -78,9 +76,12 @@ export default function AdminSettingsPage() {
   const [showModal, setShowModal] = useState(false);
   const modalResolverRef = useRef<((result: NavGuardResult) => void) | null>(null);
 
-  // Dirty state tracking — snapshot of saved values
+  // Dirty state tracking — memoized snapshot comparison
   const savedRef = useRef<string>('');
-  const currentSnapshot = JSON.stringify({ street, city, state, zip, isOpen, statusMessage, isAcceptingOrders, pauseMessage, hours, prepTime });
+  const currentSnapshot = useMemo(
+    () => JSON.stringify({ street, city, state, zip, isOpen, statusMessage, isAcceptingOrders, pauseMessage, hours, prepTime }),
+    [street, city, state, zip, isOpen, statusMessage, isAcceptingOrders, pauseMessage, hours, prepTime]
+  );
   const hasChanges = savedRef.current !== '' && currentSnapshot !== savedRef.current;
 
   // Open modal and return a promise that resolves when user picks an action
@@ -255,6 +256,13 @@ export default function AdminSettingsPage() {
     }));
   };
 
+  // Memoize time option elements to avoid re-rendering 48 options on every render
+  const timeOptionElements = useMemo(() => (
+    TIME_OPTIONS.map((opt) => (
+      <option key={opt.value} value={opt.value}>{opt.label}</option>
+    ))
+  ), []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-negro flex items-center justify-center">
@@ -276,14 +284,14 @@ export default function AdminSettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving || !hasChanges}
-              className={`relative p-2 rounded-lg transition-colors ${
+              className={`relative p-2.5 rounded-lg transition-colors ${
                 hasChanges
                   ? 'bg-verde text-white hover:bg-verde/90'
                   : 'bg-gray-700 text-gray-400'
               }`}
               title={saving ? t('saving') : t('saveChanges')}
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
               {hasChanges && (
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amarillo rounded-full" />
               )}
@@ -329,7 +337,7 @@ export default function AdminSettingsPage() {
                 type="text"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
-                className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
+                className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-3 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                 placeholder="123 Main St"
               />
             </div>
@@ -340,7 +348,7 @@ export default function AdminSettingsPage() {
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
+                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-3 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                   placeholder="Fresno"
                 />
               </div>
@@ -350,7 +358,7 @@ export default function AdminSettingsPage() {
                   type="text"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
+                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-3 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                   placeholder="CA"
                   maxLength={2}
                 />
@@ -361,7 +369,7 @@ export default function AdminSettingsPage() {
                   type="text"
                   value={zip}
                   onChange={(e) => setZip(e.target.value)}
-                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
+                  className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-3 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
                   placeholder="93726"
                   maxLength={10}
                 />
@@ -419,7 +427,7 @@ export default function AdminSettingsPage() {
               type="text"
               value={isOpen ? statusMessage : pauseMessage}
               onChange={(e) => isOpen ? setStatusMessage(e.target.value) : setPauseMessage(e.target.value)}
-              className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
+              className="w-full bg-negro border border-gray-600 rounded-lg px-3 py-3 text-sm text-white focus:border-amarillo focus:outline-none transition-colors"
               placeholder={isOpen ? t('statusPlaceholder') : t('pausePlaceholder')}
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -452,11 +460,9 @@ export default function AdminSettingsPage() {
                 <select
                   value={defaultOpen}
                   onChange={(e) => setDefaultOpen(e.target.value)}
-                  className="w-full sm:w-auto bg-negro border border-gray-600 rounded-lg px-2 py-1.5 text-white focus:border-amarillo focus:outline-none text-xs sm:text-sm"
+                  className="w-full sm:w-auto bg-negro border border-gray-600 rounded-lg px-2 py-2.5 text-white focus:border-amarillo focus:outline-none text-xs sm:text-sm"
                 >
-                  {TIME_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
+                  {timeOptionElements}
                 </select>
               </div>
               <div className="flex items-center gap-2">
@@ -464,16 +470,14 @@ export default function AdminSettingsPage() {
                 <select
                   value={defaultClose}
                   onChange={(e) => setDefaultClose(e.target.value)}
-                  className="w-full sm:w-auto bg-negro border border-gray-600 rounded-lg px-2 py-1.5 text-white focus:border-amarillo focus:outline-none text-xs sm:text-sm"
+                  className="w-full sm:w-auto bg-negro border border-gray-600 rounded-lg px-2 py-2.5 text-white focus:border-amarillo focus:outline-none text-xs sm:text-sm"
                 >
-                  {TIME_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
+                  {timeOptionElements}
                 </select>
               </div>
               <button
                 onClick={applyDefaultToAll}
-                className="col-span-2 sm:col-span-1 sm:ml-auto text-xs sm:text-sm px-3 py-2 bg-amarillo/20 text-amarillo rounded-lg hover:bg-amarillo/30 transition-colors"
+                className="col-span-2 sm:col-span-1 sm:ml-auto text-xs sm:text-sm px-3 py-2.5 bg-amarillo/20 text-amarillo rounded-lg hover:bg-amarillo/30 transition-colors"
               >
                 {t('applyToAll')}
               </button>
@@ -489,20 +493,20 @@ export default function AdminSettingsPage() {
               return (
                 <div
                   key={key}
-                  className={`rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 border ${
+                  className={`rounded-lg px-3 sm:px-4 py-3 sm:py-3 border ${
                     isOpenDay ? 'bg-negro border-gray-600' : 'bg-negro/50 border-gray-700'
                   }`}
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <button
                       onClick={() => toggleDay(key)}
-                      className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 shrink-0 items-center rounded-full transition-colors ${
+                      className={`relative inline-flex h-6 w-10 sm:h-6 sm:w-11 shrink-0 items-center rounded-full transition-colors ${
                         isOpenDay ? 'bg-verde' : 'bg-gray-600'
                       }`}
                     >
                       <span
-                        className={`inline-block h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-white shadow transition-transform ${
-                          isOpenDay ? 'translate-x-4.5 sm:translate-x-6' : 'translate-x-0.5 sm:translate-x-1'
+                        className={`inline-block h-4 w-4 sm:h-4 sm:w-4 rounded-full bg-white shadow transition-transform ${
+                          isOpenDay ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0.5 sm:translate-x-1'
                         }`}
                       />
                     </button>
@@ -516,21 +520,17 @@ export default function AdminSettingsPage() {
                         <select
                           value={dayHours!.open}
                           onChange={(e) => updateDayTime(key, 'open', e.target.value)}
-                          className="flex-1 min-w-0 bg-negro border border-gray-600 rounded px-1 sm:px-2 py-1 sm:py-1.5 text-white text-xs sm:text-sm focus:border-amarillo focus:outline-none"
+                          className="flex-1 min-w-0 bg-negro border border-gray-600 rounded px-1 sm:px-2 py-2 sm:py-1.5 text-white text-xs sm:text-sm focus:border-amarillo focus:outline-none"
                         >
-                          {TIME_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
+                          {timeOptionElements}
                         </select>
                         <span className="text-gray-500 text-xs shrink-0">–</span>
                         <select
                           value={dayHours!.close}
                           onChange={(e) => updateDayTime(key, 'close', e.target.value)}
-                          className="flex-1 min-w-0 bg-negro border border-gray-600 rounded px-1 sm:px-2 py-1 sm:py-1.5 text-white text-xs sm:text-sm focus:border-amarillo focus:outline-none"
+                          className="flex-1 min-w-0 bg-negro border border-gray-600 rounded px-1 sm:px-2 py-2 sm:py-1.5 text-white text-xs sm:text-sm focus:border-amarillo focus:outline-none"
                         >
-                          {TIME_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
+                          {timeOptionElements}
                         </select>
                       </div>
                     ) : (
@@ -594,9 +594,9 @@ export default function AdminSettingsPage() {
             {/* Close button */}
             <button
               onClick={() => closeModal('stay')}
-              className="absolute top-3 right-3 p-1 text-gray-400 hover:text-white transition-colors"
+              className="absolute top-3 right-3 p-2 text-gray-400 hover:text-white transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
 
             <div className="p-5 sm:p-6 text-center">
@@ -616,20 +616,20 @@ export default function AdminSettingsPage() {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => closeModal('save')}
-                  className="w-full py-2.5 bg-verde hover:bg-verde/90 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-verde hover:bg-verde/90 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   {t('saveAndLeave')}
                 </button>
                 <button
                   onClick={() => closeModal('discard')}
-                  className="w-full py-2.5 bg-rojo/20 hover:bg-rojo/30 text-rojo text-sm font-medium rounded-lg transition-colors"
+                  className="w-full py-3 bg-rojo/20 hover:bg-rojo/30 text-rojo text-sm font-medium rounded-lg transition-colors"
                 >
                   {t('discardAndLeave')}
                 </button>
                 <button
                   onClick={() => closeModal('stay')}
-                  className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-medium rounded-lg transition-colors"
+                  className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-medium rounded-lg transition-colors"
                 >
                   {t('stayOnPage')}
                 </button>

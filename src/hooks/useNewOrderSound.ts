@@ -5,9 +5,10 @@ import { useCallback, useRef, useState } from 'react';
 export function useNewOrderSound() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
 
   const playSound = useCallback(() => {
-    if (isMuted) return;
+    if (isMutedRef.current) return;
 
     if (!audioRef.current) {
       audioRef.current = new Audio('/sounds/new-order.mp3');
@@ -18,10 +19,13 @@ export function useNewOrderSound() {
     audioRef.current.play().catch((err) => {
       console.log('Could not play notification sound:', err);
     });
-  }, [isMuted]);
+  }, []);
 
   const toggleMute = useCallback(() => {
-    setIsMuted((prev) => !prev);
+    setIsMuted((prev) => {
+      isMutedRef.current = !prev;
+      return !prev;
+    });
   }, []);
 
   return { playSound, isMuted, toggleMute };

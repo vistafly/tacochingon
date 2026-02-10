@@ -110,7 +110,7 @@ function InfoSection({ settings }: { settings: BusinessSettings }) {
       {/* Address Card */}
       <div className="bg-negro-light rounded-lg border-2 border-gray-700 border-l-4 border-l-rojo p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-rojo/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-rojo/20 rounded-lg flex items-center justify-center shrink-0">
             <MapPin className="w-6 h-6 text-rojo" />
           </div>
           <div>
@@ -126,7 +126,7 @@ function InfoSection({ settings }: { settings: BusinessSettings }) {
       {/* Phone Card */}
       <div className="bg-negro-light rounded-lg border-2 border-gray-700 border-l-4 border-l-verde p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-verde/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-verde/20 rounded-lg flex items-center justify-center shrink-0">
             <Phone className="w-6 h-6 text-verde" />
           </div>
           <div>
@@ -144,7 +144,7 @@ function InfoSection({ settings }: { settings: BusinessSettings }) {
       {/* Email Card */}
       <div className="bg-negro-light rounded-lg border-2 border-gray-700 border-l-4 border-l-amarillo p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-amarillo/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-amarillo/20 rounded-lg flex items-center justify-center shrink-0">
             <Mail className="w-6 h-6 text-amarillo" />
           </div>
           <div>
@@ -162,7 +162,7 @@ function InfoSection({ settings }: { settings: BusinessSettings }) {
       {/* Hours Card */}
       <div className="bg-negro-light rounded-lg border-2 border-gray-700 p-6">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-amarillo/20 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-amarillo/20 rounded-lg flex items-center justify-center shrink-0">
             <Clock className="w-6 h-6 text-amarillo" />
           </div>
           <div className="flex-1">

@@ -40,8 +40,14 @@ export function AdminLocaleProvider({ children }: { children: React.ReactNode })
     localStorage.setItem(STORAGE_KEY, newLocale);
   }, []);
 
-  // Avoid hydration mismatch — render nothing until mounted
-  if (!mounted) return null;
+  // Avoid hydration mismatch — show loading spinner until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-negro flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-amarillo border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <AdminLocaleContext.Provider value={{ locale, setLocale }}>

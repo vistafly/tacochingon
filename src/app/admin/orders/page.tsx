@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   RefreshCw,
@@ -54,6 +54,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<OrderStatus | 'all'>('pending');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
   const previousOrdersRef = useRef<string[]>([]);
   const { playSound, isMuted, toggleMute } = useNewOrderSound();
 
@@ -100,15 +101,12 @@ export default function AdminOrdersPage() {
     }
   }, [router, playSound]);
 
-  // Initial fetch and auto-refresh (always on)
+  // Real-time subscription via Firestore onSnapshot — single source of truth
+  // Also does initial fetch and acts as a fallback polling every 60s
   useEffect(() => {
+    // Initial fetch
     fetchOrders();
-    const interval = setInterval(fetchOrders, 30000);
-    return () => clearInterval(interval);
-  }, [fetchOrders]);
 
-  // Real-time subscription via Firestore onSnapshot
-  useEffect(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -118,15 +116,30 @@ export default function AdminOrdersPage() {
       orderBy('created_at', 'desc')
     );
 
-    const unsubscribe = onSnapshot(ordersQuery, () => {
-      fetchOrders();
-    });
+    const unsubscribe = onSnapshot(
+      ordersQuery,
+      () => {
+        fetchOrders();
+      },
+      (error) => {
+        console.error('Firestore snapshot error:', error);
+      }
+    );
 
-    return () => unsubscribe();
+    // Fallback polling at 60s in case Firestore connection drops
+    const fallbackInterval = setInterval(fetchOrders, 60000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(fallbackInterval);
+    };
   }, [fetchOrders]);
 
   // Update order status
-  const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
+  const updateStatus = useCallback(async (orderId: string, newStatus: OrderStatus) => {
+    if (updatingOrderId) return; // Prevent double-tap
+    setUpdatingOrderId(orderId);
+
     try {
       const response = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
@@ -135,15 +148,17 @@ export default function AdminOrdersPage() {
       });
 
       if (response.ok) {
-        fetchOrders();
+        await fetchOrders();
         if (selectedOrder?.id === orderId) {
           setSelectedOrder(null);
         }
       }
     } catch (error) {
       console.error('Error updating order:', error);
+    } finally {
+      setUpdatingOrderId(null);
     }
-  };
+  }, [updatingOrderId, fetchOrders, selectedOrder?.id]);
 
   // Logout
   const handleLogout = async () => {
@@ -151,20 +166,22 @@ export default function AdminOrdersPage() {
     router.push('/admin/login');
   };
 
-  // Filter orders by tab
-  const filteredOrders = orders.filter((order) => {
-    if (activeTab === 'all') return true;
-    return order.status === activeTab;
-  });
+  // Memoize filtered orders
+  const filteredOrders = useMemo(() => {
+    if (activeTab === 'all') return orders;
+    return orders.filter((order) => order.status === activeTab);
+  }, [orders, activeTab]);
 
-  // Count orders per status
-  const orderCounts = statusTabKeys.reduce(
-    (acc, tab) => {
-      acc[tab.status] = orders.filter((o) => o.status === tab.status).length;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  // Memoize order counts
+  const orderCounts = useMemo(() => {
+    return statusTabKeys.reduce(
+      (acc, tab) => {
+        acc[tab.status] = orders.filter((o) => o.status === tab.status).length;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+  }, [orders]);
 
   if (loading) {
     return (
@@ -186,17 +203,17 @@ export default function AdminOrdersPage() {
           <div className="flex items-center gap-1.5">
             <button
               onClick={toggleMute}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2.5 rounded-lg transition-colors ${
                 isMuted ? 'bg-gray-700 text-gray-400' : 'bg-verde/20 text-verde'
               }`}
             >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
             <button
               onClick={fetchOrders}
-              className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              className="p-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-5 h-5" />
             </button>
             <div className="w-px h-6 bg-gray-600 mx-0.5 hidden sm:block" />
             <AdminNav onLogout={handleLogout} />
@@ -209,7 +226,7 @@ export default function AdminOrdersPage() {
             <button
               key={tab.status}
               onClick={() => setActiveTab(tab.status)}
-              className={`flex-1 inline-flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab.status
                   ? 'bg-amarillo text-negro'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -218,7 +235,7 @@ export default function AdminOrdersPage() {
               {t(tab.labelKey)}
               {orderCounts[tab.status] > 0 && (
                 <span
-                  className={`w-4 h-4 sm:w-5 sm:h-5 inline-flex items-center justify-center text-[9px] sm:text-[10px] font-bold rounded-full shrink-0 ${
+                  className={`w-5 h-5 sm:w-5 sm:h-5 inline-flex items-center justify-center text-[10px] sm:text-[10px] font-bold rounded-full shrink-0 ${
                     tab.status === 'pending'
                       ? 'bg-rojo text-white'
                       : activeTab === tab.status
@@ -242,7 +259,7 @@ export default function AdminOrdersPage() {
             <p className="text-gray-400">{t('noOrders')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
             {filteredOrders.map((order) => (
               <OrderCard
                 key={order.id}
@@ -250,6 +267,7 @@ export default function AdminOrdersPage() {
                 locale={locale}
                 onStatusUpdate={updateStatus}
                 onSelect={() => setSelectedOrder(order)}
+                isUpdating={updatingOrderId === order.stripe_payment_intent_id}
               />
             ))}
           </div>
@@ -263,6 +281,7 @@ export default function AdminOrdersPage() {
           locale={locale}
           onClose={() => setSelectedOrder(null)}
           onStatusUpdate={updateStatus}
+          isUpdating={updatingOrderId === selectedOrder.stripe_payment_intent_id}
         />
       )}
     </div>
@@ -274,9 +293,10 @@ interface OrderCardProps {
   locale: string;
   onStatusUpdate: (orderId: string, status: OrderStatus) => void;
   onSelect: () => void;
+  isUpdating: boolean;
 }
 
-function OrderCard({ order, locale, onStatusUpdate, onSelect }: OrderCardProps) {
+const OrderCard = memo(function OrderCard({ order, locale, onStatusUpdate, onSelect, isUpdating }: OrderCardProps) {
   const t = useTranslations('admin');
   const localeStr = locale === 'es' ? 'es-US' : 'en-US';
 
@@ -323,7 +343,7 @@ function OrderCard({ order, locale, onStatusUpdate, onSelect }: OrderCardProps) 
       } overflow-hidden`}
     >
       {/* Header */}
-      <div className="px-3 py-2 border-b border-gray-700 flex items-center justify-between">
+      <div className="px-3 py-2.5 border-b border-gray-700 flex items-center justify-between">
         <div>
           <p className="font-display text-sm sm:text-base text-white">#{order.order_number}</p>
           <p className="text-xs text-gray-400">{timeAgo}</p>
@@ -338,7 +358,7 @@ function OrderCard({ order, locale, onStatusUpdate, onSelect }: OrderCardProps) 
       </div>
 
       {/* Body */}
-      <div className="px-3 py-2 space-y-1.5">
+      <div className="px-3 py-2.5 space-y-1.5">
         {/* Customer */}
         <p className="text-white font-medium text-sm truncate">{order.customer_name}</p>
 
@@ -374,37 +394,45 @@ function OrderCard({ order, locale, onStatusUpdate, onSelect }: OrderCardProps) 
       </div>
 
       {/* Actions */}
-      <div className="px-3 py-2 border-t border-gray-700 flex flex-col sm:flex-row gap-1.5">
+      <div className="px-3 py-2.5 border-t border-gray-700 flex flex-col sm:flex-row gap-1.5">
         <button
           onClick={onSelect}
-          className="flex-1 px-2 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-xs transition-colors"
+          className="flex-1 px-3 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-xs transition-colors"
         >
           {t('viewDetails')}
         </button>
         {next && (
           <button
             onClick={() => onStatusUpdate(order.stripe_payment_intent_id, next)}
-            className="flex-1 px-2 py-1.5 bg-verde hover:bg-verde/90 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
+            disabled={isUpdating}
+            className="flex-1 px-3 py-2.5 bg-verde hover:bg-verde/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1"
           >
-            {next === 'preparing' && <ChefHat className="w-3 h-3" />}
-            {next === 'ready' && <Package className="w-3 h-3" />}
-            {next === 'completed' && <CheckCircle className="w-3 h-3" />}
+            {isUpdating ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <>
+                {next === 'preparing' && <ChefHat className="w-3 h-3" />}
+                {next === 'ready' && <Package className="w-3 h-3" />}
+                {next === 'completed' && <CheckCircle className="w-3 h-3" />}
+              </>
+            )}
             {nextLabelMap[next]}
           </button>
         )}
       </div>
     </div>
   );
-}
+});
 
 interface OrderDetailsModalProps {
   order: Order;
   locale: string;
   onClose: () => void;
   onStatusUpdate: (orderId: string, status: OrderStatus) => void;
+  isUpdating: boolean;
 }
 
-function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDetailsModalProps) {
+const OrderDetailsModal = memo(function OrderDetailsModal({ order, locale, onClose, onStatusUpdate, isUpdating }: OrderDetailsModalProps) {
   const t = useTranslations('admin');
   const localeStr = locale === 'es' ? 'es-US' : 'en-US';
   const lang = locale as 'en' | 'es';
@@ -424,12 +452,17 @@ function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDeta
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-negro-light rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="bg-negro-light rounded-t-xl sm:rounded-lg max-w-lg w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b border-gray-700 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-gray-700 flex items-center justify-between sticky top-0 bg-negro-light z-10">
           <div>
-            <p className="font-display text-2xl text-white">{t('order')} #{order.order_number}</p>
+            <p className="font-display text-xl sm:text-2xl text-white">{t('order')} #{order.order_number}</p>
             <span
               className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
                 statusColors[order.status as OrderStatus]
@@ -440,14 +473,15 @@ function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDeta
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl"
+            className="text-gray-400 hover:text-white text-3xl p-2 -mr-2"
+            aria-label="Close"
           >
             &times;
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* Customer Info */}
           <div>
             <h3 className="text-sm text-gray-400 mb-2">{t('customer')}</h3>
@@ -524,33 +558,36 @@ function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDeta
         </div>
 
         {/* Status Actions */}
-        <div className="p-6 border-t border-gray-700 flex gap-2">
+        <div className="p-4 sm:p-6 border-t border-gray-700 flex gap-2 sticky bottom-0 bg-negro-light">
           {order.status !== 'completed' && order.status !== 'cancelled' && (
             <>
               {order.status === 'pending' && (
                 <button
                   onClick={() => onStatusUpdate(order.stripe_payment_intent_id, 'preparing')}
-                  className="flex-1 px-4 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium flex items-center justify-center gap-2"
+                  disabled={isUpdating}
+                  className="flex-1 px-4 py-3.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium flex items-center justify-center gap-2"
                 >
-                  <ChefHat className="w-5 h-5" />
+                  {isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChefHat className="w-5 h-5" />}
                   {t('startPreparing')}
                 </button>
               )}
               {order.status === 'preparing' && (
                 <button
                   onClick={() => onStatusUpdate(order.stripe_payment_intent_id, 'ready')}
-                  className="flex-1 px-4 py-3 bg-verde hover:bg-verde/90 rounded-lg font-medium flex items-center justify-center gap-2"
+                  disabled={isUpdating}
+                  className="flex-1 px-4 py-3.5 bg-verde hover:bg-verde/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium flex items-center justify-center gap-2"
                 >
-                  <Package className="w-5 h-5" />
+                  {isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Package className="w-5 h-5" />}
                   {t('markReady')}
                 </button>
               )}
               {order.status === 'ready' && (
                 <button
                   onClick={() => onStatusUpdate(order.stripe_payment_intent_id, 'completed')}
-                  className="flex-1 px-4 py-3 bg-gray-600 hover:bg-gray-500 rounded-lg font-medium flex items-center justify-center gap-2"
+                  disabled={isUpdating}
+                  className="flex-1 px-4 py-3.5 bg-gray-600 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium flex items-center justify-center gap-2"
                 >
-                  <CheckCircle className="w-5 h-5" />
+                  {isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
                   {t('complete')}
                 </button>
               )}
@@ -558,7 +595,7 @@ function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDeta
           )}
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg"
+            className="px-6 py-3.5 bg-gray-700 hover:bg-gray-600 rounded-lg"
           >
             {t('close')}
           </button>
@@ -566,7 +603,7 @@ function OrderDetailsModal({ order, locale, onClose, onStatusUpdate }: OrderDeta
       </div>
     </div>
   );
-}
+});
 
 function getTimeAgo(date: Date, t: ReturnType<typeof useTranslations>): string {
   const now = new Date();

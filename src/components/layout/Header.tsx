@@ -57,14 +57,14 @@ export function Header() {
       )}
     >
       {/* Mexican flag stripe - top */}
-      <div className="h-1 w-full bg-gradient-to-r from-verde via-white to-rojo" />
+      <div className="h-1 w-full bg-linear-to-r from-verde via-white to-rojo" />
 
       <nav className="w-full px-6 lg:px-12">
         <div className="relative flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
           <Link href="/" onClick={handleNavClick} className="flex items-center gap-3 group z-10">
             <div
-              className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-3 border-amarillo flex-shrink-0"
+              className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-3 border-amarillo shrink-0"
               style={{ boxShadow: '0 0 20px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2)' }}
             >
               <Image
@@ -186,7 +186,7 @@ export function Header() {
       </nav>
 
       {/* Mexican flag stripe - bottom */}
-      <div className="h-1 w-full bg-gradient-to-r from-verde via-white to-rojo" />
+      <div className="h-1 w-full bg-linear-to-r from-verde via-white to-rojo" />
     </header>
   );
 }

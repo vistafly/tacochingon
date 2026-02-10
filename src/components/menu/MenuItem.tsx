@@ -76,7 +76,7 @@ export function MenuItem({ item, forceModalOpen = false, onModalClose }: MenuIte
       >
         {/* Cart quantity badge - top right corner */}
         {quantityInCart > 0 && item.isAvailable && (
-          <div className="absolute top-3 right-3 z-30 min-w-[24px] h-6 px-2 bg-verde text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+          <div className="absolute top-3 right-3 z-30 min-w-6 h-6 px-2 bg-verde text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
             {quantityInCart}
           </div>
         )}
