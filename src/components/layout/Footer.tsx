@@ -39,22 +39,19 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           {/* Brand */}
           <div>
-            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <div className="flex items-center justify-center md:justify-start mb-4">
               <div
-                className="relative w-14 h-14 rounded-full overflow-hidden border-3 border-amarillo shrink-0"
-                style={{ boxShadow: '0 0 15px rgba(255, 215, 0, 0.3)' }}
+                className="relative w-36 h-20 overflow-hidden shrink-0"
+                style={{ maskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)' }}
               >
                 <Image
-                  src="/images/brand/logo.jpg"
+                  src="/images/brand/logo.png"
                   alt="El Taco Chingon"
                   fill
-                  sizes="56px"
-                  className="object-cover"
+                  sizes="144px"
+                  className="object-contain"
                 />
               </div>
-              <span className="font-display text-xl text-white">
-                EL TACO CHINGON
-              </span>
             </div>
             <p className="text-gray-400 font-accent">
               {t('footer.tagline')}

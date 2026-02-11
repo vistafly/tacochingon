@@ -62,23 +62,18 @@ export function Header() {
       <nav className="w-full px-6 lg:px-12">
         <div className="relative flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
-          <Link href="/" onClick={handleNavClick} className="flex items-center gap-3 group z-10">
+          <Link href="/" onClick={handleNavClick} className="flex items-center group z-10">
             <div
-              className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-3 border-amarillo shrink-0"
-              style={{ boxShadow: '0 0 20px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2)' }}
+              className="relative w-28 h-16 md:w-36 md:h-20 overflow-hidden shrink-0"
+              style={{ maskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)' }}
             >
               <Image
-                src="/images/brand/logo.jpg"
+                src="/images/brand/logo.png"
                 alt="El Taco Chingon"
                 fill
-                sizes="80px"
-                className="object-cover"
+                sizes="144px"
+                className="object-contain"
               />
-            </div>
-            <div className="hidden sm:block">
-              <span className="font-display text-2xl text-white group-hover:text-amarillo transition-colors">
-                EL TACO CHINGON
-              </span>
             </div>
           </Link>
 
