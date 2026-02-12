@@ -2,7 +2,7 @@ export const SITE_NAME = 'El Taco Chingon';
 export const SITE_DESCRIPTION = 'Authentic Mexican Street Food in Fresno, CA';
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-export const TAX_RATE = 0.0775; // 7.75% Fresno tax rate
+export const TAX_RATE = 0.0835; // 8.35% Fresno, CA sales tax rate (CDTFA effective 01/01/2026)
 
 export const BUSINESS_INFO = {
   name: 'El Taco Chingon',

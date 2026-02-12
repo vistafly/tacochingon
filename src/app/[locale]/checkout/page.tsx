@@ -176,7 +176,7 @@ export default function CheckoutPage() {
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
-                  <span>{tCart('tax')} (7.75%)</span>
+                  <span>{tCart('tax')} (8.35%)</span>
                   <span>{formatPrice(tax)}</span>
                 </div>
                 <div className="border-t border-gray-700 pt-3">

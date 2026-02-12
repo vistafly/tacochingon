@@ -1,32 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { settingsService } from '@/lib/settings-service';
-import { firebaseInitTime, firebaseInitStatus } from '@/lib/firebase/admin';
+import { isAuthenticated } from '@/lib/auth';
 
-// Check admin authentication
-async function isAuthenticated(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const adminToken = cookieStore.get('admin_token');
-  return adminToken?.value === process.env.ADMIN_PIN;
-}
+// Allowed top-level keys for settings updates
+const ALLOWED_KEYS = new Set([
+  'businessName', 'phone', 'email', 'address', 'hours',
+  'prepTime', 'taxRate', 'isAcceptingOrders', 'pauseMessage',
+  'isOpen', 'statusMessage',
+]);
 
 // GET /api/settings - Public endpoint to fetch business settings
 export async function GET() {
-  const routeStart = Date.now();
   try {
-    const queryStart = Date.now();
     const settings = await settingsService.getSettings();
-    const queryMs = Date.now() - queryStart;
-    const totalMs = Date.now() - routeStart;
-
-    return NextResponse.json({
-      settings,
-      _debug: {
-        timing: { settingsQuery: queryMs, total: totalMs },
-        firebaseInit: { ms: firebaseInitTime, status: firebaseInitStatus },
-      },
-    });
+    return NextResponse.json({ settings });
   } catch (error) {
     console.error('Error fetching settings:', error);
     return NextResponse.json(
@@ -44,6 +32,24 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
+
+    // Validate: only allow known setting keys
+    const keys = Object.keys(body);
+    if (keys.length === 0) {
+      return NextResponse.json(
+        { error: 'No settings provided' },
+        { status: 400 }
+      );
+    }
+
+    const invalidKeys = keys.filter((k) => !ALLOWED_KEYS.has(k));
+    if (invalidKeys.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid setting keys: ${invalidKeys.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
     await settingsService.updateSettings(body);
     const settings = await settingsService.getSettings();
 

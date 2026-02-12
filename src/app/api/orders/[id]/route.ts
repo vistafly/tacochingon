@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebase/admin';
-import { cookies } from 'next/headers';
+import { isAuthenticated } from '@/lib/auth';
 import { Order, OrderItem } from '@/types/order';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -117,9 +117,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { searchParams } = new URL(request.url);
 
   // Check if admin is authenticated
-  const cookieStore = await cookies();
-  const adminToken = cookieStore.get('admin_token');
-  const isAdmin = adminToken?.value === process.env.ADMIN_PIN;
+  const isAdmin = await isAuthenticated();
 
   // If not admin, require customer email for verification
   const customerEmail = searchParams.get('email');
@@ -155,11 +153,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
-  // Check admin authentication
-  const cookieStore = await cookies();
-  const adminToken = cookieStore.get('admin_token');
-
-  if (!adminToken || adminToken.value !== process.env.ADMIN_PIN) {
+  if (!(await isAuthenticated())) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }

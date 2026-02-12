@@ -7,10 +7,10 @@ const intlMiddleware = createMiddleware(routing);
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Admin auth check — runs on the edge (no serverless cold starts)
+  // Admin auth check — redirect guard (real validation in API routes)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const adminToken = request.cookies.get('admin_token');
-    if (!adminToken || adminToken.value !== process.env.ADMIN_PIN) {
+    if (!adminToken || adminToken.value.length !== 64) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
     return;

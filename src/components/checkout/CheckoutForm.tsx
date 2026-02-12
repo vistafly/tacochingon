@@ -17,7 +17,12 @@ import { useCartStore } from '@/store/cart-store';
 import { useActiveOrderStore } from '@/store/active-order-store';
 import { TimePillPicker } from './TimePillPicker';
 import { PaymentMethods } from '@/components/ui/PaymentMethods';
-import { DevQuickFill } from './DevQuickFill';
+import dynamic from 'next/dynamic';
+
+const DevQuickFill =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() => import('./DevQuickFill').then((m) => m.DevQuickFill), { ssr: false })
+    : () => null;
 import { OrderItem } from '@/types/order';
 
 const stripePromise = loadStripe(
@@ -458,8 +463,10 @@ export function CheckoutForm({
       <p className="text-xs text-gray-500 text-center">{t('securePayment')}</p>
       <PaymentMethods className="mt-4" />
 
-      {/* DEV ONLY: Quick fill with Ctrl+Shift+D - Remove when done testing */}
-      <DevQuickFill onFill={handleQuickFill} minTime={minTime} />
+      {/* DEV ONLY: Quick fill with Ctrl+Shift+D */}
+      {process.env.NODE_ENV === 'development' && (
+        <DevQuickFill onFill={handleQuickFill} minTime={minTime} />
+      )}
     </div>
   );
 }

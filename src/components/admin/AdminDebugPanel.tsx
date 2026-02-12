@@ -36,8 +36,10 @@ export function useDebugTiming() {
     setEnabled(isDebugEnabled());
   }, []);
 
-  // Ctrl+Shift+D keyboard shortcut to toggle
+  // Ctrl+Shift+D keyboard shortcut to toggle (dev only)
   useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return;
+
     const handler = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'D') {
         e.preventDefault();

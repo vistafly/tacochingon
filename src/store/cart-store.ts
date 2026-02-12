@@ -211,11 +211,11 @@ export const useCartStore = create<CartState>()(
       },
 
       getTax: () => {
-        return get().getSubtotal() * TAX_RATE;
+        return Math.round(get().getSubtotal() * TAX_RATE * 100) / 100;
       },
 
       getTotal: () => {
-        return get().getSubtotal() + get().getTax();
+        return Math.round((get().getSubtotal() + get().getTax()) * 100) / 100;
       },
     }),
     {

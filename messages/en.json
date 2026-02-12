@@ -154,7 +154,9 @@
     "getDirections": "Get Directions",
     "estimatedPrepTime": "Estimated Prep Time",
     "minutes": "min",
-    "highDemandNotice": "Due to high demand, your pickup time has been adjusted. Thank you for your patience!"
+    "highDemandNotice": "Due to high demand, your pickup time has been adjusted. Thank you for your patience!",
+    "pickupNow": "Pick Up Now!",
+    "pickupNowDesc": "Your order is ready and waiting for you."
   },
   "location": {
     "title": "Location & Hours",

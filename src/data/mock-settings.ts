@@ -24,7 +24,7 @@ export const mockSettings: BusinessSettings = {
     sunday: { open: '17:30', close: '23:30' },
   },
   prepTime: 30,
-  taxRate: 0.0775, // 7.75% Fresno tax
+  taxRate: 0.0835, // 8.35% Fresno, CA sales tax (CDTFA effective 01/01/2026)
   isAcceptingOrders: true,
   pauseMessage: null,
   isOpen: true,

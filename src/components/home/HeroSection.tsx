@@ -172,7 +172,6 @@ export function HeroSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const smokeRef = useRef<{ destroy: () => void; setMouse: (x: number, y: number) => void } | null>(null);
   const slideRef = useRef<HTMLDivElement>(null);
-  const dotRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -291,14 +290,9 @@ export function HeroSection() {
           (e.clientX - rect.left) / rect.width,
           (e.clientY - rect.top) / rect.height
         );
-        if (dotRef.current) {
-          dotRef.current.style.opacity = '1';
-          dotRef.current.style.transform = `translate(${e.clientX - rect.left}px, ${e.clientY - rect.top}px) translate(-50%, -50%)`;
-        }
       }}
       onMouseLeave={() => {
         smokeRef.current?.setMouse(-1, -1);
-        if (dotRef.current) dotRef.current.style.opacity = '0';
       }}
       onTouchStart={(e) => {
         const touch = e.touches[0];
@@ -326,13 +320,6 @@ export function HeroSection() {
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
         aria-hidden="true"
-      />
-
-      {/* Custom cursor dot */}
-      <div
-        ref={dotRef}
-        className="absolute top-0 left-0 w-2 h-2 rounded-full bg-amarillo/50 pointer-events-none z-50 will-change-transform"
-        style={{ opacity: 0, transition: 'transform 0.07s ease-out, opacity 0.15s ease' }}
       />
 
       {/* Content */}

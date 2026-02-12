@@ -154,7 +154,9 @@
     "getDirections": "Obtener Direcciones",
     "estimatedPrepTime": "Tiempo Estimado de Preparacion",
     "minutes": "min",
-    "highDemandNotice": "Debido a la alta demanda, tu hora de recogida ha sido ajustada. Gracias por tu paciencia!"
+    "highDemandNotice": "Debido a la alta demanda, tu hora de recogida ha sido ajustada. Gracias por tu paciencia!",
+    "pickupNow": "Recoge Ahora!",
+    "pickupNowDesc": "Tu orden esta lista y esperandote."
   },
   "location": {
     "title": "Ubicacion y Horarios",

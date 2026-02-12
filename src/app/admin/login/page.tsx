@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
 
           <button
             type="submit"
-            disabled={pin.length < 4 || isLoading}
+            disabled={pin.length < 6 || isLoading}
             className="w-full bg-amarillo hover:bg-amarillo/90 text-negro font-bold py-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (

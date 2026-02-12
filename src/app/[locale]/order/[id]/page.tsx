@@ -68,6 +68,15 @@ export default function OrderStatusPage() {
     }
   }, [order, orderId, setActiveOrder, clearActiveOrder]);
 
+  // Clear stale active order if order is not found
+  useEffect(() => {
+    if (!loading && error) {
+      clearActiveOrder();
+      // Also clean up the stale localStorage email entry
+      localStorage.removeItem(`order_${orderId}_email`);
+    }
+  }, [loading, error, orderId, clearActiveOrder]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-negro py-12 md:py-16">
@@ -199,19 +208,31 @@ export default function OrderStatusPage() {
         )}
 
         {/* Pickup Time */}
-        {order.status !== 'completed' && (
-          <div className="bg-negro-light rounded-lg border border-gray-700 p-6 mb-6">
-            <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-amarillo" />
-              <div>
-                <p className="text-sm text-gray-400">{t('pickupTime')}</p>
-                <p className="text-lg text-white font-medium">{pickupTimeFormatted}</p>
+        {order.status !== 'completed' && order.status !== 'cancelled' && (
+          <div className={`bg-negro-light rounded-lg border ${order.status === 'ready' ? 'border-verde/50' : 'border-gray-700'} p-6 mb-6`}>
+            {order.status === 'ready' ? (
+              <div className="flex items-center gap-3">
+                <Package className="w-6 h-6 text-verde" />
+                <div>
+                  <p className="text-lg text-verde font-display">{t('pickupNow')}</p>
+                  <p className="text-sm text-gray-400">{t('pickupNowDesc')}</p>
+                </div>
               </div>
-            </div>
-            {adminBuffer > 0 && order.status === 'pending' && (
-              <p className="text-sm text-amarillo/80 mt-3 pt-3 border-t border-gray-700">
-                {t('highDemandNotice')}
-              </p>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-amarillo" />
+                  <div>
+                    <p className="text-sm text-gray-400">{t('pickupTime')}</p>
+                    <p className="text-lg text-white font-medium">{pickupTimeFormatted}</p>
+                  </div>
+                </div>
+                {adminBuffer > 0 && order.status === 'pending' && (
+                  <p className="text-sm text-amarillo/80 mt-3 pt-3 border-t border-gray-700">
+                    {t('highDemandNotice')}
+                  </p>
+                )}
+              </>
             )}
           </div>
         )}
