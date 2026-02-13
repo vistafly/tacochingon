@@ -30,6 +30,5 @@ export const ORDER_LINKS = {
 
 export const REVIEW_LINKS = {
   yelp: 'https://www.yelp.com/biz/el-taco-chingon-fresno-3',
-  // Links to the reviews tab on Google Maps - user can click "Write a review" from there
-  google: 'https://www.google.com/maps/place/El+Taco+Chingon+LLC/@36.8298855,-119.7910059,17z/data=!4m8!3m7!1s0x80945d29020fded5:0x4a682bd4fa27f750!8m2!3d36.8298855!4d-119.7910059!9m1!1b1!16s%2Fg%2F11tw_ps0bf',
+  google: 'https://search.google.com/local/writereview?placeid=ChIJ1d4PAildlIARUPcn-tQraEo',
 };
