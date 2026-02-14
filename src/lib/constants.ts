@@ -9,7 +9,7 @@ export const BUSINESS_INFO = {
   phone: '(559) 417-7907',
   email: 'contact@eltacochingon.com',
   address: {
-    street: '3349 N Blackstone Ave',
+    street: '3649 N Blackstone Ave',
     city: 'Fresno',
     state: 'CA',
     zip: '93726',

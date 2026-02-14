@@ -55,8 +55,8 @@
     "filterBy": "Filter by category",
     "fresnosBestTacos": "Fresno's Best Tacos",
     "menuDescription": "From classic street tacos to our signature Taco Chingon, every dish is made fresh with authentic flavors.",
-    "orderForDelivery": "Order For Delivery or Pickup",
-    "orderDescription": "Add items to your cart below, or order through your favorite delivery app"
+    "orderForDelivery": "Also Available on Delivery Apps",
+    "orderDescription": "Order directly with us below for pickup, or use these external delivery services"
   },
   "cart": {
     "title": "Your Cart",

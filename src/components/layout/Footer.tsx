@@ -130,7 +130,7 @@ export function Footer() {
                     return (
                       <div key={day} className="flex justify-between gap-4">
                         <span className="capitalize">{day.slice(0, 3)}</span>
-                        <span className={h ? 'text-white' : 'text-rojo'}>
+                        <span className={h ? 'text-white' : 'text-rojo text-center w-full'}>
                           {h ? `${formatTime(h.open)} - ${formatTime(h.close)}` : 'Closed'}
                         </span>
                       </div>

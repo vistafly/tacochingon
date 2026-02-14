@@ -55,8 +55,8 @@
     "filterBy": "Filtrar por categoria",
     "fresnosBestTacos": "Los Mejores Tacos de Fresno",
     "menuDescription": "Desde tacos callejeros clasicos hasta nuestro Taco Chingon, cada platillo es hecho fresco con sabores autenticos.",
-    "orderForDelivery": "Ordena para Entrega o Recogida",
-    "orderDescription": "Agrega articulos a tu carrito abajo, o ordena a traves de tu app de entrega favorita"
+    "orderForDelivery": "Tambien en Apps de Entrega",
+    "orderDescription": "Ordena directamente con nosotros abajo para recoger, o usa estos servicios de entrega externos"
   },
   "cart": {
     "title": "Tu Carrito",

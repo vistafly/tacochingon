@@ -6,9 +6,12 @@ import { db } from '@/lib/firebase/client';
 import { BusinessSettings } from '@/types/settings';
 import { mockSettings } from '@/data/mock-settings';
 
+// Cache the last Firestore snapshot so re-mounts (e.g. language switch) don't flash mock data
+let cachedSettings: BusinessSettings | null = null;
+
 export function useSettings() {
-  const [settings, setSettings] = useState<BusinessSettings>(mockSettings);
-  const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<BusinessSettings>(cachedSettings ?? mockSettings);
+  const [loading, setLoading] = useState(!cachedSettings);
 
   useEffect(() => {
     const docRef = doc(db, 'settings', 'business');
@@ -16,7 +19,9 @@ export function useSettings() {
       docRef,
       (snapshot) => {
         if (snapshot.exists()) {
-          setSettings(snapshot.data() as BusinessSettings);
+          const data = snapshot.data() as BusinessSettings;
+          cachedSettings = data;
+          setSettings(data);
         }
         setLoading(false);
       },
@@ -27,6 +32,7 @@ export function useSettings() {
           .then((res) => res.json())
           .then((data) => {
             if (data.settings) {
+              cachedSettings = data.settings;
               setSettings(data.settings);
             }
           })

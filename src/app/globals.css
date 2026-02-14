@@ -145,7 +145,8 @@ html {
 .btn-verde {
   font-family: var(--font-display);
   font-weight: 700;
-  padding: 14px 32px;
+  font-size: 1.125rem;
+  padding: 16px 40px;
   background: #2D8C3C;
   color: #FFFFFF;
   border: 3px solid #FFD700;
@@ -153,6 +154,11 @@ html {
   letter-spacing: 0.1em;
   transition: all 0.15s ease;
   box-shadow: 4px 4px 0 #FFD700;
+}
+
+.btn-verde:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #FFD700;
 }
 
 .btn-verde:hover {
