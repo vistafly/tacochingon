@@ -18,7 +18,7 @@ export const BUSINESS_INFO = {
 
 export const SOCIAL_LINKS = {
   instagram: 'https://instagram.com/eltacochingon',
-  facebook: 'https://facebook.com/eltacochingon',
+  facebook: 'https://www.facebook.com/profile.php?id=61571698319922',
   yelp: 'https://www.yelp.com/biz/el-taco-chingon-fresno-3',
 };
 

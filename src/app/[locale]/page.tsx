@@ -23,6 +23,114 @@ export default function HomePage() {
   );
 }
 
+const TESTIMONIALS = [
+  {
+    name: 'Lulu C.',
+    highlight: 'Melt in your mouth delicious',
+    text: 'Fresh tacos you can taste in every bite. Corn tortillas, fresh and warm. The salsa was incredible — herbiness, brightness, and heat. 100% try this place!',
+    rating: 5,
+    source: 'Yelp',
+    accentColor: 'verde' as const,
+    image: '/images/menu/tacos.jpg',
+  },
+  {
+    name: 'Cecilia S.',
+    highlight: 'Fast, tasty, and HOT food',
+    text: 'Authentic burritos, tacos, tortas — all priced right. Food comes out hot with salsa that\'s tasty and very spicy. This is the spot.',
+    rating: 5,
+    source: 'Yelp',
+    accentColor: 'amarillo' as const,
+    image: '/images/menu/quesabirria.jpg',
+  },
+  {
+    name: "Andre' J S.",
+    highlight: 'Sooo good — ordering again',
+    text: 'Adobada fries, asada taco, chorizo taco, carnitas taco. Everything was incredible and the red salsa was nice and spicy. Definitely coming back.',
+    rating: 5,
+    source: 'Yelp',
+    accentColor: 'rojo' as const,
+    image: '/images/menu/adobada.png',
+  },
+];
+
+const ACCENT_STYLES = {
+  verde: { border: 'border-verde/40 hover:border-verde', glow: 'hover:shadow-[0_0_30px_rgba(0,135,81,0.15)]', dot: 'bg-verde', gradient: 'from-verde/20' },
+  amarillo: { border: 'border-amarillo/40 hover:border-amarillo', glow: 'hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]', dot: 'bg-amarillo', gradient: 'from-amarillo/20' },
+  rojo: { border: 'border-rojo/40 hover:border-rojo', glow: 'hover:shadow-[0_0_30px_rgba(239,68,68,0.15)]', dot: 'bg-rojo', gradient: 'from-rojo/20' },
+};
+
+function ReviewCard({ testimonial, index, isVisible, className = '' }: { testimonial: typeof TESTIMONIALS[0]; index: number; isVisible: boolean; className?: string }) {
+  const styles = ACCENT_STYLES[testimonial.accentColor];
+  return (
+    <div
+      className={`group relative bg-negro rounded-2xl border-2 flex flex-col ${styles.border} ${styles.glow} transition-all duration-500 overflow-hidden ${className}`}
+      style={{
+        transitionDelay: isVisible ? `${index * 150}ms` : '0ms',
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+      }}
+    >
+      {/* Food image */}
+      <div className="relative h-44 overflow-hidden shrink-0">
+        <Image
+          src={testimonial.image}
+          alt="Food from El Taco Chingon"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-negro via-negro/40 to-transparent" />
+        {/* Stars floating over image */}
+        <div className="absolute bottom-3 left-4 flex gap-0.5">
+          {[...Array(testimonial.rating)].map((_, i) => (
+            <Star key={i} className="w-4 h-4 text-amarillo fill-current drop-shadow-lg" />
+          ))}
+        </div>
+        <span className="absolute bottom-3 right-4 text-[10px] uppercase tracking-widest text-white/70 font-medium drop-shadow-lg">
+          {testimonial.source}
+        </span>
+      </div>
+
+      {/* Subtle gradient bg */}
+      <div className={`absolute inset-0 bg-linear-to-br ${styles.gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+
+      <div className="relative z-10 p-6 md:p-8 pt-5 md:pt-6 flex flex-col flex-1">
+        {/* Large decorative quote */}
+        <span className="absolute top-3 -left-1 text-7xl font-serif text-white/5 select-none leading-none">&ldquo;</span>
+
+        {/* Highlight phrase */}
+        <p className="font-display text-xl md:text-2xl text-white mb-3 leading-tight">
+          &ldquo;{testimonial.highlight}&rdquo;
+        </p>
+
+        {/* Body text */}
+        <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">
+          {testimonial.text}
+        </p>
+
+        {/* Divider */}
+        <div className="flex items-center gap-0 w-12 h-0.5 mb-4">
+          <div className="flex-1 h-full bg-verde" />
+          <div className="flex-1 h-full bg-white/60" />
+          <div className="flex-1 h-full bg-rojo" />
+        </div>
+
+        {/* Author */}
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-full ${styles.dot} flex items-center justify-center text-white text-sm font-bold`}>
+            {testimonial.name[0]}
+          </div>
+          <div>
+            <span className="font-medium text-white text-sm">{testimonial.name}</span>
+            <span className="block text-gray-500 text-xs">Fresno, CA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TestimonialsSection() {
   const t = useTranslations('home');
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -35,42 +143,7 @@ function TestimonialsSection() {
   const touchStartRef = useRef<number>(0);
   const touchEndRef = useRef<number>(0);
 
-  // Real Yelp reviews — short, punchy excerpts
-  const testimonials = [
-    {
-      name: 'Lulu C.',
-      highlight: 'Melt in your mouth delicious',
-      text: 'Fresh tacos you can taste in every bite. Corn tortillas, fresh and warm. The salsa was incredible — herbiness, brightness, and heat. 100% try this place!',
-      rating: 5,
-      source: 'Yelp',
-      accentColor: 'verde' as const,
-      image: '/images/menu/tacos.jpg',
-    },
-    {
-      name: 'Cecilia S.',
-      highlight: 'Fast, tasty, and HOT food',
-      text: 'Authentic burritos, tacos, tortas — all priced right. Food comes out hot with salsa that\'s tasty and very spicy. This is the spot.',
-      rating: 5,
-      source: 'Yelp',
-      accentColor: 'amarillo' as const,
-      image: '/images/menu/quesabirria.jpg',
-    },
-    {
-      name: "Andre' J S.",
-      highlight: 'Sooo good — ordering again',
-      text: 'Adobada fries, asada taco, chorizo taco, carnitas taco. Everything was incredible and the red salsa was nice and spicy. Definitely coming back.',
-      rating: 5,
-      source: 'Yelp',
-      accentColor: 'rojo' as const,
-      image: '/images/menu/adobada.png',
-    },
-  ];
-
-  const accentStyles = {
-    verde: { border: 'border-verde/40 hover:border-verde', glow: 'hover:shadow-[0_0_30px_rgba(0,135,81,0.15)]', dot: 'bg-verde', gradient: 'from-verde/20' },
-    amarillo: { border: 'border-amarillo/40 hover:border-amarillo', glow: 'hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]', dot: 'bg-amarillo', gradient: 'from-amarillo/20' },
-    rojo: { border: 'border-rojo/40 hover:border-rojo', glow: 'hover:shadow-[0_0_30px_rgba(239,68,68,0.15)]', dot: 'bg-rojo', gradient: 'from-rojo/20' },
-  };
+  const testimonials = TESTIMONIALS;
 
   // Pause auto-scroll for 8 seconds after manual interaction
   const pauseAutoScroll = useCallback(() => {
@@ -146,78 +219,6 @@ function TestimonialsSection() {
   const totalReviews = 200;
   const googleSearchUrl = REVIEW_LINKS.google;
   const yelpUrl = REVIEW_LINKS.yelp;
-
-  const ReviewCard = ({ testimonial, index, className = '' }: { testimonial: typeof testimonials[0]; index: number; className?: string }) => {
-    const styles = accentStyles[testimonial.accentColor];
-    return (
-      <div
-        className={`group relative bg-negro rounded-2xl border-2 flex flex-col ${styles.border} ${styles.glow} transition-all duration-500 overflow-hidden ${className}`}
-        style={{
-          transitionDelay: isVisible ? `${index * 150}ms` : '0ms',
-          opacity: isVisible ? 1 : 0,
-          transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
-        }}
-      >
-        {/* Food image */}
-        <div className="relative h-44 overflow-hidden shrink-0">
-          <Image
-            src={testimonial.image}
-            alt="Food from El Taco Chingon"
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-negro via-negro/40 to-transparent" />
-          {/* Stars floating over image */}
-          <div className="absolute bottom-3 left-4 flex gap-0.5">
-            {[...Array(testimonial.rating)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 text-amarillo fill-current drop-shadow-lg" />
-            ))}
-          </div>
-          <span className="absolute bottom-3 right-4 text-[10px] uppercase tracking-widest text-white/70 font-medium drop-shadow-lg">
-            {testimonial.source}
-          </span>
-        </div>
-
-        {/* Subtle gradient bg */}
-        <div className={`absolute inset-0 bg-linear-to-br ${styles.gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
-
-        <div className="relative z-10 p-6 md:p-8 pt-5 md:pt-6 flex flex-col flex-1">
-          {/* Large decorative quote */}
-          <span className="absolute top-3 -left-1 text-7xl font-serif text-white/5 select-none leading-none">&ldquo;</span>
-
-          {/* Highlight phrase */}
-          <p className="font-display text-xl md:text-2xl text-white mb-3 leading-tight">
-            &ldquo;{testimonial.highlight}&rdquo;
-          </p>
-
-          {/* Body text */}
-          <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">
-            {testimonial.text}
-          </p>
-
-          {/* Divider */}
-          <div className="flex items-center gap-0 w-12 h-0.5 mb-4">
-            <div className="flex-1 h-full bg-verde" />
-            <div className="flex-1 h-full bg-white/60" />
-            <div className="flex-1 h-full bg-rojo" />
-          </div>
-
-          {/* Author */}
-          <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-full ${styles.dot} flex items-center justify-center text-white text-sm font-bold`}>
-              {testimonial.name[0]}
-            </div>
-            <div>
-              <span className="font-medium text-white text-sm">{testimonial.name}</span>
-              <span className="block text-gray-500 text-xs">Fresno, CA</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <section ref={sectionRef} className="relative py-20 bg-negro-light overflow-hidden">
@@ -353,7 +354,7 @@ function TestimonialsSection() {
               >
                 {testimonials.map((testimonial, index) => (
                   <div key={index} className="w-full shrink-0 px-2 flex">
-                    <ReviewCard testimonial={testimonial} index={0} className="opacity-100! translate-y-0! w-full" />
+                    <ReviewCard testimonial={testimonial} index={0} isVisible={isVisible} className="opacity-100! translate-y-0! w-full" />
                   </div>
                 ))}
               </div>
@@ -368,7 +369,7 @@ function TestimonialsSection() {
                 onClick={() => goToSlide(index)}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? `${accentStyles[testimonial.accentColor].dot} w-6`
+                    ? `${ACCENT_STYLES[testimonial.accentColor].dot} w-6`
                     : 'bg-gray-600 hover:bg-gray-500 w-2.5'
                 }`}
                 aria-label={`Go to review ${index + 1}`}
@@ -380,7 +381,7 @@ function TestimonialsSection() {
         {/* Desktop Grid */}
         <div className="hidden md:grid md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
-            <ReviewCard key={index} testimonial={testimonial} index={index} />
+            <ReviewCard key={index} testimonial={testimonial} index={index} isVisible={isVisible} />
           ))}
         </div>
       </div>
