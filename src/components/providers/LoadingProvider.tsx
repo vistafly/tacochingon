@@ -26,6 +26,23 @@ interface LoadingProviderProps {
   children: ReactNode;
 }
 
+// Isolated component for useSearchParams — has its own Suspense boundary
+// so it can never hide page content when it suspends during navigation
+function SearchParamsWatcher({ onSearchParamsChange }: { onSearchParamsChange: () => void }) {
+  const searchParams = useSearchParams();
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onSearchParamsChange();
+  }, [searchParams, onSearchParamsChange]);
+
+  return null;
+}
+
 function LoadingProviderInner({ children }: LoadingProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -33,21 +50,22 @@ function LoadingProviderInner({ children }: LoadingProviderProps) {
 
   // Track navigation for page transition loading
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const isFirstRender = useRef(true);
 
-  // Handle route changes
+  const resetLoading = useCallback(() => {
+    setIsLoading(false);
+    loadingCount.current = 0;
+    setLoadingMessage('');
+  }, []);
+
+  // Handle route changes (pathname only — searchParams handled separately)
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-
-    // Stop any navigation-triggered loading when route changes complete
-    setIsLoading(false);
-    loadingCount.current = 0;
-    setLoadingMessage('');
-  }, [pathname, searchParams]);
+    resetLoading();
+  }, [pathname, resetLoading]);
 
   const startLoading = useCallback((message: string = '') => {
     loadingCount.current += 1;
@@ -89,17 +107,19 @@ function LoadingProviderInner({ children }: LoadingProviderProps) {
         withLoading,
       }}
     >
+      {/* SearchParams watcher in its own Suspense boundary — when it suspends
+          during navigation, only this null-rendering component is affected,
+          not the page content */}
+      <Suspense fallback={null}>
+        <SearchParamsWatcher onSearchParamsChange={resetLoading} />
+      </Suspense>
       {children}
     </LoadingContext.Provider>
   );
 }
 
 export function LoadingProvider({ children }: LoadingProviderProps) {
-  return (
-    <Suspense fallback={null}>
-      <LoadingProviderInner>{children}</LoadingProviderInner>
-    </Suspense>
-  );
+  return <LoadingProviderInner>{children}</LoadingProviderInner>;
 }
 
 export function useLoading() {

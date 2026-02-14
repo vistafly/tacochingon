@@ -11,7 +11,14 @@ export function LanguageToggle() {
   const router = useRouter();
 
   const handleLocaleChange = (newLocale: Locale) => {
-    router.replace(pathname, { locale: newLocale, scroll: false });
+    const navigate = () => router.replace(pathname, { locale: newLocale, scroll: false });
+
+    // Use View Transitions API for a smooth crossfade when supported
+    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
+      (document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(navigate);
+    } else {
+      navigate();
+    }
   };
 
   return (

@@ -1,6 +1,16 @@
 /* Google Fonts - loaded via link tag in layout for better performance */
 @import "tailwindcss";
 
+/* View Transition — fast crossfade for locale switching */
+::view-transition-old(root) {
+  animation: vt-fade-out 0.15s ease-in forwards;
+}
+::view-transition-new(root) {
+  animation: vt-fade-in 0.2s ease-out forwards;
+}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
 /* ============================================
    EL TACO CHINGON - FRESNO STREET TACO TRUCK
    Real street food. No fancy BS.
@@ -104,7 +114,7 @@ html {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.125rem;
-  padding: 16px 40px;
+  padding: 12px 32px;
   background: #E31C25;
   color: #FFFFFF;
   border: 3px solid #FFD700;
@@ -146,7 +156,7 @@ html {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.125rem;
-  padding: 16px 40px;
+  padding: 12px 32px;
   background: #2D8C3C;
   color: #FFFFFF;
   border: 3px solid #FFD700;

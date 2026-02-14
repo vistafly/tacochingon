@@ -351,7 +351,7 @@ export function HeroSection() {
               </span>
             </h1>
 
-            <p className="hero-subtitle text-[clamp(0.85rem,3.5vw,1.5rem)] md:text-2xl text-gray-300 mb-6 whitespace-nowrap opacity-0" style={{ transform: 'translateY(30px)' }}>
+            <p className="hero-subtitle text-[clamp(0.85rem,3.5vw,1.5rem)] md:text-2xl text-gray-300 mb-6 md:whitespace-nowrap opacity-0" style={{ transform: 'translateY(30px)' }}>
               {t('heroSubtitle')}
             </p>
 
@@ -359,11 +359,11 @@ export function HeroSection() {
               {t('heroTagline')}
             </p>
 
-            <div className="hero-buttons flex flex-row gap-3 sm:gap-4 opacity-0" style={{ transform: 'translateY(20px)' }}>
+            <div className="hero-buttons flex flex-row gap-5 opacity-0" style={{ transform: 'translateY(20px)' }}>
               <Link href="/menu" className="cursor-pointer">
-                <button className="btn-order flex items-center justify-center gap-3 w-full sm:w-auto cursor-pointer">
+                <button className="btn-order flex items-center justify-center gap-1.5 sm:gap-3 text-xs sm:text-base py-1.5 px-3 sm:py-3 sm:px-6 whitespace-nowrap cursor-pointer">
                   {tCommon('viewMenu')}
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </button>
               </Link>
               <a
@@ -372,8 +372,8 @@ export function HeroSection() {
                 rel="noopener noreferrer"
                 className="cursor-pointer"
               >
-                <button className="btn-verde flex items-center justify-center gap-3 w-full sm:w-auto cursor-pointer">
-                  <MapPin className="w-5 h-5" />
+                <button className="btn-verde flex items-center justify-center gap-1.5 sm:gap-3 text-xs sm:text-base py-1.5 px-3 sm:py-3 sm:px-6 whitespace-nowrap cursor-pointer">
+                  <MapPin className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                   {t('locationTitle')}
                 </button>
               </a>
@@ -393,28 +393,37 @@ export function HeroSection() {
                     className="relative bg-negro-light rounded-lg overflow-hidden border-4 border-amarillo cursor-auto"
                   >
                     <div className="relative aspect-square">
-                      {currentItem.image && !currentItem.image.includes('placeholder') ? (
-                        <Image
-                          src={currentItem.image}
-                          alt={currentItem.name[locale]}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                          <span className="text-8xl">🌮</span>
+                      {/* Pre-render all featured images stacked — eliminates
+                          flicker by keeping them loaded in the DOM */}
+                      {featuredItems.map((item, index) => (
+                        <div
+                          key={item.id}
+                          className={`absolute inset-0 ${index === currentIndex ? 'z-1' : 'z-0 invisible'}`}
+                        >
+                          {item.image && !item.image.includes('placeholder') ? (
+                            <Image
+                              src={item.image}
+                              alt={item.name[locale]}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                              <span className="text-8xl">🌮</span>
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
 
-                      <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
+                      <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded z-2">
                         <span className="font-display text-xs flex items-center gap-1 uppercase">
                           <Star className="w-3 h-3 fill-current" />
                           {tCommon('featured')}
                         </span>
                       </div>
 
-                      <div className="absolute inset-0 bg-linear-to-t from-negro via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-negro via-transparent to-transparent z-2" />
                     </div>
 
                     <div className="absolute bottom-0 left-0 right-0 p-4 pt-16">
