@@ -98,7 +98,7 @@ export function ScarloCredit() {
         src={`/images/brand/morph/morph-logo${pad}.png`}
         alt={i === 0 ? 'SCarlo' : ''}
         className={`sc-frame${i === 0 ? ' visible' : ''}`}
-        loading={i === 0 ? 'eager' : 'lazy'}
+        loading="eager"
         draggable={false}
       />
     );
@@ -108,7 +108,7 @@ export function ScarloCredit() {
         src={`/images/brand/morph-text/morph-text${pad}.png`}
         alt={i === 0 ? 'carlo' : ''}
         className={`sc-frame${i === 0 ? ' visible' : ''}`}
-        loading={i === 0 ? 'eager' : 'lazy'}
+        loading="eager"
         draggable={false}
       />
     );
@@ -253,6 +253,7 @@ const STYLES = `
     max-height: 100%;
     object-fit: contain;
     opacity: 0;
+    will-change: opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);
@@ -296,6 +297,7 @@ const STYLES = `
     max-height: 100%;
     object-fit: contain;
     opacity: 0;
+    will-change: opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);

@@ -166,6 +166,7 @@ function TestimonialsSection() {
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-linear-to-t from-negro via-negro/40 to-transparent" />
           {/* Stars floating over image */}
