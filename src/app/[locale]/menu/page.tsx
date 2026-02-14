@@ -22,7 +22,7 @@ export default async function MenuPage({ params, searchParams }: Props) {
 
   return (
     <div className="py-4 md:py-16 bg-negro min-h-screen">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-350 mx-auto px-4 sm:px-6 lg:px-8">
         <MenuHeader />
         <OrderingBanner />
         <MenuGrid items={items} categories={categories} initialItemId={initialItemId} />

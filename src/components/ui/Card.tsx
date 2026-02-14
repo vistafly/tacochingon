@@ -33,7 +33,7 @@ const CardImage = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
     return (
       <div
         ref={ref}
-        className={cn('relative aspect-[4/3] overflow-hidden', className)}
+        className={cn('relative aspect-4/3 overflow-hidden', className)}
         {...props}
       >
         {children}

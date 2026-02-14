@@ -352,7 +352,7 @@ function TestimonialsSection() {
               >
                 {testimonials.map((testimonial, index) => (
                   <div key={index} className="w-full shrink-0 px-2 flex">
-                    <ReviewCard testimonial={testimonial} index={0} className="!opacity-100 !translate-y-0 w-full" />
+                    <ReviewCard testimonial={testimonial} index={0} className="opacity-100! translate-y-0! w-full" />
                   </div>
                 ))}
               </div>
@@ -450,7 +450,7 @@ function LocationSection() {
               {/* Address */}
               <div className="bg-negro rounded-lg p-4 md:p-6 border-2 border-gray-700 border-l-4 border-l-rojo">
                 <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
-                  <div className="w-9 h-9 rounded-full bg-rojo/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-rojo/20 flex items-center justify-center shrink-0">
                     <MapPin className="w-5 h-5 text-rojo" />
                   </div>
                   <div>
@@ -466,7 +466,7 @@ function LocationSection() {
               {/* Phone */}
               <div className="bg-negro rounded-lg p-4 md:p-6 border-2 border-gray-700 border-l-4 border-l-verde">
                 <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
-                  <div className="w-9 h-9 rounded-full bg-verde/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-verde/20 flex items-center justify-center shrink-0">
                     <Phone className="w-5 h-5 text-verde" />
                   </div>
                   <div>
@@ -482,7 +482,7 @@ function LocationSection() {
             {/* Hours - full width */}
             <div className="bg-negro rounded-lg p-4 md:p-6 border-2 border-gray-700 border-l-4 border-l-amarillo">
               <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
-                <div className="w-9 h-9 rounded-full bg-amarillo/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-amarillo/20 flex items-center justify-center shrink-0">
                   <Clock className="w-5 h-5 text-amarillo" />
                 </div>
                 <div className="flex-1">
@@ -536,18 +536,18 @@ function CTASection() {
           fill
           className="object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-negro via-negro/90 to-negro/70" />
+        <div className="absolute inset-0 bg-linear-to-t from-negro via-negro/90 to-negro/70" />
       </div>
 
       {/* Mexican flag stripe */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-verde via-white to-rojo" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-verde via-white to-rojo" />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="font-display text-5xl md:text-7xl text-white mb-4">
           {t('readyToEat')}
         </h2>
 
-        <p className="font-accent text-2xl text-amarillo mb-8 rotate-[-1deg]">
+        <p className="font-accent text-2xl text-amarillo mb-8 -rotate-1">
           {t('ctaTagline')}
         </p>
 

@@ -87,7 +87,7 @@ export function InnerLoader() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[90] flex items-center justify-center pointer-events-auto"
+      className="fixed inset-0 z-90 flex items-center justify-center pointer-events-auto"
       style={{ backgroundColor: 'rgba(26, 26, 26, 0.85)' }}
     >
       {/* Backdrop blur layer */}
@@ -112,7 +112,7 @@ export function InnerLoader() {
           {/* Animated progress bar */}
           <div
             ref={progressRef}
-            className="h-full w-1/2 bg-gradient-to-r from-verde via-amarillo to-rojo rounded-full"
+            className="h-full w-1/2 bg-linear-to-r from-verde via-amarillo to-rojo rounded-full"
           />
         </div>
 

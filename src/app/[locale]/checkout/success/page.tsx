@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -10,6 +10,24 @@ import { useCartStore } from '@/store/cart-store';
 import { BUSINESS_INFO } from '@/lib/constants';
 
 export default function CheckoutSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-12 md:py-16 bg-negro min-h-screen">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center py-20">
+              <Loader2 className="w-12 h-12 text-amarillo animate-spin mx-auto mb-4" />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <CheckoutSuccessContent />
+    </Suspense>
+  );
+}
+
+function CheckoutSuccessContent() {
   const t = useTranslations('checkout');
   const { clearCart } = useCartStore();
   const searchParams = useSearchParams();

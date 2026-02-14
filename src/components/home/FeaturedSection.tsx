@@ -192,7 +192,7 @@ export function FeaturedSection() {
                 {featuredItems.map((item) => (
                   <div
                     key={item.id}
-                    className="w-full flex-shrink-0 px-2"
+                    className="w-full shrink-0 px-2"
                   >
                     <div className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden">
                       {/* Image */}
