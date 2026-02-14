@@ -9,6 +9,7 @@ import { PaymentMethods } from '@/components/ui/PaymentMethods';
 import { useSettings } from '@/hooks/useSettings';
 import { formatTime } from '@/lib/utils';
 import Image from 'next/image';
+import { ScarloCredit } from '@/components/ui/ScarloCredit';
 
 export function Footer() {
   const t = useTranslations();
@@ -195,8 +196,13 @@ export function Footer() {
             <PaymentMethods />
           </div>
 
-          {/* Copyright */}
-          <p className="text-gray-500 text-sm text-center mt-8 pt-6 border-t border-gray-700">
+          {/* Developer Credit */}
+          <div className="mt-8 border-t border-gray-700">
+            <ScarloCredit />
+          </div>
+
+          {/* Copyright — bottom */}
+          <p className="text-gray-600 text-xs text-center mt-3 pb-1">
             &copy; {currentYear} {t('footer.copyright')}
           </p>
         </div>
