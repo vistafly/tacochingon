@@ -36,25 +36,23 @@ export function Footer() {
       {/* Mexican flag stripe */}
       <div className="h-1 w-full bg-linear-to-r from-verde via-white to-rojo" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center items-center">
           {/* Brand */}
-          <div>
-            <div className="flex items-center justify-center md:justify-start mb-4">
-              <div
-                className="relative w-36 h-20 overflow-hidden shrink-0"
-                style={{ maskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)' }}
-              >
-                <Image
-                  src="/images/brand/logo.png"
-                  alt="El Taco Chingon"
-                  fill
-                  sizes="144px"
-                  className="object-contain"
-                />
-              </div>
+          <div className="flex flex-col items-center">
+            <div
+              className="relative w-48 h-28 overflow-hidden shrink-0"
+              style={{ maskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse 85% 80% at center, black 50%, transparent 100%)' }}
+            >
+              <Image
+                src="/images/brand/logo.png"
+                alt="El Taco Chingon"
+                fill
+                sizes="192px"
+                className="object-contain"
+              />
             </div>
-            <p className="text-gray-400 font-accent">
+            <p className="text-gray-400 font-accent mt-2">
               {t('footer.tagline')}
             </p>
           </div>
@@ -69,9 +67,6 @@ export function Footer() {
               <Link href="/menu" className="block text-gray-400 hover:text-amarillo transition-colors">
                 {t('nav.menu')}
               </Link>
-              <Link href="/location" className="block text-gray-400 hover:text-amarillo transition-colors">
-                {t('nav.location')}
-              </Link>
             </div>
 
             {/* Order Online */}
@@ -81,7 +76,7 @@ export function Footer() {
                 href={ORDER_LINKS.doordash}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center md:justify-start gap-2 text-gray-400 hover:text-[#FF3008] transition-colors"
+                className="flex items-center justify-center gap-2 text-gray-400 hover:text-[#FF3008] transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 DoorDash
@@ -90,7 +85,7 @@ export function Footer() {
                 href={ORDER_LINKS.ubereats}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center md:justify-start gap-2 text-gray-400 hover:text-[#06C167] transition-colors"
+                className="flex items-center justify-center gap-2 text-gray-400 hover:text-[#06C167] transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 Uber Eats
@@ -114,20 +109,20 @@ export function Footer() {
               <p className="text-sm text-amarillo mb-3">{settings.statusMessage}</p>
             )}
             <div className="space-y-3">
-              <div className="flex items-start justify-center md:justify-start gap-3">
+              <div className="flex items-start justify-center gap-3">
                 <MapPin className="w-5 h-5 text-rojo mt-0.5 shrink-0" />
                 <span className="text-gray-400">
                   {address.street}<br />
                   {address.city}, {address.state} {address.zip}
                 </span>
               </div>
-              <div className="flex items-center justify-center md:justify-start gap-3">
+              <div className="flex items-center justify-center gap-3">
                 <Phone className="w-5 h-5 text-verde shrink-0" />
                 <a href={`tel:${phone}`} className="text-gray-400 hover:text-amarillo transition-colors">
                   {phone}
                 </a>
               </div>
-              <div className="flex items-start justify-center md:justify-start gap-3">
+              <div className="flex items-start justify-center gap-3">
                 <Clock className="w-5 h-5 text-amarillo shrink-0 mt-0.5" />
                 <div className="text-gray-400 text-sm space-y-0.5">
                   {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const).map((day) => {
@@ -148,7 +143,7 @@ export function Footer() {
         </div>
 
         {/* Social & Review Links */}
-        <div className="mt-12 pt-8 border-t border-gray-700">
+        <div className="mt-8 pt-6 border-t border-gray-700">
           <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
             {/* Yelp */}
             <a

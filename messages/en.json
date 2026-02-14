@@ -24,7 +24,6 @@
   "nav": {
     "home": "Home",
     "menu": "Menu",
-    "location": "Location",
     "cart": "Cart"
   },
   "home": {
@@ -43,6 +42,8 @@
     "reviews": "Reviews",
     "whatPeopleSay": "What People Say",
     "basedOnReviews": "Based on {count}+ reviews",
+    "tapToReview": "Tap to leave a review",
+    "hoverToReview": "Hover to leave a review",
     "readReviewsYelp": "Read Reviews on Yelp",
     "reviewOnGoogle": "Review on Google Maps",
     "readyToEat": "Ready to Eat?",
@@ -180,7 +181,7 @@
   "footer": {
     "copyright": "El Taco Chingon. All rights reserved.",
     "tagline": "Authentic Mexican Street Food",
-    "orderOnline": "Order Online",
+    "orderOnline": "Order Externally",
     "securePayments": "Secure payments accepted"
   },
   "admin": {

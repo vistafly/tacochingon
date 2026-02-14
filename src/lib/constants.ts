@@ -29,6 +29,6 @@ export const ORDER_LINKS = {
 };
 
 export const REVIEW_LINKS = {
-  yelp: 'https://www.yelp.com/biz/el-taco-chingon-fresno-3',
+  yelp: 'https://www.yelp.com/writeareview/biz/nJu5rhGhMgEF2If4lFL-vQ?return_url=%2Fbiz%2FnJu5rhGhMgEF2If4lFL-vQ&review_origin=biz-details-war-button',
   google: 'https://search.google.com/local/writereview?placeid=ChIJ1d4PAildlIARUPcn-tQraEo',
 };

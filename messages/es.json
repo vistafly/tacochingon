@@ -24,7 +24,6 @@
   "nav": {
     "home": "Inicio",
     "menu": "Menu",
-    "location": "Ubicacion",
     "cart": "Carrito"
   },
   "home": {
@@ -43,6 +42,8 @@
     "reviews": "Resenas",
     "whatPeopleSay": "Lo Que Dice la Gente",
     "basedOnReviews": "Basado en {count}+ resenas",
+    "tapToReview": "Toca para dejar una resena",
+    "hoverToReview": "Pasa el cursor para dejar una resena",
     "readReviewsYelp": "Ver Resenas en Yelp",
     "reviewOnGoogle": "Resenar en Google Maps",
     "readyToEat": "Listo para Comer?",
@@ -180,7 +181,7 @@
   "footer": {
     "copyright": "El Taco Chingon. Todos los derechos reservados.",
     "tagline": "Autentica Comida Callejera Mexicana",
-    "orderOnline": "Ordenar en Linea",
+    "orderOnline": "Ordenar Externamente",
     "securePayments": "Pagos seguros aceptados"
   },
   "admin": {
