@@ -6,6 +6,18 @@ export const metadata: Metadata = {
   title: "El Taco Chingon | Authentic Mexican Street Food",
   description: "Authentic Mexican street tacos in Fresno, CA. Hand-made tortillas, fresh ingredients, bold flavors. Order online for pickup.",
   keywords: ["tacos", "mexican food", "fresno", "street food", "burritos", "quesadillas"],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
+  appleWebApp: {
+    title: "Taco Chingon",
+  },
   openGraph: {
     title: "El Taco Chingon | Authentic Mexican Street Food",
     description: "Authentic Mexican street tacos in Fresno, CA. Hand-made tortillas, fresh ingredients, bold flavors.",
