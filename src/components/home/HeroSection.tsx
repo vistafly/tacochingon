@@ -131,12 +131,13 @@ function initSmoke(canvas: HTMLCanvasElement) {
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   let time = 0;
-  let animId: number;
+  let animId: number | null = null;
   let mouseX = -1, mouseY = -1;
   let targetMouseX = -1, targetMouseY = -1;
+  let paused = false;
 
   function render() {
-    if (!gl) return;
+    if (!gl || paused) { animId = null; return; }
 
     // Smooth mouse lerp for natural trailing
     mouseX += (targetMouseX - mouseX) * 0.3;
@@ -159,8 +160,10 @@ function initSmoke(canvas: HTMLCanvasElement) {
   render();
 
   return {
-    destroy: () => cancelAnimationFrame(animId),
+    destroy: () => { if (animId != null) cancelAnimationFrame(animId); },
     setMouse: (x: number, y: number) => { targetMouseX = x; targetMouseY = y; },
+    pause: () => { paused = true; },
+    resume: () => { if (paused) { paused = false; if (animId == null) render(); } },
   };
 }
 
@@ -170,7 +173,7 @@ export function HeroSection() {
   const locale = useLocale() as Locale;
   const heroRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const smokeRef = useRef<{ destroy: () => void; setMouse: (x: number, y: number) => void } | null>(null);
+  const smokeRef = useRef<{ destroy: () => void; setMouse: (x: number, y: number) => void; pause: () => void; resume: () => void } | null>(null);
   const slideRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -246,22 +249,42 @@ export function HeroSection() {
     const hero = heroRef.current;
     if (!canvas || !hero) return;
 
+    let resizeTimeout: NodeJS.Timeout;
     function resize() {
       if (!canvas || !hero) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = hero.offsetHeight * dpr;
     }
+    function debouncedResize() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(resize, 200);
+    }
     resize();
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', debouncedResize, { passive: true });
 
     smokeRef.current = initSmoke(canvas);
 
+    // Pause WebGL rendering when hero is scrolled out of view
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          smokeRef.current?.resume();
+        } else {
+          smokeRef.current?.pause();
+        }
+      },
+      { threshold: 0 }
+    );
+    observer.observe(hero);
+
     return () => {
+      observer.disconnect();
+      clearTimeout(resizeTimeout);
       smokeRef.current?.destroy();
       smokeRef.current = null;
-      window.removeEventListener('resize', resize);
+      window.removeEventListener('resize', debouncedResize);
     };
   }, []);
 
@@ -351,11 +374,11 @@ export function HeroSection() {
               </span>
             </h1>
 
-            <p className="hero-subtitle text-[clamp(0.85rem,3.5vw,1.5rem)] md:text-2xl text-gray-300 mb-6 md:whitespace-nowrap opacity-0" style={{ transform: 'translateY(30px)' }}>
+            <p className="hero-subtitle text-[clamp(0.85rem,3.5vw,1.5rem)] md:text-2xl text-gray-300 mb-6 md:whitespace-nowrap opacity-0 lg:hidden" style={{ transform: 'translateY(30px)' }}>
               {t('heroSubtitle')}
             </p>
 
-            <p className="hero-subtitle font-accent text-2xl md:text-3xl text-amarillo mb-28 sm:mb-36 -rotate-2 opacity-0" style={{ transform: 'translateY(30px)' }}>
+            <p className="hero-subtitle font-accent text-2xl md:text-3xl text-amarillo mb-12 sm:mb-16 -rotate-2 opacity-0" style={{ transform: 'translateY(30px)' }}>
               {t('heroTagline')}
             </p>
 

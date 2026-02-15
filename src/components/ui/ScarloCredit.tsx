@@ -15,7 +15,10 @@ const FRAME_INTERVAL = 120;
 export function ScarloCredit() {
   const logoStackRef = useRef<HTMLSpanElement>(null);
   const textStackRef = useRef<HTMLSpanElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
+  const isVisibleRef = useRef(false);
+  const loopStartedRef = useRef(false);
 
   const startLoop = useCallback(() => {
     const logoStack = logoStackRef.current;
@@ -29,8 +32,11 @@ export function ScarloCredit() {
     let current = 0;
     let direction = 1;
     let lastTime = performance.now();
+    loopStartedRef.current = true;
 
     const tick = (now: number) => {
+      if (!isVisibleRef.current) { rafRef.current = 0; return; }
+
       if (now - lastTime >= FRAME_INTERVAL) {
         // Hide current frame on both stacks
         logoFrames[current].classList.remove('visible');
@@ -55,12 +61,19 @@ export function ScarloCredit() {
       rafRef.current = requestAnimationFrame(tick);
     };
 
-    rafRef.current = requestAnimationFrame(tick);
+    // Only start if visible
+    if (isVisibleRef.current) {
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    // Store tick so we can restart from the observer
+    (startLoop as any)._tick = tick;
   }, []);
 
   useEffect(() => {
     const logoStack = logoStackRef.current;
     const textStack = textStackRef.current;
+    const outer = outerRef.current;
     if (!logoStack) return;
 
     const allImgs = [
@@ -82,7 +95,25 @@ export function ScarloCredit() {
       }
     });
 
+    // Pause animation when off-screen
+    let observer: IntersectionObserver | undefined;
+    if (outer) {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          isVisibleRef.current = entry.isIntersecting;
+          // Restart the loop if it was paused and images are loaded
+          if (entry.isIntersecting && loopStartedRef.current && !rafRef.current) {
+            const tick = (startLoop as any)._tick;
+            if (tick) rafRef.current = requestAnimationFrame(tick);
+          }
+        },
+        { threshold: 0 }
+      );
+      observer.observe(outer);
+    }
+
     return () => {
+      observer?.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [startLoop]);
@@ -117,7 +148,7 @@ export function ScarloCredit() {
   return (
     <>
       <style>{STYLES}</style>
-      <div className="sc-credit-outer">
+      <div className="sc-credit-outer" ref={outerRef}>
         <a
           href="https://scarlo.dev"
           target="_blank"

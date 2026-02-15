@@ -64,31 +64,42 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   const handleCustomizationToggle = (customizationId: string, type: 'remove' | 'add', price?: number) => {
     const currentCustomizations = customizations || [];
 
-    // Special handling for "Meat Only" toggle
-    if (customizationId === 'meat-only') {
-      const wasSelected = currentCustomizations.some(c => c.id === 'meat-only');
+    // Con Todo: toggling ON clears all removes
+    if (customizationId === 'con-todo') {
+      const wasSelected = currentCustomizations.some(c => c.id === 'con-todo');
       if (wasSelected) {
-        // Turning OFF: remove meat-only and all other remove options
-        const removeIds = new Set(removeOptions.map(r => r.id));
-        updateCartItemCustomizations(cartItemId, currentCustomizations.filter(c => !removeIds.has(c.id)));
+        updateCartItemCustomizations(cartItemId, currentCustomizations.filter(c => c.id !== 'con-todo'));
       } else {
-        // Turning ON: add meat-only and all other remove options
-        const existingNonRemove = currentCustomizations.filter(c => c.type !== 'remove');
-        const allRemoveSelections: SelectedCustomization[] = removeOptions.map(r => ({ id: r.id, type: 'remove' as const }));
-        updateCartItemCustomizations(cartItemId, [...existingNonRemove, ...allRemoveSelections]);
+        updateCartItemCustomizations(cartItemId, [...currentCustomizations.filter(c => c.type !== 'remove'), { id: 'con-todo', type: 'add' as const, price: 0 }]);
+      }
+      return;
+    }
+
+    // Selecting a remove option auto-deselects Con Todo;
+    // deselecting the last remove re-activates Con Todo
+    if (type === 'remove') {
+      const isCurrentlySelected = currentCustomizations.some(c => c.id === customizationId);
+      if (isCurrentlySelected) {
+        const remaining = currentCustomizations.filter(c => c.id !== customizationId);
+        const hasRemainingRemoves = remaining.some(c => c.type === 'remove');
+        if (!hasRemainingRemoves && conTodoOption) {
+          updateCartItemCustomizations(cartItemId, [...remaining, { id: 'con-todo', type: 'add' as const, price: 0 }]);
+        } else {
+          updateCartItemCustomizations(cartItemId, remaining);
+        }
+      } else {
+        updateCartItemCustomizations(cartItemId, [...currentCustomizations.filter(c => c.id !== 'con-todo'), { id: customizationId, type, price }]);
       }
       return;
     }
 
     const isCurrentlySelected = currentCustomizations.some(c => c.id === customizationId);
-
     let newCustomizations: SelectedCustomization[];
     if (isCurrentlySelected) {
       newCustomizations = currentCustomizations.filter(c => c.id !== customizationId);
     } else {
       newCustomizations = [...currentCustomizations, { id: customizationId, type, price }];
     }
-
     updateCartItemCustomizations(cartItemId, newCustomizations);
   };
 
@@ -105,7 +116,19 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   const removeOptions = item.customizations?.filter(c => c.type === 'remove') || [];
   const addOptions = item.customizations?.filter(c => c.type === 'add') || [];
   const hasCustomizations = item.customizations && item.customizations.length > 0;
-  const isMeatOnlySelected = customizations?.some(c => c.id === 'meat-only') || false;
+
+  // Separate Con Todo from other add options
+  const conTodoOption = addOptions.find(c => c.id === 'con-todo');
+  const addGroups = (() => {
+    const groups: Record<string, { label?: { en: string; es: string }; options: import('@/types/menu').ItemCustomization[] }> = {};
+    addOptions.filter(c => c.group !== 'contodo').forEach(c => {
+      const group = c.group || 'default';
+      if (!groups[group]) groups[group] = { options: [] };
+      if (c.groupLabel) groups[group].label = c.groupLabel;
+      groups[group].options.push(c);
+    });
+    return groups;
+  })();
 
   const addOnCost = customizations?.filter(c => c.type === 'add' && c.price).reduce((sum, c) => sum + (c.price || 0), 0) || 0;
   const itemTotalPrice = (item.price + addOnCost) * quantity;
@@ -125,11 +148,7 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
   // Format customizations text
   const getCustomizationsText = () => {
     if (!customizations || customizations.length === 0) return null;
-    // When meat-only is selected, show "Meat Only" + select/add options only (hide individual removes)
-    const filtered = isMeatOnlySelected
-      ? customizations.filter(c => c.id === 'meat-only' || c.type !== 'remove')
-      : customizations;
-    return filtered.map((c) => {
+    return customizations.map((c) => {
       const option = item.customizations?.find(opt => opt.id === c.id);
       if (!option) return null;
       return option.name[locale];
@@ -322,35 +341,44 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
             <div>
               <p className="text-xs text-gray-600 mb-2">{tCustom('removeIngredients')}</p>
               <div className="flex flex-wrap gap-1.5">
-                {removeOptions.map((option) => {
-                  const isMeatOnlyBtn = option.id === 'meat-only';
-                  const forcedByMeatOnly = !isMeatOnlyBtn && isMeatOnlySelected;
-                  return (
-                    <button
-                      key={option.id}
-                      onClick={() => !forcedByMeatOnly && handleCustomizationToggle(option.id, 'remove')}
-                      className={`px-2.5 py-1 text-xs rounded border transition-all ${
-                        isMeatOnlyBtn && isMeatOnlySelected
-                          ? 'bg-rojo/30 border-rojo/60 text-rojo ring-1 ring-rojo/30'
-                          : isCustomizationSelected(option.id)
-                            ? 'bg-rojo/20 border-rojo/50 text-rojo'
-                            : 'border-gray-600 text-gray-400 hover:border-gray-500'
-                      } ${forcedByMeatOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {isCustomizationSelected(option.id) && <span className="mr-1">✕</span>}
-                      <span className={forcedByMeatOnly ? 'line-through' : ''}>{option.name[locale]}</span>
-                    </button>
-                  );
-                })}
+                {conTodoOption && (
+                  <button
+                    onClick={() => handleCustomizationToggle('con-todo', 'add', 0)}
+                    className={`px-2.5 py-1 text-xs rounded border transition-all font-semibold ${
+                      isCustomizationSelected('con-todo')
+                        ? 'bg-amarillo/20 border-amarillo/50 text-amarillo'
+                        : 'border-gray-600 text-gray-400 hover:border-gray-500'
+                    }`}
+                  >
+                    {isCustomizationSelected('con-todo') && <span className="mr-1">&bull;</span>}
+                    Con Todo
+                  </button>
+                )}
+                {removeOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleCustomizationToggle(option.id, 'remove')}
+                    className={`px-2.5 py-1 text-xs rounded border transition-all ${
+                      isCustomizationSelected(option.id)
+                        ? 'bg-rojo/20 border-rojo/50 text-rojo'
+                        : 'border-gray-600 text-gray-400 hover:border-gray-500'
+                    }`}
+                  >
+                    {isCustomizationSelected(option.id) && <span className="mr-1">&times;</span>}
+                    {option.name[locale]}
+                  </button>
+                ))}
               </div>
             </div>
           )}
 
-          {addOptions.length > 0 && (
-            <div>
-              <p className="text-xs text-gray-600 mb-2">{tCustom('addExtras')}</p>
+          {Object.entries(addGroups).map(([groupName, group]) => (
+            <div key={groupName}>
+              <p className="text-xs text-gray-600 mb-2">
+                {group.label ? group.label[locale] : tCustom('addExtras')}
+              </p>
               <div className="flex flex-wrap gap-1.5">
-                {addOptions.map((option) => (
+                {group.options.map((option) => (
                   <button
                     key={option.id}
                     onClick={() => handleCustomizationToggle(option.id, 'add', option.price)}
@@ -360,14 +388,14 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
                         : 'border-gray-600 text-gray-400 hover:border-gray-500'
                     }`}
                   >
-                    {isCustomizationSelected(option.id) && <span className="mr-1">✓</span>}
+                    {isCustomizationSelected(option.id) && <span className="mr-1">&check;</span>}
                     {option.name[locale]}
-                    {option.price && <span className="ml-1 text-amarillo">+{formatPrice(option.price)}</span>}
+                    {option.price ? <span className="ml-1 text-amarillo">+{formatPrice(option.price)}</span> : null}
                   </button>
                 ))}
               </div>
             </div>
-          )}
+          ))}
         </div>
       )}
 

@@ -77,15 +77,17 @@ export function FeaturedSection() {
     }
   }, [goToNext, goToPrev]);
 
-  // Check for mobile screen size
+  // Check for mobile screen size (debounced)
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640); // sm breakpoint
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setIsMobile(window.innerWidth < 640), 150);
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    setIsMobile(window.innerWidth < 640); // initial check
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => { clearTimeout(timeout); window.removeEventListener('resize', checkMobile); };
   }, []);
 
   // Auto-play carousel on mobile (respects pause)

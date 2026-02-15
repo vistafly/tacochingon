@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { LoadingScreen } from "@/components/loading/LoadingScreen";
 
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-negro antialiased">
         <LoadingScreen />
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -29,7 +29,7 @@ export function GSAPProvider({ children }: { children: React.ReactNode }) {
           scrollTrigger: {
             trigger: element,
             start: 'top 85%',
-            toggleActions: 'play none none reverse',
+            once: true,
           },
         }
       );
@@ -42,19 +42,18 @@ export function GSAPProvider({ children }: { children: React.ReactNode }) {
         menuCards,
         {
           opacity: 0,
-          y: 60,
-          scale: 0.9,
+          y: 40,
         },
         {
           opacity: 1,
           y: 0,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: 'back.out(1.7)',
+          duration: 0.5,
+          stagger: 0.04,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: menuCards[0],
             start: 'top 85%',
+            once: true,
           },
         }
       );

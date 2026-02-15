@@ -197,10 +197,14 @@ function TestimonialsSection() {
   }, []);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    let timeout: NodeJS.Timeout;
+    const checkMobile = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setIsMobile(window.innerWidth < 768), 150);
+    };
+    setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => { clearTimeout(timeout); window.removeEventListener('resize', checkMobile); };
   }, []);
 
   useEffect(() => {

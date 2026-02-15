@@ -57,6 +57,10 @@ export function ItemCustomizationModal({
             defaults.push({ id: group.options[0].id, type: 'select', group: groupName });
           }
         });
+        // Pre-select Con Todo by default (with everything)
+        if (item.customizations?.some(c => c.id === 'con-todo')) {
+          defaults.push({ id: 'con-todo', type: 'add', price: 0 });
+        }
         setSelectedCustomizations(defaults);
       }
     }
@@ -84,27 +88,47 @@ export function ItemCustomizationModal({
 
   const removeOptions = item.customizations?.filter((c) => c.type === 'remove') || [];
   const addOptions = item.customizations?.filter((c) => c.type === 'add') || [];
-  const hasMeatOnly = removeOptions.some((c) => c.id === 'meat-only');
-  const isMeatOnlySelected = selectedCustomizations.some((c) => c.id === 'meat-only');
+
+  // Separate Con Todo from other add options
+  const conTodoOption = addOptions.find(c => c.id === 'con-todo');
+  const addGroups = (() => {
+    const groups: Record<string, { label?: { en: string; es: string }; options: ItemCustomization[] }> = {};
+    addOptions.filter(c => c.group !== 'contodo').forEach(c => {
+      const group = c.group || 'default';
+      if (!groups[group]) groups[group] = { options: [] };
+      if (c.groupLabel) groups[group].label = c.groupLabel;
+      groups[group].options.push(c);
+    });
+    return groups;
+  })();
 
   const handleToggleCustomization = (customization: ItemCustomization) => {
     setSelectedCustomizations((prev) => {
-      // Special handling for "Meat Only" toggle
-      if (customization.id === 'meat-only') {
-        const wasSelected = prev.some((c) => c.id === 'meat-only');
+      // Con Todo: toggling ON clears all removes
+      if (customization.id === 'con-todo') {
+        const wasSelected = prev.some(c => c.id === 'con-todo');
         if (wasSelected) {
-          // Turning OFF: remove meat-only and all other remove options
-          const removeIds = new Set(removeOptions.map((r) => r.id));
-          return prev.filter((c) => !removeIds.has(c.id));
-        } else {
-          // Turning ON: add meat-only and all other remove options
-          const existingNonRemove = prev.filter((c) => c.type !== 'remove');
-          const allRemoveSelections = removeOptions.map((r) => ({
-            id: r.id,
-            type: 'remove' as const,
-          }));
-          return [...existingNonRemove, ...allRemoveSelections];
+          return prev.filter(c => c.id !== 'con-todo');
         }
+        return [...prev.filter(c => c.type !== 'remove'), { id: 'con-todo', type: 'add' as const, price: 0 }];
+      }
+
+      // Selecting a remove option auto-deselects Con Todo;
+      // deselecting the last remove re-activates Con Todo
+      if (customization.type === 'remove') {
+        const exists = prev.find(c => c.id === customization.id);
+        if (exists) {
+          const remaining = prev.filter(c => c.id !== customization.id);
+          const hasRemainingRemoves = remaining.some(c => c.type === 'remove');
+          if (!hasRemainingRemoves && conTodoOption) {
+            return [...remaining, { id: 'con-todo', type: 'add' as const, price: 0 }];
+          }
+          return remaining;
+        }
+        return [
+          ...prev.filter(c => c.id !== 'con-todo'),
+          { id: customization.id, type: customization.type, price: customization.price },
+        ];
       }
 
       const exists = prev.find((c) => c.id === customization.id);
@@ -235,53 +259,72 @@ export function ItemCustomizationModal({
             </div>
           ))}
 
-          {/* Remove options */}
+          {/* Remove options (Con Todo first) */}
           {removeOptions.length > 0 && (
             <div className="px-3 py-2 border-b border-gray-700">
               <h3 className="font-display text-white text-sm mb-2">{t('removeIngredients')}</h3>
               <div className="grid grid-cols-2 gap-1.5">
-                {removeOptions.map((option) => {
-                  const isMeatOnlyBtn = option.id === 'meat-only';
-                  const forcedByMeatOnly = !isMeatOnlyBtn && isMeatOnlySelected;
-                  return (
-                    <button
-                      key={option.id}
-                      onClick={() => !forcedByMeatOnly && handleToggleCustomization(option)}
-                      className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
-                        isMeatOnlyBtn && isMeatOnlySelected
-                          ? 'border-rojo bg-rojo/20 text-rojo ring-1 ring-rojo/30'
-                          : isCustomizationSelected(option.id)
-                            ? 'border-rojo bg-rojo/10 text-rojo'
-                            : 'border-gray-600 text-gray-300 hover:border-gray-500'
-                      } ${forcedByMeatOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                {conTodoOption && (
+                  <button
+                    onClick={() => handleToggleCustomization(conTodoOption)}
+                    className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
+                      isCustomizationSelected('con-todo')
+                        ? 'border-amarillo bg-amarillo/15 text-amarillo'
+                        : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                    }`}
+                  >
+                    <span className="text-xs font-semibold">Con Todo</span>
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                        isCustomizationSelected('con-todo')
+                          ? 'bg-amarillo border-amarillo'
+                          : 'border-gray-500'
+                      }`}
                     >
-                      <span className={`text-xs ${forcedByMeatOnly ? 'line-through' : ''}`}>
-                        {option.name[locale]}
-                      </span>
-                      <div
-                        className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                          isCustomizationSelected(option.id)
-                            ? 'bg-rojo border-rojo'
-                            : 'border-gray-500'
-                        }`}
-                      >
-                        {isCustomizationSelected(option.id) && (
-                          <X className="w-2.5 h-2.5 text-white" />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                      {isCustomizationSelected('con-todo') && (
+                        <Check className="w-2.5 h-2.5 text-negro" />
+                      )}
+                    </div>
+                  </button>
+                )}
+                {removeOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    onClick={() => handleToggleCustomization(option)}
+                    className={`flex items-center justify-between p-2 rounded-lg border transition-all ${
+                      isCustomizationSelected(option.id)
+                        ? 'border-rojo bg-rojo/10 text-rojo'
+                        : 'border-gray-600 text-gray-300 hover:border-gray-500'
+                    }`}
+                  >
+                    <span className="text-xs">
+                      {option.name[locale]}
+                    </span>
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                        isCustomizationSelected(option.id)
+                          ? 'bg-rojo border-rojo'
+                          : 'border-gray-500'
+                      }`}
+                    >
+                      {isCustomizationSelected(option.id) && (
+                        <X className="w-2.5 h-2.5 text-white" />
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Add options */}
-          {addOptions.length > 0 && (
-            <div className="px-3 py-2 border-b border-gray-700">
-              <h3 className="font-display text-white text-sm mb-2">{t('addExtras')}</h3>
+          {/* Add options (grouped: Extra, Side, Con Todo) */}
+          {Object.entries(addGroups).map(([groupName, group]) => (
+            <div key={groupName} className="px-3 py-2 border-b border-gray-700">
+              <h3 className="font-display text-white text-sm mb-2">
+                {group.label ? group.label[locale] : t('addExtras')}
+              </h3>
               <div className="grid grid-cols-2 gap-1.5">
-                {addOptions.map((option) => (
+                {group.options.map((option) => (
                   <button
                     key={option.id}
                     onClick={() => handleToggleCustomization(option)}
@@ -293,11 +336,11 @@ export function ItemCustomizationModal({
                   >
                     <div className="flex flex-col items-start">
                       <span className="text-xs">{option.name[locale]}</span>
-                      {option.price && (
+                      {option.price ? (
                         <span className="text-[10px] text-amarillo">
                           +{formatPrice(option.price)}
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <div
                       className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
@@ -314,7 +357,7 @@ export function ItemCustomizationModal({
                 ))}
               </div>
             </div>
-          )}
+          ))}
 
           {/* No customizations message */}
           {!item.customizations?.length && (

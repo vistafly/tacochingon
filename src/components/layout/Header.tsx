@@ -39,10 +39,17 @@ export function Header() {
   };
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 20);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -141,7 +148,7 @@ export function Header() {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden py-2 border-t border-gray-700">
-            <div className="grid grid-cols-3 gap-2 px-2">
+            <div className="grid grid-cols-2 gap-2 px-2">
               <Link
                 href="/"
                 onClick={() => { handleNavClick(); setMobileMenuOpen(false); }}
@@ -163,13 +170,6 @@ export function Header() {
               >
                 <UtensilsCrossed className="w-3.5 h-3.5" />
                 {t('menu')}
-              </Link>
-              <Link
-                href="/menu"
-                onClick={() => { handleNavClick(); setMobileMenuOpen(false); }}
-                className="flex items-center justify-center py-2.5 rounded-lg font-display text-xs uppercase tracking-wider bg-rojo text-white border-2 border-amarillo transition-colors hover:bg-rojo-dark"
-              >
-                {tCommon('orderNow')}
               </Link>
             </div>
           </div>

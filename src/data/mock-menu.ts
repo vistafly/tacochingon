@@ -98,128 +98,36 @@ const jarritosFlavorSelect: ItemCustomization[] = [
   { id: 'flavor-pina', name: { en: 'Piña', es: 'Piña' }, type: 'select', group: 'flavor' },
 ];
 
-// ── Remove/Add Customization Options ───────────────────────────────────
+// ── Unified Food Customizations (matching Square POS) ─────────────────
 
-const tacoCustomizations: ItemCustomization[] = [
+const foodCustomizations: ItemCustomization[] = [
+  // ── Verdura (Remove) ──
   { id: 'no-onion', name: { en: 'No Onion', es: 'Sin Cebolla' }, type: 'remove', default: true },
   { id: 'no-cilantro', name: { en: 'No Cilantro', es: 'Sin Cilantro' }, type: 'remove', default: true },
   { id: 'no-cabbage', name: { en: 'No Cabbage', es: 'Sin Repollo' }, type: 'remove', default: true },
   { id: 'no-tomato', name: { en: 'No Tomato', es: 'Sin Tomate' }, type: 'remove', default: true },
   { id: 'no-jalapeno', name: { en: 'No Jalapeño', es: 'Sin Jalapeño' }, type: 'remove', default: true },
   { id: 'no-guacamole', name: { en: 'No Guacamole', es: 'Sin Guacamole' }, type: 'remove', default: true },
-  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.50 },
-  { id: 'extra-sour-cream', name: { en: 'Extra Sour Cream', es: 'Extra Crema' }, type: 'add', price: 0.50 },
-  { id: 'extra-guacamole', name: { en: 'Extra Guacamole', es: 'Extra Guacamole' }, type: 'add', price: 0.50 },
-  { id: 'extra-jalapenos', name: { en: 'Extra Jalapeños', es: 'Extra Jalapeños' }, type: 'add', price: 0.50 },
-  { id: 'extra-beans', name: { en: 'Extra Beans', es: 'Extra Frijoles' }, type: 'add', price: 0.50 },
-  { id: 'extra-rice', name: { en: 'Extra Rice', es: 'Extra Arroz' }, type: 'add', price: 0.50 },
-  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 1.00 },
-  { id: 'extra-tomato', name: { en: 'Extra Tomato', es: 'Extra Tomate' }, type: 'add', price: 0.50 },
-  { id: 'extra-lettuce', name: { en: 'Extra Lettuce', es: 'Extra Lechuga' }, type: 'add', price: 0.50 },
-];
-
-const tacoChingonCustomizations: ItemCustomization[] = [
-  { id: 'no-onion', name: { en: 'No Onion', es: 'Sin Cebolla' }, type: 'remove', default: true },
-  { id: 'no-cilantro', name: { en: 'No Cilantro', es: 'Sin Cilantro' }, type: 'remove', default: true },
-  { id: 'no-lettuce', name: { en: 'No Lettuce', es: 'Sin Lechuga' }, type: 'remove', default: true },
-  { id: 'no-tomato', name: { en: 'No Tomato', es: 'Sin Tomate' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'no-guacamole', name: { en: 'No Guacamole', es: 'Sin Guacamole' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.50 },
-  { id: 'extra-sour-cream', name: { en: 'Extra Sour Cream', es: 'Extra Crema' }, type: 'add', price: 0.50 },
-  { id: 'extra-guacamole', name: { en: 'Extra Guacamole', es: 'Extra Guacamole' }, type: 'add', price: 0.50 },
-  { id: 'extra-jalapenos', name: { en: 'Extra Jalapeños', es: 'Extra Jalapeños' }, type: 'add', price: 0.50 },
-  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 1.00 },
-];
-
-const quesadillaCustomizations: ItemCustomization[] = [
-  { id: 'no-cheese', name: { en: 'Light Cheese', es: 'Poco Queso' }, type: 'remove', default: true },
-  { id: 'add-sour-cream', name: { en: 'Add Sour Cream', es: 'Agregar Crema' }, type: 'add', price: 0.75 },
-  { id: 'add-guacamole', name: { en: 'Add Guacamole', es: 'Agregar Guacamole' }, type: 'add', price: 1.50 },
-  { id: 'add-jalapenos', name: { en: 'Add Jalapenos', es: 'Agregar Jalapenos' }, type: 'add', price: 0.50 },
-];
-
-const burritoCustomizations: ItemCustomization[] = [
+  { id: 'no-beans', name: { en: 'No Beans', es: 'Sin Frijoles' }, type: 'remove', default: true },
   { id: 'no-rice', name: { en: 'No Rice', es: 'Sin Arroz' }, type: 'remove', default: true },
-  { id: 'no-beans', name: { en: 'No Beans', es: 'Sin Frijoles' }, type: 'remove', default: true },
-  { id: 'no-onion', name: { en: 'No Onion', es: 'Sin Cebolla' }, type: 'remove', default: true },
-  { id: 'no-cilantro', name: { en: 'No Cilantro', es: 'Sin Cilantro' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.50 },
-  { id: 'extra-guacamole', name: { en: 'Extra Guacamole', es: 'Extra Guacamole' }, type: 'add', price: 0.50 },
-  { id: 'extra-jalapenos', name: { en: 'Extra Jalapeños', es: 'Extra Jalapeños' }, type: 'add', price: 0.50 },
-  { id: 'extra-sour-cream', name: { en: 'Extra Sour Cream', es: 'Extra Crema' }, type: 'add', price: 0.50 },
-  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 1.00 },
-];
-
-const tortaCustomizations: ItemCustomization[] = [
-  { id: 'meat-only', name: { en: 'Meat Only', es: 'Solo Carne' }, type: 'remove', default: false },
-  { id: 'no-beans', name: { en: 'No Beans', es: 'Sin Frijoles' }, type: 'remove', default: true },
   { id: 'no-lettuce', name: { en: 'No Lettuce', es: 'Sin Lechuga' }, type: 'remove', default: true },
-  { id: 'no-tomato', name: { en: 'No Tomato', es: 'Sin Tomate' }, type: 'remove', default: true },
-  { id: 'no-avocado', name: { en: 'No Avocado', es: 'Sin Aguacate' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'no-jalapeno', name: { en: 'No Jalapeño', es: 'Sin Jalapeño' }, type: 'remove', default: true },
-  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 1.00 },
-  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.50 },
-];
-
-const huaracheCustomizations: ItemCustomization[] = [
-  { id: 'no-beans', name: { en: 'No Beans', es: 'Sin Frijoles' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'add-guacamole', name: { en: 'Add Guacamole', es: 'Agregar Guacamole' }, type: 'add', price: 1.50 },
-  { id: 'add-jalapenos', name: { en: 'Add Jalapenos', es: 'Agregar Jalapenos' }, type: 'add', price: 0.50 },
-];
-
-const sopeCustomizations: ItemCustomization[] = [
-  { id: 'no-beans', name: { en: 'No Beans', es: 'Sin Frijoles' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'add-guacamole', name: { en: 'Add Guacamole', es: 'Agregar Guacamole' }, type: 'add', price: 1.50 },
-];
-
-const friesCustomizations: ItemCustomization[] = [
-  { id: 'no-onion', name: { en: 'No Onion', es: 'Sin Cebolla' }, type: 'remove', default: true },
-  { id: 'no-cilantro', name: { en: 'No Cilantro', es: 'Sin Cilantro' }, type: 'remove', default: true },
-  { id: 'no-cabbage', name: { en: 'No Cabbage', es: 'Sin Repollo' }, type: 'remove', default: true },
-  { id: 'no-tomato', name: { en: 'No Tomato', es: 'Sin Tomate' }, type: 'remove', default: true },
-  { id: 'no-jalapeno', name: { en: 'No Jalapeño', es: 'Sin Jalapeño' }, type: 'remove', default: true },
-  { id: 'no-guacamole', name: { en: 'No Guacamole', es: 'Sin Guacamole' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.50 },
-  { id: 'extra-sour-cream', name: { en: 'Extra Sour Cream', es: 'Extra Crema' }, type: 'add', price: 0.50 },
-  { id: 'extra-guacamole', name: { en: 'Extra Guacamole', es: 'Extra Guacamole' }, type: 'add', price: 0.50 },
-  { id: 'extra-jalapenos', name: { en: 'Extra Jalapeños', es: 'Extra Jalapeños' }, type: 'add', price: 0.50 },
-  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 1.00 },
-  { id: 'extra-tomato', name: { en: 'Extra Tomato', es: 'Extra Tomate' }, type: 'add', price: 0.50 },
-  { id: 'extra-lettuce', name: { en: 'Extra Lettuce', es: 'Extra Lechuga' }, type: 'add', price: 0.50 },
-];
-
-const mulitaCustomizations: ItemCustomization[] = [
-  { id: 'meat-only', name: { en: 'Meat Only', es: 'Solo Carne' }, type: 'remove', default: false },
-  { id: 'no-onion', name: { en: 'No Onion', es: 'Sin Cebolla' }, type: 'remove', default: true },
-  { id: 'no-cilantro', name: { en: 'No Cilantro', es: 'Sin Cilantro' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'no-lettuce', name: { en: 'No Lettuce', es: 'Sin Lechuga' }, type: 'remove', default: true },
-  { id: 'no-tomato', name: { en: 'No Tomato', es: 'Sin Tomate' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.50 },
-  { id: 'extra-sour-cream', name: { en: 'Extra Sour Cream', es: 'Extra Crema' }, type: 'add', price: 0.50 },
-  { id: 'extra-guacamole', name: { en: 'Extra Guacamole', es: 'Extra Guacamole' }, type: 'add', price: 0.50 },
-  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 1.00 },
-];
-
-const tostitacoCustomizations: ItemCustomization[] = [
-  { id: 'no-lettuce', name: { en: 'No Lettuce', es: 'Sin Lechuga' }, type: 'remove', default: true },
-  { id: 'no-tomato', name: { en: 'No Tomato', es: 'Sin Tomate' }, type: 'remove', default: true },
-  { id: 'no-cheese', name: { en: 'No Cheese', es: 'Sin Queso' }, type: 'remove', default: true },
-  { id: 'no-sour-cream', name: { en: 'No Sour Cream', es: 'Sin Crema' }, type: 'remove', default: true },
-  { id: 'add-guacamole', name: { en: 'Add Guacamole', es: 'Agregar Guacamole' }, type: 'add', price: 1.50 },
-  { id: 'add-jalapenos', name: { en: 'Add Jalapenos', es: 'Agregar Jalapenos' }, type: 'add', price: 0.50 },
+  // ── Extra (Add) ──
+  { id: 'extra-cheese', name: { en: 'Extra Cheese', es: 'Extra Queso' }, type: 'add', price: 0.75, group: 'extra', groupLabel: { en: 'Add Extras', es: 'Agregar Extras' } },
+  { id: 'extra-sour-cream', name: { en: 'Extra Sour Cream', es: 'Extra Crema' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-guacamole', name: { en: 'Extra Guacamole', es: 'Extra Guacamole' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-jalapenos', name: { en: 'Extra Jalapeños', es: 'Extra Jalapeños' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-beans', name: { en: 'Extra Beans', es: 'Extra Frijoles' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-rice', name: { en: 'Extra Rice', es: 'Extra Arroz' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-meat', name: { en: 'Extra Meat', es: 'Extra Carne' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-tomato', name: { en: 'Extra Tomato', es: 'Extra Tomate' }, type: 'add', price: 0.75, group: 'extra' },
+  { id: 'extra-lettuce', name: { en: 'Extra Lettuce', es: 'Extra Lechuga' }, type: 'add', price: 0.75, group: 'extra' },
+  // ── Side ──
+  { id: 'side-beans', name: { en: 'Side Beans', es: 'Frijoles Aparte' }, type: 'add', price: 3.00, group: 'side', groupLabel: { en: 'Sides', es: 'Lados' } },
+  { id: 'side-rice', name: { en: 'Side Rice', es: 'Arroz Aparte' }, type: 'add', price: 3.00, group: 'side' },
+  { id: 'side-tortillas', name: { en: 'Side 3 Tortillas', es: '3 Tortillas Aparte' }, type: 'add', price: 3.00, group: 'side' },
+  { id: 'side-fries', name: { en: 'Side Fries', es: 'Papas Aparte' }, type: 'add', price: 3.00, group: 'side' },
+  // ── Con Todo ──
+  { id: 'con-todo', name: { en: 'Con Todo', es: 'Con Todo' }, type: 'add', price: 0, group: 'contodo', groupLabel: { en: 'Con Todo', es: 'Con Todo' } },
 ];
 
 // ── Menu Items (20 total) ──────────────────────────────────────────────
@@ -236,7 +144,7 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: true,
     sortOrder: 1,
-    customizations: [...meatSelectFull, ...tacoCustomizations],
+    customizations: [...meatSelectFull, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
@@ -252,7 +160,7 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: true,
     sortOrder: 2,
-    customizations: [...meatSelectChingon, ...tacoChingonCustomizations],
+    customizations: [...meatSelectChingon, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
@@ -268,7 +176,7 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 3,
-    customizations: [...meatSelectFull, ...tacoCustomizations],
+    customizations: [...meatSelectFull, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
@@ -284,7 +192,7 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 1,
-    customizations: quesadillaCustomizations,
+    customizations: foodCustomizations,
     createdAt: now,
     updatedAt: now,
   },
@@ -300,7 +208,7 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 2,
-    customizations: [...meatSelectQuesadillaMeat, ...quesadillaCustomizations],
+    customizations: [...meatSelectQuesadillaMeat, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
@@ -316,7 +224,7 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: true,
     sortOrder: 3,
-    customizations: quesadillaCustomizations,
+    customizations: foodCustomizations,
     createdAt: now,
     updatedAt: now,
   },
@@ -332,12 +240,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 4,
-    customizations: quesadillaCustomizations,
+    customizations: foodCustomizations,
     createdAt: now,
     updatedAt: now,
   },
 
-  // 7. BURRITO - $13.00 (meat selector: burrito)
+  // 8. BURRITO - $13.00 (meat selector: burrito)
   {
     id: 'burrito',
     name: { en: 'Burrito', es: 'Burrito' },
@@ -348,12 +256,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: true,
     sortOrder: 1,
-    customizations: [...meatSelectBurrito, ...burritoCustomizations],
+    customizations: [...meatSelectBurrito, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 8. BEAN & CHEESE BURRITO - $13.00 (standalone)
+  // 9. BEAN & CHEESE BURRITO - $13.00 (standalone)
   {
     id: 'burrito-bean-cheese',
     name: { en: 'Bean & Cheese Burrito', es: 'Burrito de Frijol y Queso' },
@@ -364,12 +272,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 2,
-    customizations: burritoCustomizations,
+    customizations: foodCustomizations,
     createdAt: now,
     updatedAt: now,
   },
 
-  // 9. TORTA - $13.00 (meat selector: torta)
+  // 10. TORTA - $13.00 (meat selector: torta)
   {
     id: 'torta',
     name: { en: 'Torta', es: 'Torta' },
@@ -380,12 +288,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 1,
-    customizations: [...meatSelectTorta, ...tortaCustomizations],
+    customizations: [...meatSelectTorta, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 10. HUARACHE - $13.00 (meat selector: huarache)
+  // 11. HUARACHE - $13.00 (meat selector: huarache)
   {
     id: 'huarache',
     name: { en: 'Huarache', es: 'Huarache' },
@@ -396,12 +304,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 1,
-    customizations: [...meatSelectHuarache, ...huaracheCustomizations],
+    customizations: [...meatSelectHuarache, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 11. SOPE - $13.00 (meat selector: huarache/sope)
+  // 12. SOPE - $13.00 (meat selector: huarache/sope)
   {
     id: 'sope',
     name: { en: 'Sope', es: 'Sope' },
@@ -412,15 +320,15 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 1,
-    customizations: [...meatSelectHuarache, ...sopeCustomizations],
+    customizations: [...meatSelectHuarache, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 12. LOADED FRIES - $15.00 (meat selector: fries)
+  // 13. LOADED FRIES - $15.00 (meat selector: fries)
   {
     id: 'loaded-fries',
-    name: { en: 'Loaded Fries', es: 'Papas Cargadas' },
+    name: { en: 'Asada Fries', es: 'Asada Fries' },
     description: { en: 'Crispy fries loaded with your choice of meat and toppings', es: 'Papas crujientes con tu elección de carne y aderezos' },
     price: 15.00,
     categoryId: 'fries',
@@ -428,12 +336,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: true,
     sortOrder: 1,
-    customizations: [...meatSelectFries, ...friesCustomizations],
+    customizations: [...meatSelectFries, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 13. TOSTITACOS - $15.00 (meat selector: tostitacos)
+  // 14. TOSTITACOS - $15.00 (meat selector: tostitacos)
   {
     id: 'tostitacos',
     name: { en: 'Tostitacos', es: 'Tostitacos' },
@@ -444,12 +352,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 1,
-    customizations: [...meatSelectTostitacos, ...tostitacoCustomizations],
+    customizations: [...meatSelectTostitacos, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 14. MULITA - $6.00 (meat selector: full)
+  // 15. MULITA - $6.00 (meat selector: full)
   {
     id: 'mulita',
     name: { en: 'Mulita', es: 'Mulita' },
@@ -460,12 +368,12 @@ export const mockMenuItems: MenuItem[] = [
     isAvailable: true,
     isFeatured: false,
     sortOrder: 1,
-    customizations: [...meatSelectFull, ...mulitaCustomizations],
+    customizations: [...meatSelectFull, ...foodCustomizations],
     createdAt: now,
     updatedAt: now,
   },
 
-  // 15. SODA - $1.90 (flavor selector)
+  // 16. SODA - $1.90 (flavor selector)
   {
     id: 'soda',
     name: { en: 'Soda', es: 'Refresco' },
@@ -481,7 +389,7 @@ export const mockMenuItems: MenuItem[] = [
     updatedAt: now,
   },
 
-  // 16. JARRITOS - $2.50 (flavor selector)
+  // 17. JARRITOS - $2.50 (flavor selector)
   {
     id: 'jarritos',
     name: { en: 'Jarritos', es: 'Jarritos' },
@@ -497,7 +405,7 @@ export const mockMenuItems: MenuItem[] = [
     updatedAt: now,
   },
 
-  // 17. SALSA VERDE - $0.27
+  // 18. SALSA VERDE - $0.27
   {
     id: 'salsa-verde',
     name: { en: 'Salsa Verde', es: 'Salsa Verde' },
@@ -512,7 +420,7 @@ export const mockMenuItems: MenuItem[] = [
     updatedAt: now,
   },
 
-  // 18. SALSA ROJA - $0.25
+  // 19. SALSA ROJA - $0.25
   {
     id: 'salsa-roja',
     name: { en: 'Salsa Roja', es: 'Salsa Roja' },
@@ -527,7 +435,7 @@ export const mockMenuItems: MenuItem[] = [
     updatedAt: now,
   },
 
-  // 19. SALSA GUACAMOLE - $0.25
+  // 20. SALSA GUACAMOLE - $0.25
   {
     id: 'salsa-guacamole',
     name: { en: 'Salsa Guacamole', es: 'Salsa Guacamole' },
