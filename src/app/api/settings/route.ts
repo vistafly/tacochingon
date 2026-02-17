@@ -54,7 +54,6 @@ export async function PATCH(request: NextRequest) {
     const settings = await settingsService.getSettings();
 
     // Revalidate pages that use settings data
-    revalidatePath('/[locale]/location', 'page');
     revalidatePath('/[locale]', 'page');
 
     return NextResponse.json({ settings });

@@ -202,7 +202,7 @@ function TestimonialsSection() {
       clearTimeout(timeout);
       timeout = setTimeout(() => setIsMobile(window.innerWidth < 768), 150);
     };
-    setIsMobile(window.innerWidth < 768);
+    checkMobile();
     window.addEventListener('resize', checkMobile, { passive: true });
     return () => { clearTimeout(timeout); window.removeEventListener('resize', checkMobile); };
   }, []);
@@ -441,12 +441,12 @@ function LocationSection() {
                 className="w-full h-full"
               />
             </div>
-            <Link href="/location">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=3649+N+Blackstone+Ave,+Fresno,+CA+93726" target="_blank" rel="noopener noreferrer">
               <button className="w-full btn-order flex items-center justify-center gap-2">
                 {tLocation('getDirections')}
                 <ArrowRight className="w-5 h-5" />
               </button>
-            </Link>
+            </a>
           </div>
 
           {/* Info */}

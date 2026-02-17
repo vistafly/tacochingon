@@ -7,6 +7,12 @@ const intlMiddleware = createMiddleware(routing);
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Redirect locale-prefixed admin paths (e.g. /en/admin) to /admin
+  const localeAdminMatch = pathname.match(/^\/(en|es)(\/admin.*)$/);
+  if (localeAdminMatch) {
+    return NextResponse.redirect(new URL(localeAdminMatch[2], request.url));
+  }
+
   // Admin auth check — redirect guard (real validation in API routes)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const adminToken = request.cookies.get('admin_token');

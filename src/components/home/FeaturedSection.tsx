@@ -85,7 +85,7 @@ export function FeaturedSection() {
       timeout = setTimeout(() => setIsMobile(window.innerWidth < 640), 150);
     };
 
-    setIsMobile(window.innerWidth < 640); // initial check
+    checkMobile(); // initial check (deferred to avoid hydration mismatch)
     window.addEventListener('resize', checkMobile, { passive: true });
     return () => { clearTimeout(timeout); window.removeEventListener('resize', checkMobile); };
   }, []);
