@@ -501,7 +501,7 @@ export function HeroSection() {
                   ))}
                 </div>
 
-                <div className="absolute -top-6 right-9 bg-rojo text-white px-5 py-2 rounded transform rotate-6 border-2 border-amarillo">
+                <div className="absolute -top-6 right-9 z-10 bg-rojo text-white px-5 py-2 rounded transform rotate-6 border-2 border-amarillo">
                   <span className="font-display text-xl uppercase">${currentItem.price.toFixed(2)}</span>
                 </div>
               </div>
