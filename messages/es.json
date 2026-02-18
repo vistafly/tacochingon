@@ -12,7 +12,10 @@
     "language": "Idioma",
     "featured": "Destacado",
     "order": "Ordenar",
-    "desde": "Desde"
+    "desde": "Desde",
+    "browseOurMenu": "Explorar Nuestro Menú",
+    "seeFullMenu": "Ver el Menú Completo",
+    "startYourOrder": "Comienza Tu Orden"
   },
   "customization": {
     "removeIngredients": "Quitar Ingredientes",
@@ -28,9 +31,10 @@
   },
   "home": {
     "heroTitle": "Tacos Callejeros Autenticos",
-    "heroSubtitle": "Tortillas hechas a mano, ingredientes frescos, sabores intensos",
-    "heroTagline": "Tacos Callejeros De Verdad.",
-    "featuredTitle": "Destacados",
+    "heroH1": "El Taco Chingón — Comida Mexicana Auténtica en Fresno",
+    "heroSubtitle": "Tortillas hechas a mano e ingredientes frescos con sabores mexicanos auténticos y audaces",
+    "heroTagline": "Tacos callejeros de verdad, hechos frescos diario — sin atajos.",
+    "featuredTitle": "Nuestros Platillos Destacados",
     "customerFavorites": "Favoritos de los Clientes",
     "aboutTitle": "Nuestra Historia",
     "aboutText": "El Taco Chingon trae autentica comida callejera mexicana a Fresno. Cada taco esta hecho con amor, con tortillas hechas a mano y los ingredientes mas frescos. De nuestra familia a la tuya, servimos los sabores autenticos de Mexico.",
@@ -39,15 +43,16 @@
     "familyRecipes": "Recetas Familiares",
     "established": "EST. 2024",
     "locationTitle": "Encuentranos",
-    "reviews": "Resenas",
-    "whatPeopleSay": "Lo Que Dice la Gente",
+    "locationHeading": "Visítanos en Fresno",
+    "reviews": "Reseñas de Clientes",
+    "whatPeopleSay": "Lo Que Dicen Nuestros Clientes",
     "basedOnReviews": "Basado en {count}+ resenas",
     "tapToReview": "Toca para dejar una resena",
     "hoverToReview": "Pasa el cursor para dejar una resena",
     "readReviewsYelp": "Ver Resenas en Yelp",
     "reviewOnGoogle": "Resenar en Google Maps",
-    "readyToEat": "Listo para Comer?",
-    "ctaTagline": "Tacos callejeros de verdad. Sabor real. Sin rodeos."
+    "readyToEat": "¿Listo para Ordenar?",
+    "ctaTagline": "Tacos callejeros de verdad con sabor real — ven a probar la diferencia."
   },
   "menu": {
     "pageTitle": "Nuestro Menu",
@@ -181,6 +186,7 @@
   "footer": {
     "copyright": "El Taco Chingon. Todos los derechos reservados.",
     "tagline": "Autentica Comida Callejera Mexicana",
+    "quickLinks": "Enlaces Rápidos",
     "orderOnline": "Ordenar Externamente",
     "securePayments": "Pagos seguros aceptados"
   },

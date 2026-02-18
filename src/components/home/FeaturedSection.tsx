@@ -227,9 +227,9 @@ export function FeaturedSection() {
                         <span className="text-xs text-amarillo font-medium uppercase">
                           {item.categoryId}
                         </span>
-                        <h3 className="font-display text-lg text-white mt-1">
+                        <p className="font-display text-lg text-white mt-1">
                           {item.name[locale]}
-                        </h3>
+                        </p>
                         <p className="text-sm text-gray-400 mt-1 line-clamp-2">
                           {item.description[locale]}
                         </p>
@@ -237,7 +237,7 @@ export function FeaturedSection() {
                           <span className="font-display text-xl text-amarillo">
                             ${item.price.toFixed(2)}
                           </span>
-                          <Link href={`/menu?item=${item.id}`}>
+                          <Link href="/menu">
                             <button className="btn-order text-sm py-2 px-4">
                               {tCommon('orderNow')}
                             </button>
@@ -301,7 +301,7 @@ export function FeaturedSection() {
 
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-negro/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                  <Link href={`/menu?item=${item.id}`}>
+                  <Link href="/menu">
                     <button className="btn-order text-sm py-2 px-6">
                       {tCommon('orderNow')}
                     </button>
@@ -334,7 +334,7 @@ export function FeaturedSection() {
         <div className="text-center">
           <Link href="/menu">
             <button className="btn-verde inline-flex items-center gap-3">
-              {tCommon('viewMenu')}
+              {tCommon('seeFullMenu')}
               <ArrowRight className="w-5 h-5" />
             </button>
           </Link>

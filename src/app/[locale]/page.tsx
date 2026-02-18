@@ -32,6 +32,7 @@ const TESTIMONIALS = [
     source: 'Yelp',
     accentColor: 'verde' as const,
     image: '/images/menu/tacos.jpg',
+    imageAlt: 'Fresh carne asada street tacos with cilantro and lime from El Taco Chingón Fresno',
   },
   {
     name: 'Cecilia S.',
@@ -41,6 +42,7 @@ const TESTIMONIALS = [
     source: 'Yelp',
     accentColor: 'amarillo' as const,
     image: '/images/menu/quesabirria.jpg',
+    imageAlt: 'Crispy quesabirria tacos with melted cheese and consomé at El Taco Chingón',
   },
   {
     name: "Andre' J S.",
@@ -50,6 +52,7 @@ const TESTIMONIALS = [
     source: 'Yelp',
     accentColor: 'rojo' as const,
     image: '/images/menu/adobada.png',
+    imageAlt: 'Adobada loaded fries topped with seasoned pork and fresh salsa at El Taco Chingón',
   },
 ];
 
@@ -59,7 +62,7 @@ const ACCENT_STYLES = {
   rojo: { border: 'border-rojo/40 hover:border-rojo', glow: 'hover:shadow-[0_0_30px_rgba(239,68,68,0.15)]', dot: 'bg-rojo', gradient: 'from-rojo/20' },
 };
 
-function ReviewCard({ testimonial, index, isVisible, className = '' }: { testimonial: typeof TESTIMONIALS[0]; index: number; isVisible: boolean; className?: string }) {
+function ReviewCard({ testimonial, index, isVisible, className = '' }: { testimonial: typeof TESTIMONIALS[0] & { imageAlt?: string }; index: number; isVisible: boolean; className?: string }) {
   const styles = ACCENT_STYLES[testimonial.accentColor];
   return (
     <div
@@ -74,7 +77,7 @@ function ReviewCard({ testimonial, index, isVisible, className = '' }: { testimo
       <div className="relative h-44 overflow-hidden shrink-0">
         <Image
           src={testimonial.image}
-          alt="Food from El Taco Chingon"
+          alt={testimonial.imageAlt || 'Authentic Mexican food from El Taco Chingón Fresno'}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -328,7 +331,7 @@ function TestimonialsSection() {
         </div>
 
         {/* Mobile Carousel */}
-        <div className="md:hidden mb-6">
+        <div className="md:hidden mb-6" aria-hidden="true">
           <div className="relative">
             <button
               onClick={goToPrev}
@@ -414,7 +417,7 @@ function LocationSection() {
           </div>
 
           <h2 className="font-display text-3xl md:text-5xl text-white mb-4">
-            {t('locationTitle')}
+            {t('locationHeading')}
           </h2>
 
           {/* Mexican flag divider */}
@@ -538,7 +541,7 @@ function CTASection() {
       <div className="absolute inset-0">
         <Image
           src="/images/menu/quesabirria.jpg"
-          alt="Quesabirria Tacos"
+          alt="Quesabirria tacos with melted cheese and birria consomé at El Taco Chingón Fresno"
           fill
           className="object-cover opacity-20"
         />
@@ -567,7 +570,7 @@ function CTASection() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link href="/menu">
             <button className="btn-order text-lg py-4 px-10 flex items-center justify-center gap-3 animate-pulse-glow">
-              {tCommon('orderNow')}
+              {tCommon('startYourOrder')}
               <ArrowRight className="w-5 h-5" />
             </button>
           </Link>

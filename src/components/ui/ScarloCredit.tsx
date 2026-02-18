@@ -160,13 +160,13 @@ export function ScarloCredit() {
           <span className="sc-brand">
             <span className="sc-logo-animated">
               <span className="sc-ambient" />
-              <span className="sc-logo-stack" ref={logoStackRef}>
+              <span className="sc-logo-stack" ref={logoStackRef} aria-hidden="true">
                 {logoFrames}
               </span>
             </span>
             <span className="sc-text-animated">
               <span className="sc-ambient" />
-              <span className="sc-text-stack" ref={textStackRef}>
+              <span className="sc-text-stack" ref={textStackRef} aria-hidden="true">
                 {textFrames}
               </span>
             </span>
