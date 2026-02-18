@@ -32,12 +32,13 @@
   "home": {
     "heroTitle": "Tacos Callejeros Autenticos",
     "heroH1": "El Taco Chingón — Comida Mexicana Auténtica en Fresno",
-    "heroSubtitle": "Tortillas hechas a mano e ingredientes frescos con sabores mexicanos auténticos y audaces",
-    "heroTagline": "Tacos callejeros de verdad, hechos frescos diario — sin atajos.",
+    "heroH1Subtitle": "Comida callejera mexicana auténtica hecha fresca diario en Fresno, California",
+    "heroSubtitle": "Cada taco comienza con tortillas de maíz hechas a mano, cubiertas con los ingredientes más frescos y sabores mexicanos auténticos y audaces que puedes saborear en cada bocado",
+    "heroTagline": "Tacos callejeros de verdad, hechos frescos diario con recetas familiares — sin atajos, sin compromisos, solo comida honesta.",
     "featuredTitle": "Nuestros Platillos Destacados",
     "customerFavorites": "Favoritos de los Clientes",
     "aboutTitle": "Nuestra Historia",
-    "aboutText": "El Taco Chingon trae autentica comida callejera mexicana a Fresno. Cada taco esta hecho con amor, con tortillas hechas a mano y los ingredientes mas frescos. De nuestra familia a la tuya, servimos los sabores autenticos de Mexico.",
+    "aboutText": "El Taco Chingon trae los sabores auténticos de la comida callejera mexicana directamente a Fresno, California, donde cada taco se elabora cuidadosamente con amor y atención al detalle. Usamos tortillas de maíz hechas a mano y prensadas frescas diariamente, combinadas con los ingredientes más frescos disponibles. De nuestra familia a la tuya, estamos orgullosos de servir los sabores audaces, genuinos e inolvidables que representan el corazón y alma de la verdadera cocina callejera mexicana.",
     "ourStory": "Nuestra Historia",
     "madeFreshDaily": "Hecho Fresco Diario",
     "familyRecipes": "Recetas Familiares",
@@ -52,14 +53,14 @@
     "readReviewsYelp": "Ver Resenas en Yelp",
     "reviewOnGoogle": "Resenar en Google Maps",
     "readyToEat": "¿Listo para Ordenar?",
-    "ctaTagline": "Tacos callejeros de verdad con sabor real — ven a probar la diferencia."
+    "ctaTagline": "Tacos callejeros de verdad con sabor real, hechos desde cero cada día — ven a probar la diferencia por ti mismo."
   },
   "menu": {
     "pageTitle": "Nuestro Menu",
     "allCategories": "Todos",
     "filterBy": "Filtrar por categoria",
     "fresnosBestTacos": "Los Mejores Tacos de Fresno",
-    "menuDescription": "Desde tacos callejeros clasicos hasta nuestro Taco Chingon, cada platillo es hecho fresco con sabores autenticos.",
+    "menuDescription": "Desde tacos callejeros clásicos hasta nuestro Taco Chingon exclusivo, cada platillo de nuestro menú se prepara fresco al momento usando recetas auténticas y los ingredientes de la más alta calidad disponibles.",
     "orderForDelivery": "Tambien en Apps de Entrega",
     "orderDescription": "Ordena directamente con nosotros abajo para recoger, o usa estos servicios de entrega externos"
   },
@@ -172,7 +173,7 @@
     "hours": "Horario",
     "getDirections": "Obtener Direcciones",
     "findUs": "Encuentranos",
-    "locationDescription": "Visitanos para autentica comida callejera mexicana en Fresno. Estamos abiertos de martes a domingo por las noches.",
+    "locationDescription": "Visitanos para la experiencia más auténtica de comida callejera mexicana en Fresno, donde servimos tacos frescos, burritos, quesadillas y más cada martes a domingo por las noches desde nuestro camión de comida.",
     "callUs": "Llamanos",
     "monday": "Lunes",
     "tuesday": "Martes",

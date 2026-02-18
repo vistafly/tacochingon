@@ -330,67 +330,68 @@ function TestimonialsSection() {
           </div>
         </div>
 
-        {/* Mobile Carousel */}
-        <div className="md:hidden mb-6" aria-hidden="true">
-          <div className="relative">
-            <button
-              onClick={goToPrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
-              aria-label="Previous review"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={goToNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
-              aria-label="Next review"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            <div
-              className="overflow-hidden mx-10"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div
-                className="flex items-stretch transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        {/* Conditional rendering: carousel on mobile, grid on desktop — avoids DOM text duplication */}
+        {isMobile ? (
+          <div className="mb-6">
+            <div className="relative">
+              <button
+                onClick={goToPrev}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+                aria-label="Previous review"
               >
-                {testimonials.map((testimonial, index) => (
-                  <div key={index} className="w-full shrink-0 px-2 flex">
-                    <ReviewCard testimonial={testimonial} index={0} isVisible={isVisible} className="opacity-100! translate-y-0! w-full" />
-                  </div>
-                ))}
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={goToNext}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+                aria-label="Next review"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              <div
+                className="overflow-hidden mx-10"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div
+                  className="flex items-stretch transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {testimonials.map((testimonial, index) => (
+                    <div key={index} className="w-full shrink-0 px-2 flex">
+                      <ReviewCard testimonial={testimonial} index={0} isVisible={isVisible} className="opacity-100! translate-y-0! w-full" />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Dot indicators */}
-          <div className="flex justify-center gap-2 mt-4">
+            {/* Dot indicators */}
+            <div className="flex justify-center gap-2 mt-4">
+              {testimonials.map((testimonial, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === currentSlide
+                      ? `${ACCENT_STYLES[testimonial.accentColor].dot} w-6`
+                      : 'bg-gray-600 hover:bg-gray-500 w-2.5'
+                  }`}
+                  aria-label={`Go to review ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((testimonial, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide
-                    ? `${ACCENT_STYLES[testimonial.accentColor].dot} w-6`
-                    : 'bg-gray-600 hover:bg-gray-500 w-2.5'
-                }`}
-                aria-label={`Go to review ${index + 1}`}
-              />
+              <ReviewCard key={index} testimonial={testimonial} index={index} isVisible={isVisible} />
             ))}
           </div>
-        </div>
-
-        {/* Desktop Grid */}
-        <div className="hidden md:grid md:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, index) => (
-            <ReviewCard key={index} testimonial={testimonial} index={index} isVisible={isVisible} />
-          ))}
-        </div>
+        )}
       </div>
     </section>
   );

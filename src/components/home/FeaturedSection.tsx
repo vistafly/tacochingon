@@ -160,175 +160,161 @@ export function FeaturedSection() {
           </div>
         </div>
 
-        {/* Mobile Carousel */}
-        <div className="sm:hidden mb-12">
-          <div className="relative">
-            {/* Previous Arrow */}
-            <button
-              onClick={goToPrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
-              aria-label="Previous item"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {/* Next Arrow */}
-            <button
-              onClick={goToNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
-              aria-label="Next item"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-
-            <div
-              className="overflow-hidden mx-10"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        {/* Conditional rendering: carousel on mobile, grid on desktop — avoids DOM text duplication */}
+        {isMobile ? (
+          <div className="mb-12">
+            <div className="relative">
+              <button
+                onClick={goToPrev}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+                aria-label="Previous item"
               >
-                {featuredItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="w-full shrink-0 px-2"
-                  >
-                    <div className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden">
-                      {/* Image */}
-                      <div className="relative aspect-square overflow-hidden">
-                        {item.image && !item.image.includes('placeholder') ? (
-                          <Image
-                            src={item.image}
-                            alt={item.name[locale]}
-                            fill
-                            sizes="calc(100vw - 16px)"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                            <span className="text-4xl">🌮</span>
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={goToNext}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-negro/80 border border-gray-600 rounded-full flex items-center justify-center text-white hover:bg-amarillo hover:text-negro hover:border-amarillo transition-colors"
+                aria-label="Next item"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              <div
+                className="overflow-hidden mx-10"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {featuredItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="w-full shrink-0 px-2"
+                    >
+                      <div className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden">
+                        <div className="relative aspect-square overflow-hidden">
+                          {item.image && !item.image.includes('placeholder') ? (
+                            <Image
+                              src={item.image}
+                              alt={item.name[locale]}
+                              fill
+                              sizes="calc(100vw - 16px)"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                              <span className="text-4xl">🌮</span>
+                            </div>
+                          )}
+                          <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
+                            <span className="font-display text-xs flex items-center gap-1 uppercase">
+                              <Star className="w-3 h-3 fill-current" />
+                              {tCommon('featured')}
+                            </span>
                           </div>
-                        )}
-
-                        {/* Featured badge */}
-                        <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
-                          <span className="font-display text-xs flex items-center gap-1 uppercase">
-                            <Star className="w-3 h-3 fill-current" />
-                            {tCommon('featured')}
-                          </span>
                         </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-4">
-                        <span className="text-xs text-amarillo font-medium uppercase">
-                          {item.categoryId}
-                        </span>
-                        <p className="font-display text-lg text-white mt-1">
-                          {item.name[locale]}
-                        </p>
-                        <p className="text-sm text-gray-400 mt-1 line-clamp-2">
-                          {item.description[locale]}
-                        </p>
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="font-display text-xl text-amarillo">
-                            ${item.price.toFixed(2)}
+                        <div className="p-4">
+                          <span className="text-xs text-amarillo font-medium uppercase">
+                            {item.categoryId}
                           </span>
-                          <Link href="/menu">
-                            <button className="btn-order text-sm py-2 px-4">
-                              {tCommon('orderNow')}
-                            </button>
-                          </Link>
+                          <p className="font-display text-lg text-white mt-1">
+                            {item.name[locale]}
+                          </p>
+                          <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                            {item.description[locale]}
+                          </p>
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="font-display text-xl text-amarillo">
+                              ${item.price.toFixed(2)}
+                            </span>
+                            <Link href="/menu">
+                              <button className="btn-order text-sm py-2 px-4">
+                                {tCommon('order')}
+                              </button>
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-2 mt-4">
+                {featuredItems.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      index === currentSlide
+                        ? 'bg-amarillo w-6'
+                        : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
                 ))}
               </div>
             </div>
           </div>
-
-          {/* Dot indicators */}
-          <div className="flex justify-center gap-2 mt-4">
-            {featuredItems.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  index === currentSlide
-                    ? 'bg-amarillo w-6'
-                    : 'bg-gray-600 hover:bg-gray-500'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
+        ) : (
+          <div className="featured-grid grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {featuredItems.map((item) => (
+              <div
+                key={item.id}
+                className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden hover:border-amarillo transition-all duration-200"
+              >
+                <div className="relative aspect-square overflow-hidden">
+                  {item.image && !item.image.includes('placeholder') ? (
+                    <Image
+                      src={item.image}
+                      alt={item.name[locale]}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                      <span className="text-4xl">🌮</span>
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
+                    <span className="font-display text-xs flex items-center gap-1 uppercase">
+                      <Star className="w-3 h-3 fill-current" />
+                      {tCommon('featured')}
+                    </span>
+                  </div>
+                  <div className="absolute inset-0 bg-negro/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                    <Link href="/menu">
+                      <button className="btn-order text-sm py-2 px-6">
+                        {tCommon('orderNow')}
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <span className="text-xs text-amarillo font-medium uppercase">
+                    {item.categoryId}
+                  </span>
+                  <h3 className="font-display text-lg text-white mt-1 group-hover:text-amarillo transition-colors">
+                    {item.name[locale]}
+                  </h3>
+                  <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                    {item.description[locale]}
+                  </p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="font-display text-xl text-amarillo">
+                      ${item.price.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* Desktop Grid */}
-        <div className="featured-grid hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {featuredItems.map((item) => (
-            <div
-              key={item.id}
-              className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden hover:border-amarillo transition-all duration-200"
-            >
-              {/* Image */}
-              <div className="relative aspect-square overflow-hidden">
-                {item.image && !item.image.includes('placeholder') ? (
-                  <Image
-                    src={item.image}
-                    alt={item.name[locale]}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                    <span className="text-4xl">🌮</span>
-                  </div>
-                )}
-
-                {/* Featured badge */}
-                <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
-                  <span className="font-display text-xs flex items-center gap-1 uppercase">
-                    <Star className="w-3 h-3 fill-current" />
-                    {tCommon('featured')}
-                  </span>
-                </div>
-
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-negro/80 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                  <Link href="/menu">
-                    <button className="btn-order text-sm py-2 px-6">
-                      {tCommon('orderNow')}
-                    </button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4">
-                <span className="text-xs text-amarillo font-medium uppercase">
-                  {item.categoryId}
-                </span>
-                <h3 className="font-display text-lg text-white mt-1 group-hover:text-amarillo transition-colors">
-                  {item.name[locale]}
-                </h3>
-                <p className="text-sm text-gray-400 mt-1 line-clamp-2">
-                  {item.description[locale]}
-                </p>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="font-display text-xl text-amarillo">
-                    ${item.price.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        )}
 
         {/* View all button */}
         <div className="text-center">

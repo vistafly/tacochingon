@@ -366,15 +366,13 @@ export function HeroSection() {
             </div>
 
             <h1 className="hero-title mb-6 opacity-0 whitespace-nowrap lg:whitespace-normal" style={{ transform: 'translateY(40px)' }}>
-              <span className="sr-only">{t('heroH1')}</span>
-              <span aria-hidden="true">
-                <span className="font-display text-[clamp(4rem,15vw,7rem)] md:text-8xl lg:text-9xl text-white leading-none" style={{ textShadow: '0 0 0.03em rgba(255,255,255,0.5), 0 0 0.09em rgba(255,255,255,0.2), 0 0 0.27em rgba(255,255,255,0.08), 0.04em 0.03em 0.01em rgba(0,0,0,0.8), 0.08em 0.06em 0.04em rgba(0,0,0,0.55), 0.12em 0.09em 0.09em rgba(0,0,0,0.3), 0.19em 0.14em 0.23em rgba(0,0,0,0.15)' }}>
-                  EL TACO{' '}
-                </span>
-                <span className="font-display text-[clamp(4rem,15vw,7rem)] md:text-8xl lg:text-9xl text-amarillo leading-none lg:block" style={{ textShadow: '0.04em 0.03em 0 #E31C25, 0 0 0.03em rgba(255,230,100,0.9), 0 0 0.085em rgba(245,180,50,0.7), 0 0 0.2em rgba(240,130,30,0.45), 0 0 0.4em rgba(227,28,37,0.35), 0 0 0.6em rgba(227,28,37,0.15), 0.05em 0.04em 0.12em rgba(200,20,30,0.6), 0.08em 0.06em 0.015em rgba(0,0,0,0.8), 0.12em 0.09em 0.05em rgba(0,0,0,0.5), 0.17em 0.14em 0.12em rgba(0,0,0,0.28), 0.23em 0.19em 0.27em rgba(0,0,0,0.15)' }}>
-                  CHINGON
-                </span>
+              <span className="font-display text-[clamp(4rem,15vw,7rem)] md:text-8xl lg:text-9xl text-white leading-none" style={{ textShadow: '0 0 0.03em rgba(255,255,255,0.5), 0 0 0.09em rgba(255,255,255,0.2), 0 0 0.27em rgba(255,255,255,0.08), 0.04em 0.03em 0.01em rgba(0,0,0,0.8), 0.08em 0.06em 0.04em rgba(0,0,0,0.55), 0.12em 0.09em 0.09em rgba(0,0,0,0.3), 0.19em 0.14em 0.23em rgba(0,0,0,0.15)' }}>
+                EL TACO{' '}
               </span>
+              <span className="font-display text-[clamp(4rem,15vw,7rem)] md:text-8xl lg:text-9xl text-amarillo leading-none lg:block" style={{ textShadow: '0.04em 0.03em 0 #E31C25, 0 0 0.03em rgba(255,230,100,0.9), 0 0 0.085em rgba(245,180,50,0.7), 0 0 0.2em rgba(240,130,30,0.45), 0 0 0.4em rgba(227,28,37,0.35), 0 0 0.6em rgba(227,28,37,0.15), 0.05em 0.04em 0.12em rgba(200,20,30,0.6), 0.08em 0.06em 0.015em rgba(0,0,0,0.8), 0.12em 0.09em 0.05em rgba(0,0,0,0.5), 0.17em 0.14em 0.12em rgba(0,0,0,0.28), 0.23em 0.19em 0.27em rgba(0,0,0,0.15)' }}>
+                CHINGON
+              </span>
+              <span className="block text-base md:text-lg text-gray-300 font-sans font-normal mt-2 whitespace-normal tracking-normal">{t('heroH1Subtitle')}</span>
             </h1>
 
             <p className="hero-subtitle text-[clamp(0.85rem,3.5vw,1.5rem)] md:text-2xl text-gray-300 mb-6 opacity-0 lg:hidden" style={{ transform: 'translateY(30px)' }}>

@@ -127,7 +127,7 @@ export function ScarloCredit() {
       <img
         key={i}
         src={`/images/brand/morph/morph-logo${pad}.png`}
-        alt={i === 0 ? 'SCarlo' : ''}
+        alt="SCarlo"
         className={`sc-frame${i === 0 ? ' visible' : ''}`}
         loading="eager"
         draggable={false}
@@ -137,7 +137,7 @@ export function ScarloCredit() {
       <img
         key={i}
         src={`/images/brand/morph-text/morph-text${pad}.png`}
-        alt={i === 0 ? 'carlo' : ''}
+        alt="carlo"
         className={`sc-frame${i === 0 ? ' visible' : ''}`}
         loading="eager"
         draggable={false}

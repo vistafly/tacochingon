@@ -32,12 +32,13 @@
   "home": {
     "heroTitle": "Authentic Street Tacos",
     "heroH1": "El Taco Chingón — Authentic Mexican Street Food in Fresno",
-    "heroSubtitle": "Handmade tortillas and fresh ingredients with bold, authentic Mexican flavors",
-    "heroTagline": "Real street tacos made fresh daily — no shortcuts, no BS.",
+    "heroH1Subtitle": "Authentic Mexican street food made fresh daily in Fresno, California",
+    "heroSubtitle": "Every taco starts with handmade corn tortillas, topped with the freshest ingredients and bold, authentic Mexican flavors you can taste in every single bite",
+    "heroTagline": "Real street tacos made fresh daily from family recipes — no shortcuts, no compromises, just honest food.",
     "featuredTitle": "Our Featured Menu Items",
     "customerFavorites": "Customer Favorites",
     "aboutTitle": "Our Story",
-    "aboutText": "El Taco Chingon brings authentic Mexican street food to Fresno. Every taco is made with love, featuring hand-made tortillas and the freshest ingredients. From our family to yours, we serve up the bold, genuine flavors of Mexico.",
+    "aboutText": "El Taco Chingon brings the authentic flavors of Mexican street food straight to Fresno, California, where every taco is carefully crafted with love and attention to detail. We use hand-made corn tortillas pressed fresh daily, combined with the freshest ingredients sourced from local markets whenever possible. From our family to yours, we are proud to serve up the bold, genuine, and unforgettable flavors that represent the heart and soul of real Mexican street cuisine.",
     "ourStory": "Our Story",
     "madeFreshDaily": "Made Fresh Daily",
     "familyRecipes": "Family Recipes",
@@ -52,14 +53,14 @@
     "readReviewsYelp": "Read Reviews on Yelp",
     "reviewOnGoogle": "Review on Google Maps",
     "readyToEat": "Ready to Order?",
-    "ctaTagline": "Real street tacos with real flavor — come taste the difference."
+    "ctaTagline": "Real street tacos with real flavor, made from scratch every single day — come taste the difference for yourself."
   },
   "menu": {
     "pageTitle": "Our Menu",
     "allCategories": "All",
     "filterBy": "Filter by category",
     "fresnosBestTacos": "Fresno's Best Tacos",
-    "menuDescription": "From classic street tacos to our signature Taco Chingon, every dish is made fresh with authentic flavors.",
+    "menuDescription": "From classic street tacos to our signature Taco Chingon, every dish on our menu is made fresh to order using authentic recipes and the highest quality ingredients available.",
     "orderForDelivery": "Also Available on Delivery Apps",
     "orderDescription": "Order directly with us below for pickup, or use these external delivery services"
   },
@@ -172,7 +173,7 @@
     "hours": "Hours",
     "getDirections": "Get Directions",
     "findUs": "Find Us",
-    "locationDescription": "Visit us for authentic Mexican street food in Fresno. We're open Tuesday through Sunday evenings.",
+    "locationDescription": "Visit us for the most authentic Mexican street food experience in Fresno, where we serve fresh tacos, burritos, quesadillas, and more every Tuesday through Sunday evening from our food truck.",
     "callUs": "Call Us",
     "monday": "Monday",
     "tuesday": "Tuesday",
