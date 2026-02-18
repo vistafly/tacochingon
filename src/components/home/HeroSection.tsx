@@ -386,7 +386,7 @@ export function HeroSection() {
             <div className="hero-buttons flex flex-row gap-5 opacity-0" style={{ transform: 'translateY(20px)' }}>
               <Link href="/menu" className="cursor-pointer">
                 <button className="btn-order flex items-center justify-center gap-1.5 sm:gap-3 text-xs sm:text-base py-1.5 px-3 sm:py-3 sm:px-6 whitespace-nowrap cursor-pointer">
-                  {tCommon('browseOurMenu')}
+                  {tCommon('menu')}
                   <ArrowRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </button>
               </Link>
