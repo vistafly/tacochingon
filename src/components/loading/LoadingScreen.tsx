@@ -1,25 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import Image from 'next/image';
 
 export function LoadingScreen() {
-  const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Simulated progress stages
+  // Fade out after minimum display time
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setProgress(20), 200),
-      setTimeout(() => setProgress(40), 400),
-      setTimeout(() => setProgress(60), 600),
-      setTimeout(() => setProgress(80), 800),
-      setTimeout(() => setProgress(100), 1000),
-    ];
-
-    // Fade out after progress completes + minimum display time
     const fadeTimer = setTimeout(() => {
       if (containerRef.current) {
         gsap.to(containerRef.current, {
@@ -32,10 +22,7 @@ export function LoadingScreen() {
       }
     }, 1500);
 
-    return () => {
-      timers.forEach(clearTimeout);
-      clearTimeout(fadeTimer);
-    };
+    return () => clearTimeout(fadeTimer);
   }, []);
 
   // Body scroll lock
@@ -55,10 +42,10 @@ export function LoadingScreen() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-negro flex flex-col items-center justify-center"
+      className="fixed inset-0 z-100 bg-negro flex flex-col items-center justify-center"
     >
       {/* Mexican flag stripe - top */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-verde via-white to-rojo" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-verde via-white to-rojo" />
 
       {/* Content container */}
       <div className="flex flex-col items-center">
@@ -82,17 +69,20 @@ export function LoadingScreen() {
           Real street tacos.
         </p>
 
-        {/* Progress bar */}
-        <div className="w-64 md:w-72 h-1.5 bg-negro-light/50 rounded-full border border-gray-700 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-verde via-amarillo to-rojo rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          />
+        {/* Loading dots */}
+        <div className="flex gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-amarillo animate-[loading-dot_1.2s_ease-in-out_infinite]"
+              style={{ animationDelay: `${i * 0.2}s` }}
+            />
+          ))}
         </div>
       </div>
 
       {/* Mexican flag stripe - bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-verde via-white to-rojo" />
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-verde via-white to-rojo" />
     </div>
   );
 }

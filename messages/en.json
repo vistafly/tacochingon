@@ -14,7 +14,7 @@
     "order": "Order",
     "desde": "From",
     "browseOurMenu": "Browse Our Menu",
-    "seeFullMenu": "See the Full Menu",
+    "seeFullMenu": "See Full Menu",
     "startYourOrder": "Start Your Order"
   },
   "customization": {
@@ -31,10 +31,8 @@
   },
   "home": {
     "heroTitle": "Authentic Street Tacos",
-    "heroH1": "El Taco Chingón — Authentic Mexican Street Food in Fresno",
-    "heroH1Subtitle": "Authentic Mexican street food made fresh daily in Fresno, California",
-    "heroSubtitle": "Every taco starts with handmade corn tortillas, topped with the freshest ingredients and bold, authentic Mexican flavors you can taste in every single bite",
-    "heroTagline": "Real street tacos made fresh daily from family recipes — no shortcuts, no compromises, just honest food.",
+    "heroSubtitle": "Hand-made tortillas, fresh ingredients, bold flavors",
+    "heroTagline": "Real street tacos. No BS.",
     "featuredTitle": "Our Featured Menu Items",
     "customerFavorites": "Customer Favorites",
     "aboutTitle": "Our Story",
@@ -44,16 +42,16 @@
     "familyRecipes": "Family Recipes",
     "established": "EST. 2024",
     "locationTitle": "Find Us",
-    "locationHeading": "Visit Us in Fresno",
-    "reviews": "Customer Reviews",
-    "whatPeopleSay": "What Our Customers Are Saying",
+    "reviews": "Reviews",
+    "whatPeopleSay": "What People Say",
     "basedOnReviews": "Based on {count}+ reviews",
     "tapToReview": "Tap to leave a review",
     "hoverToReview": "Hover to leave a review",
     "readReviewsYelp": "Read Reviews on Yelp",
     "reviewOnGoogle": "Review on Google Maps",
     "readyToEat": "Ready to Order?",
-    "ctaTagline": "Real street tacos with real flavor, made from scratch every single day — come taste the difference for yourself."
+    "ctaTagline": "Real street tacos. Real flavor. No BS.",
+    "locationHeading": "Visit El Taco Chingon in Fresno"
   },
   "menu": {
     "pageTitle": "Our Menu",

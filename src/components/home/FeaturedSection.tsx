@@ -9,6 +9,7 @@ import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { mockMenuItems } from '@/data/mock-menu';
 import type { Locale } from '@/types';
+import { ImageLoadingDots } from '@/components/ui/ImageLoadingDots';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -197,7 +198,8 @@ export function FeaturedSection() {
                     >
                       <div className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden">
                         <div className="relative aspect-square overflow-hidden">
-                          {item.image && !item.image.includes('placeholder') ? (
+                          <ImageLoadingDots />
+                          {item.image && !item.image.includes('placeholder') && (
                             <Image
                               src={item.image}
                               alt={item.name[locale]}
@@ -205,10 +207,6 @@ export function FeaturedSection() {
                               sizes="calc(100vw - 16px)"
                               className="object-cover"
                             />
-                          ) : (
-                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                              <span className="text-4xl">🌮</span>
-                            </div>
                           )}
                           <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
                             <span className="font-display text-xs flex items-center gap-1 uppercase">
@@ -268,7 +266,8 @@ export function FeaturedSection() {
                 className="featured-card group bg-negro-light border-2 border-gray-700 rounded-lg overflow-hidden hover:border-amarillo transition-all duration-200"
               >
                 <div className="relative aspect-square overflow-hidden">
-                  {item.image && !item.image.includes('placeholder') ? (
+                  <ImageLoadingDots />
+                  {item.image && !item.image.includes('placeholder') && (
                     <Image
                       src={item.image}
                       alt={item.name[locale]}
@@ -276,10 +275,6 @@ export function FeaturedSection() {
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                  ) : (
-                    <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                      <span className="text-4xl">🌮</span>
-                    </div>
                   )}
                   <div className="absolute top-3 left-3 bg-amarillo text-negro px-3 py-1 rounded">
                     <span className="font-display text-xs flex items-center gap-1 uppercase">

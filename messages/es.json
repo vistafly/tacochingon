@@ -13,8 +13,8 @@
     "featured": "Destacado",
     "order": "Ordenar",
     "desde": "Desde",
-    "browseOurMenu": "Explorar Nuestro Menú",
-    "seeFullMenu": "Ver el Menú Completo",
+    "browseOurMenu": "Explorar Nuestro Menu",
+    "seeFullMenu": "Ver Menu Completo",
     "startYourOrder": "Comienza Tu Orden"
   },
   "customization": {
@@ -31,10 +31,8 @@
   },
   "home": {
     "heroTitle": "Tacos Callejeros Autenticos",
-    "heroH1": "El Taco Chingón — Comida Mexicana Auténtica en Fresno",
-    "heroH1Subtitle": "Comida callejera mexicana auténtica hecha fresca diario en Fresno, California",
-    "heroSubtitle": "Cada taco comienza con tortillas de maíz hechas a mano, cubiertas con los ingredientes más frescos y sabores mexicanos auténticos y audaces que puedes saborear en cada bocado",
-    "heroTagline": "Tacos callejeros de verdad, hechos frescos diario con recetas familiares — sin atajos, sin compromisos, solo comida honesta.",
+    "heroSubtitle": "Tortillas hechas a mano, ingredientes frescos, sabores intensos",
+    "heroTagline": "Tacos Callejeros De Verdad.",
     "featuredTitle": "Nuestros Platillos Destacados",
     "customerFavorites": "Favoritos de los Clientes",
     "aboutTitle": "Nuestra Historia",
@@ -44,16 +42,16 @@
     "familyRecipes": "Recetas Familiares",
     "established": "EST. 2024",
     "locationTitle": "Encuentranos",
-    "locationHeading": "Visítanos en Fresno",
-    "reviews": "Reseñas de Clientes",
-    "whatPeopleSay": "Lo Que Dicen Nuestros Clientes",
+    "reviews": "Resenas",
+    "whatPeopleSay": "Lo Que Dice la Gente",
     "basedOnReviews": "Basado en {count}+ resenas",
     "tapToReview": "Toca para dejar una resena",
     "hoverToReview": "Pasa el cursor para dejar una resena",
     "readReviewsYelp": "Ver Resenas en Yelp",
     "reviewOnGoogle": "Resenar en Google Maps",
     "readyToEat": "¿Listo para Ordenar?",
-    "ctaTagline": "Tacos callejeros de verdad con sabor real, hechos desde cero cada día — ven a probar la diferencia por ti mismo."
+    "ctaTagline": "Tacos callejeros de verdad. Sabor real. Sin rodeos.",
+    "locationHeading": "Visita El Taco Chingon en Fresno"
   },
   "menu": {
     "pageTitle": "Nuestro Menu",
@@ -187,7 +185,7 @@
   "footer": {
     "copyright": "El Taco Chingon. Todos los derechos reservados.",
     "tagline": "Autentica Comida Callejera Mexicana",
-    "quickLinks": "Enlaces Rápidos",
+    "quickLinks": "Enlaces Rapidos",
     "orderOnline": "Ordenar Externamente",
     "securePayments": "Pagos seguros aceptados"
   },

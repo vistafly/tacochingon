@@ -9,6 +9,7 @@ import { SelectedCustomization } from '@/types/cart';
 import { useCartStore } from '@/store/cart-store';
 import { formatPrice } from '@/lib/utils';
 import { ItemCustomizationModal } from './ItemCustomizationModal';
+import { ImageLoadingDots } from '@/components/ui/ImageLoadingDots';
 
 interface MenuItemProps {
   item: MenuItemType;
@@ -109,7 +110,8 @@ export function MenuItem({ item, forceModalOpen = false, onModalClose }: MenuIte
 
         {/* Image container */}
         <div className="relative aspect-square overflow-hidden bg-gray-800">
-          {item.image && !item.image.includes('placeholder') ? (
+          <ImageLoadingDots />
+          {item.image && !item.image.includes('placeholder') && (
             <Image
               src={item.image}
               alt={item.name[locale]}
@@ -117,10 +119,6 @@ export function MenuItem({ item, forceModalOpen = false, onModalClose }: MenuIte
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-5xl">🌮</span>
-            </div>
           )}
 
           {/* Unavailable overlay */}

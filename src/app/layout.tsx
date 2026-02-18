@@ -25,34 +25,6 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
   },
-  alternates: {
-    canonical: "https://www.eltacochingonfresno.com/en",
-    languages: {
-      en: "https://www.eltacochingonfresno.com/en",
-      es: "https://www.eltacochingonfresno.com/es",
-    },
-  },
-};
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Restaurant",
-  name: "El Taco Chingón",
-  image: "https://www.eltacochingonfresno.com/images/brand/logo.png",
-  "@id": "https://www.eltacochingonfresno.com",
-  url: "https://www.eltacochingonfresno.com",
-  telephone: "+15594177907",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "3649 N Blackstone Ave",
-    addressLocality: "Fresno",
-    addressRegion: "CA",
-    postalCode: "93726",
-    addressCountry: "US",
-  },
-  servesCuisine: "Mexican",
-  priceRange: "$",
-  menu: "https://www.eltacochingonfresno.com/en/menu",
 };
 
 export default function RootLayout({
@@ -68,10 +40,6 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Permanent+Marker&display=swap"
           rel="stylesheet"
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body className="min-h-screen flex flex-col bg-negro antialiased">

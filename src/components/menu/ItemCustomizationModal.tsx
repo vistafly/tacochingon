@@ -8,6 +8,7 @@ import { X, Plus, Minus, Check } from 'lucide-react';
 import { MenuItem as MenuItemType, ItemCustomization, type Locale } from '@/types';
 import { SelectedCustomization } from '@/types/cart';
 import { formatPrice } from '@/lib/utils';
+import { ImageLoadingDots } from '@/components/ui/ImageLoadingDots';
 
 interface ItemCustomizationModalProps {
   item: MenuItemType;
@@ -183,7 +184,8 @@ export function ItemCustomizationModal({
       <div className="relative bg-negro-light border border-gray-700 rounded-xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)]">
         {/* Header with image */}
         <div className="relative h-36 bg-gray-800 shrink-0">
-          {item.image && !item.image.includes('placeholder') ? (
+          <ImageLoadingDots />
+          {item.image && !item.image.includes('placeholder') && (
             <Image
               src={item.image}
               alt={item.name[locale]}
@@ -191,10 +193,6 @@ export function ItemCustomizationModal({
               className="object-cover"
               sizes="(max-width: 512px) 100vw, 512px"
             />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-6xl">🌮</span>
-            </div>
           )}
           <div className="absolute inset-0 bg-linear-to-t from-negro-light to-transparent" />
 

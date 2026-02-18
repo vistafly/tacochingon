@@ -8,6 +8,7 @@ import { CartItem as CartItemType, type Locale } from '@/types';
 import { SelectedCustomization } from '@/types/cart';
 import { useCartStore } from '@/store/cart-store';
 import { formatPrice } from '@/lib/utils';
+import { ImageLoadingDots } from '@/components/ui/ImageLoadingDots';
 
 interface CartItemProps {
   cartItem: CartItemType;
@@ -178,7 +179,8 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
 
         {/* Image */}
         <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-800 shadow-md">
-          {item.image && !imgError ? (
+          <ImageLoadingDots />
+          {item.image && !imgError && (
             <Image
               src={item.image}
               alt={item.name[locale]}
@@ -187,10 +189,6 @@ export function CartItem({ cartItem, showNotesEditor = false }: CartItemProps) {
               sizes="64px"
               onError={() => setImgError(true)}
             />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl">🌮</span>
-            </div>
           )}
         </div>
 

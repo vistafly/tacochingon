@@ -423,6 +423,11 @@ html {
   animation: logo-glow 2s ease-in-out infinite;
 }
 
+@keyframes loading-dot {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.4); }
+}
+
 /* ===== INNER LOADER ANIMATIONS ===== */
 
 @keyframes inner-glow {

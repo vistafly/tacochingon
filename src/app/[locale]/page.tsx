@@ -32,7 +32,7 @@ const TESTIMONIALS = [
     source: 'Yelp',
     accentColor: 'verde' as const,
     image: '/images/menu/tacos.jpg',
-    imageAlt: 'Fresh carne asada street tacos with cilantro and lime from El Taco Chingón Fresno',
+    imageAlt: 'Fresh carne asada street tacos with cilantro and lime from El Taco Chingon Fresno',
   },
   {
     name: 'Cecilia S.',
@@ -42,7 +42,7 @@ const TESTIMONIALS = [
     source: 'Yelp',
     accentColor: 'amarillo' as const,
     image: '/images/menu/quesabirria.jpg',
-    imageAlt: 'Crispy quesabirria tacos with melted cheese and consomé at El Taco Chingón',
+    imageAlt: 'Crispy quesabirria tacos with melted cheese and birria consomé at El Taco Chingon',
   },
   {
     name: "Andre' J S.",
@@ -52,7 +52,7 @@ const TESTIMONIALS = [
     source: 'Yelp',
     accentColor: 'rojo' as const,
     image: '/images/menu/adobada.png',
-    imageAlt: 'Adobada loaded fries topped with seasoned pork and fresh salsa at El Taco Chingón',
+    imageAlt: 'Adobada loaded fries topped with seasoned pork and fresh salsa at El Taco Chingon',
   },
 ];
 
@@ -77,7 +77,7 @@ function ReviewCard({ testimonial, index, isVisible, className = '' }: { testimo
       <div className="relative h-44 overflow-hidden shrink-0">
         <Image
           src={testimonial.image}
-          alt={testimonial.imageAlt || 'Authentic Mexican food from El Taco Chingón Fresno'}
+          alt={testimonial.imageAlt || 'Authentic Mexican food from El Taco Chingon Fresno'}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -542,7 +542,7 @@ function CTASection() {
       <div className="absolute inset-0">
         <Image
           src="/images/menu/quesabirria.jpg"
-          alt="Quesabirria tacos with melted cheese and birria consomé at El Taco Chingón Fresno"
+          alt="Quesabirria tacos with melted cheese and birria consomé at El Taco Chingon Fresno"
           fill
           className="object-cover opacity-20"
         />
