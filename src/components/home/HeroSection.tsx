@@ -306,7 +306,7 @@ export function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[90vh] bg-negro overflow-hidden cursor-none"
+      className="relative min-h-[90vh] bg-negro overflow-x-clip cursor-none flex flex-col"
       onMouseMove={(e) => {
         const rect = heroRef.current?.getBoundingClientRect();
         if (!rect || !smokeRef.current) return;
@@ -347,8 +347,8 @@ export function HeroSection() {
       />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 flex-1 flex items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
           {/* Left side - Text */}
           <div>
             <div className="hero-badge flex items-center justify-center sm:justify-start gap-2 sm:gap-3 mb-6 opacity-0" style={{ transform: 'translateY(20px)' }}>
@@ -509,8 +509,8 @@ export function HeroSection() {
       </div>
 
       {/* Bottom wave */}
-      <div className="absolute bottom-0 left-0 right-0 z-1">
-        <svg viewBox="0 0 1440 50" fill="none" className="w-full" preserveAspectRatio="none">
+      <div className="absolute -bottom-px left-0 right-0 z-1">
+        <svg viewBox="0 0 1440 50" fill="none" className="w-full block" preserveAspectRatio="none">
           <path
             d="M0 50V35C240 12 480 0 720 0C960 0 1200 12 1440 35V50H0Z"
             fill="#1A1A1A"
